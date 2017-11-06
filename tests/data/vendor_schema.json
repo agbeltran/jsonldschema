@@ -1,4 +1,5 @@
-{ "id" : "http://fairsharing.github.io/MIRcat/miaca/vendor_schema.json",
+{
+  "id" : "http://fairsharing.github.io/MIRcat/miaca/vendor_schema.json",
   "$schema": "http://json-schema.org/draft-04/schema",
   "title": "MIACA vendor type schema",
   "description": "Details to the vendor or manufacturer",
