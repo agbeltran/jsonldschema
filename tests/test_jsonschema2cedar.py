@@ -14,3 +14,9 @@ class TestJSONschema2cedar(unittest.TestCase):
         print(vendor_cedar_schema)
         ###validate the CEDAR schema
 
+    def test_convert_sample(self):
+        sample_schema = os.path.join(self._data_dir, "sample_schema.json")
+        sample_cedar_schema = cedar.jsonschema2cedar.convert_template_element(sample_schema)
+        print(sample_cedar_schema)
+        ###validate the CEDAR schema
+
