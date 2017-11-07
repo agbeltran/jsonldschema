@@ -21,5 +21,6 @@
             "description": "LotNo ",
             "type" : "string"
        }
-   }
+   },
+  "additionalProperties": "false"
 }
