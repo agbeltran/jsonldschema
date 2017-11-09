@@ -13,8 +13,9 @@ class CEDARClientTestCase(unittest.TestCase):
     def test_get_users(self):
         self.client.get_users()
 
-    def test_validate_template(self):
+    def test_validate_element(self):
         sample_cedar_schema = os.path.join(self._data_dir, "sample_cedar_schema.json")
-        api_key_file = os.path.join(self._data_dir, "agb.apikey")
-        api_key = str = open(api_key_file, 'r').read()
-        self.client.validate_template("staging", api_key, sample_cedar_schema)
+        api_key_file = os.path.join(self._data_dir, "agb_production.apikey")
+        with open(api_key_file, 'r') as f:
+            api_key = f.read()
+        self.client.validate_element("production", api_key, sample_cedar_schema)

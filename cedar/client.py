@@ -2,7 +2,7 @@ import requests
 import json
 
 STAGING_RESOURCE_API_ENDPOINT = "https://resource.staging.metadatacenter.org"
-RESOURCE_API_ENDPOINT = "https://resource.metadatacenter.org/"
+RESOURCE_API_ENDPOINT = "https://resource.metadatacenter.org"
 TERMINOLOGY_API_ENDPOINT = "http://terminology.metadatacenter.org"
 VALUE_RECOMMENDER_ENDPOINT = " http://valuerecommender.metadatacenter.org"
 
@@ -26,10 +26,11 @@ class CEDARClient():
 
     def validate_resource(self, api_key, request_url, resource):
         headers = {
-            'authorization': "apiKey " + api_key,
-            'cache-control': "no-cache",
+            "Content-Type": "application/json",
+            "Authorization": "apiKey "+ api_key,
+            "Cache-Control": "no-cache"
         }
-        response = requests.request("POST", request_url, headers=headers, data=json.dumps(resource), verify=False)
+        response = requests.request("POST", request_url, headers=headers, data=json.dumps(resource), verify=True)
         if response.status_code == requests.codes.ok:
             message = json.loads(response.text)
             print(message)
@@ -39,6 +40,10 @@ class CEDARClient():
     def validate_template(self, server_alias, api_key, template):
         request_url = self.selectEndpoint(server_alias) + "/command/validate?resource_type=template"
         return self.validate_resource(api_key, request_url, template)
+
+    def validate_element(self, server_alias, api_key, element):
+        request_url = self.selectEndpoint(server_alias) + "/command/validate?resource_type=element"
+        return self.validate_resource(api_key, request_url, element)
 
 
 
