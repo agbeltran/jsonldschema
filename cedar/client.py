@@ -45,6 +45,10 @@ class CEDARClient():
         request_url = self.selectEndpoint(server_alias) + "/command/validate?resource_type=element"
         return self.validate_resource(api_key, request_url, element)
 
+    def validate_instance(self, server_address, api_key, instance):
+        request_url = server_address + "/command/validate?resource_type=instance"
+        return self.validate_resource(api_key, request_url, instance)
+
 
 
 def paging(url, params, data, method):
