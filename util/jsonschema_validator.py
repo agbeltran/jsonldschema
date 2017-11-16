@@ -9,12 +9,17 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def validate_schema_file(schema_file):
+    Draft4Validator.check_schema(schema_file)
+    return True
+
+
 def validate_schema(path, schema_file_name):
     try:
         logger.info("Validating schema %s", schema_file_name)
         with open(join(path, schema_file_name)) as schema_file:
-            schema = json.load(schema_file)
-            Draft4Validator.check_schema(schema)
+            schema_file = json.load(schema_file)
+            Draft4Validator.check_schema(schema_file)
             return True
     except Exception as e:
         logger.error(e)
