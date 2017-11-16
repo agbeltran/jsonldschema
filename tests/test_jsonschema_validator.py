@@ -9,9 +9,7 @@ class TestJSONschemaValidator(unittest.TestCase):
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
 
     def test_convert_vendor(self):
-        vendor_schema = os.path.join(self._data_dir, "vendor_schema.json")
-        self.assertTrue(util.jsonschema_validator.validate_schema_file(vendor_schema))
+        self.assertTrue(util.jsonschema_validator.validate_schema(self._data_dir, "vendor_cedar_schema.json"))
 
     def test_convert_sample(self):
-        sample_schema = os.path.join(self._data_dir, "sample_schema.json")
-        self.assertTrue(util.jsonschema_validator.validate_schema_file(sample_schema))
+        self.assertTrue(util.jsonschema_validator.validate_schema(self._data_dir, "sample_cedar_schema.json"))
