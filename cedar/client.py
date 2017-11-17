@@ -10,30 +10,33 @@ class CEDARClient():
     def __init__(self):
         pass
 
+    def get_headers(self, api_key):
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "apiKey " + api_key,
+            "Cache-Control": "no-cache"
+        }
+        return headers
+
+
     def selectEndpoint(self, type):
         if type == "staging":
             return STAGING_RESOURCE_API_ENDPOINT
         elif type == "production":
             return RESOURCE_API_ENDPOINT
 
-    def get_users(self, api_key):
-        headers = {
-            'authorization': "apiKey "+api_key,
-            'cache-control': "no-cache",
-        }
-        response = requests.request("GET", RESOURCE_API_ENDPOINT+"users", headers=headers)
-        print(response.text)
+    def get_users(self, endpoint_type, api_key):
+        headers = self.get_headers(api_key)
+        endpoint = self.selectEndpoint(endpoint_type)
+        response = requests.request("GET", endpoint+"/users", headers=headers)
+        return response
 
     def validate_resource(self, api_key, request_url, resource):
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": "apiKey "+ api_key,
-            "Cache-Control": "no-cache"
-        }
+        headers = self.get_headers(api_key)
         response = requests.request("POST", request_url, headers=headers, data=json.dumps(resource), verify=True)
         if response.status_code == requests.codes.ok:
             message = json.loads(response.text)
-            print(message)
+            return message
         else:
             response.raise_for_status()
 
