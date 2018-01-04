@@ -10,7 +10,6 @@ class CEDARClientTestCase(unittest.TestCase):
         self.client = cedar.client.CEDARClient()
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
 
-
     def test_get_users(self):
         api_key_file = os.path.join(self._data_dir, "agb_production.apikey")
         with open(api_key_file, 'r') as f:
@@ -27,50 +26,27 @@ class CEDARClientTestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
         self.assertTrue(response.text != None)
 
-
-    def test_validate_element_sample(self):
-        sample_cedar_schema_path = os.path.join(self._data_dir, "sample_cedar_schema.json")
-        api_key_file_path = os.path.join(self._data_dir, "agb_production.apikey")
+    def test_validate_element(self, cedar_schema_json_filename, endpoint, endpoint_key_filename):
+        cedar_schema_path = os.path.join(self._data_dir, cedar_schema_json_filename)
+        api_key_file_path = os.path.join(self._data_dir, endpoint_key_filename)
         with open(api_key_file_path, 'r') as f:
             api_key = f.read()
-        sample_cedar_schema_file = open(sample_cedar_schema_path, 'rb')
-        sample_cedar_schema = json.load(sample_cedar_schema_file)
-        response = self.client.validate_element("production", api_key, sample_cedar_schema)
-        sample_cedar_schema_file.close()
-        print(response)
+        cedar_schema_file = open(cedar_schema_path, 'rb')
+        cedar_schema = json.load(cedar_schema_file)
+        response = self.client.validate_element(endpoint, api_key, cedar_schema)
+        cedar_schema_file.close()
         self.assertTrue(response["validates"] == "true")
         self.assertTrue(response["warnings"] == [])
         self.assertTrue(response["errors"] == [])
+
+    def test_validate_element_sample(self):
+        self.test_validate_element("sample_cedar_schema.json", "production", "agb_production.apikey")
 
     def test_validate_element_sample_staging(self):
-        sample_cedar_schema_path = os.path.join(self._data_dir, "sample_cedar_schema.json")
-        api_key_file = os.path.join(self._data_dir, "agb_staging.apikey")
-        with open(api_key_file, 'r') as f:
-            api_key = f.read()
-        sample_cedar_schema_file = open(sample_cedar_schema_path, 'rb')
-        sample_cedar_schema = json.load(sample_cedar_schema_file)
-        response = self.client.validate_element("staging", api_key, sample_cedar_schema)
-        sample_cedar_schema_file.close()
-        self.assertTrue( response["validates"] == "true")
-        self.assertTrue(response["warnings"] == [])
-        self.assertTrue(response["errors"] == [])
+        self.test_validate_element("sample_cedar_schema.json", "staging", "agb_staging.apikey")
 
     def test_validate_element_vendor(self):
-        sample_cedar_schema = os.path.join(self._data_dir, "vendor_cedar_schema.json")
-        api_key_file = os.path.join(self._data_dir, "agb_production.apikey")
-        with open(api_key_file, 'r') as f:
-            api_key = f.read()
-        response = self.client.validate_element("production", api_key, sample_cedar_schema)
-        print(response)
-        self.assertTrue(response["validates"] == "true")
-        self.assertTrue(response["warnings"] == [])
-        self.assertTrue(response["errors"] == [])
+        self.test_validate_element("vendor_cedar_schema.json", "production", "agb_production.apikey")
 
     def test_validate_element_vendor_staging(self):
-        sample_cedar_schema = os.path.join(self._data_dir, "vendor_cedar_schema.json")
-        api_key_file = os.path.join(self._data_dir, "agb_staging.apikey")
-        with open(api_key_file, 'r') as f:
-            api_key = f.read()
-        response = self.client.validate_element("staging", api_key, sample_cedar_schema)
-        print(response)
-        self.assertTrue(response["validates"] == "true")
+        self.test_validate_element("vendor_cedar_schema.json", "staging", "agb_staging.apikey")
