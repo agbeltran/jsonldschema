@@ -5,7 +5,6 @@ import json
 
 class CEDARClientTestCase(unittest.TestCase):
 
-
     def setUp(self):
         self.client = cedar.client.CEDARClient()
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
@@ -26,7 +25,10 @@ class CEDARClientTestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
         self.assertTrue(response.text != None)
 
-    def test_validate_element(self, cedar_schema_json_filename, endpoint, endpoint_key_filename):
+    """
+    Common method for the tests validating the elements
+    """
+    def validate_element(self, cedar_schema_json_filename, endpoint, endpoint_key_filename):
         cedar_schema_path = os.path.join(self._data_dir, cedar_schema_json_filename)
         api_key_file_path = os.path.join(self._data_dir, endpoint_key_filename)
         with open(api_key_file_path, 'r') as f:
@@ -40,13 +42,13 @@ class CEDARClientTestCase(unittest.TestCase):
         self.assertTrue(response["errors"] == [])
 
     def test_validate_element_sample(self):
-        self.test_validate_element("sample_cedar_schema.json", "production", "agb_production.apikey")
+        self.validate_element("sample_cedar_schema.json", "production", "agb_production.apikey")
 
     def test_validate_element_sample_staging(self):
-        self.test_validate_element("sample_cedar_schema.json", "staging", "agb_staging.apikey")
+        self.validate_element("sample_cedar_schema.json", "staging", "agb_staging.apikey")
 
     def test_validate_element_vendor(self):
-        self.test_validate_element("vendor_cedar_schema.json", "production", "agb_production.apikey")
+        self.validate_element("vendor_cedar_schema.json", "production", "agb_production.apikey")
 
     def test_validate_element_vendor_staging(self):
-        self.test_validate_element("vendor_cedar_schema.json", "staging", "agb_staging.apikey")
+        self.validate_element("vendor_cedar_schema.json", "staging", "agb_staging.apikey")
