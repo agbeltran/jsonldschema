@@ -6,6 +6,8 @@ from jinja2 import Template, Environment
 
 CEDAR_TEMPLATE_ELEMENT_TYPE = "https://schema.metadatacenter.org/core/TemplateElement"
 
+IGNORE_KEYS = [ "@id", "pav:createdOn"]
+
 
 ##TODO add required properties from the schema
 ##TODO extract the schema:name from the "id" property
