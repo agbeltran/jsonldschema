@@ -108,7 +108,7 @@
         "inputType": "textfield"
       },
       "_valueConstraints": {
-        "requiredValue": false,
+        "requiredValue": true,
         "defaultValue": "sample1"
       },
       "properties": {
@@ -147,9 +147,9 @@
       ],
       "schema:name": "name",
       "schema:description": "the name of the sample",
-      "pav:createdOn": "2018-01-10T03:20:31-0800",
+      "pav:createdOn": "2018-01-10T03:23:51-0800",
       "pav:createdBy": "https://metadatacenter.org/users/ae6bc5e2-8afd-4558-a9ae-ea694c3e4bea",
-      "pav:lastUpdatedOn": "2018-01-10T03:20:31-0800",
+      "pav:lastUpdatedOn": "2018-01-10T03:23:51-0800",
       "oslc:modifiedBy": "https://metadatacenter.org/users/ae6bc5e2-8afd-4558-a9ae-ea694c3e4bea",
       "schema:schemaVersion": "1.3.0",
       "additionalProperties": false,
@@ -166,7 +166,7 @@
   ],
   "pav:createdOn": "2017-11-07T04:27:27-0800",
   "pav:createdBy": "https://metadatacenter.org/users/ae6bc5e2-8afd-4558-a9ae-ea694c3e4bea",
-  "pav:lastUpdatedOn": "2018-01-10T03:20:31-0800",
+  "pav:lastUpdatedOn": "2018-01-10T03:23:51-0800",
   "oslc:modifiedBy": "https://metadatacenter.org/users/ae6bc5e2-8afd-4558-a9ae-ea694c3e4bea",
   "schema:schemaVersion": "1.3.0",
   "additionalProperties": false,
