@@ -3,6 +3,7 @@ import unittest
 from cedar.jsonschema2cedar import *
 import cedar.client
 import json
+import util.jsonschema_validator
 
 
 class TestJSONschema2cedar(unittest.TestCase):
@@ -27,6 +28,10 @@ class TestJSONschema2cedar(unittest.TestCase):
         full_schema_filename = os.path.join(self._data_dir, schema_filename)
         output_schema = cedar.jsonschema2cedar.convert_template_element(full_schema_filename)
         output_schema_json = json.loads(output_schema)
+
+        ##validate json_schema
+        self.assertTrue(util.jsonschema_validator.validate_schema_file(output_schema_json))
+
         cedar_schema_file = open(os.path.join(self._data_dir, cedar_schema_filename), "rb")
         cedar_schema_json = json.load(cedar_schema_file)
         comparison = diff_dicts(output_schema_json, cedar_schema_json, cedar.jsonschema2cedar.IGNORE_KEYS)
@@ -47,5 +52,5 @@ class TestJSONschema2cedar(unittest.TestCase):
     def test_convert_sample(self):
         self.convert("sample_schema.json", 'sample_cedar_schema.json', 'sample_cedar_schema_out.json')
 
-    def test_convert_sample(self):
+    def test_convert_sample_required_name(self):
         self.convert("sample_schema_required_name.json", 'sample_cedar_schema_required_name.json', 'sample_cedar_schema_required_name_out.json')

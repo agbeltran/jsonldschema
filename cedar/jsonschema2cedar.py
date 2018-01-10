@@ -63,7 +63,8 @@ cedar_tmpl_element = Template('''
     "@context",
     "@id"
   ],
-  "properties": {
+  {% set requiredList = required %}
+  "properties": { 
   {% for item in properties %}
   
   "{{ item }}": {
@@ -99,8 +100,8 @@ cedar_tmpl_element = Template('''
           ]
         }
       },
-      "schema:description": "{{ item }}",
-      "additionalProperties": "false",
+      "schema:description": "{{ item }}",  
+      "additionalProperties": false,
       "oslc:modifiedBy": "{{ MIRCAT2CEDAR }}",
       "pav:createdOn": "{{ DATE }}",
       "_ui": {
@@ -113,7 +114,8 @@ cedar_tmpl_element = Template('''
       ],
       "@type": "https://schema.metadatacenter.org/core/TemplateField",
       "_valueConstraints": {
-        "requiredValue": false
+        "requiredValue":{% if (requiredList is defined) and (item in requiredList) %} true, {% else %} false, {% endif%}
+        "defaultValue": "{{title|lower}}1"
       },
       "pav:createdBy": "{{ MIRCAT }}",
       "schema:name": "{{ item }}",
@@ -148,11 +150,12 @@ cedar_tmpl_element = Template('''
     }{% if not loop.last %},{% endif %}
   {% endfor %}
   },
- "additionalProperties": {% if additionalProperties %} "{{ additionalProperties }}" {% else %} "true" {% endif%} 
+ "additionalProperties": {% if additionalProperties %} {{ additionalProperties }} {% else %} true {% endif%} 
 }
 ''')
 
-
+logger = logging.getLogger('jsonschema2cedar')
+logger.setLevel(logging.DEBUG)
 
 def convert_template_element(jsonschema_filename):
     try:
@@ -162,7 +165,7 @@ def convert_template_element(jsonschema_filename):
                                                      CEDAR_TEMPLATE_ELEMENT_TYPE= CEDAR_TEMPLATE_ELEMENT_TYPE,
                                                      DATE= datetime.datetime.isoformat(datetime.datetime.now()),
                                                      MIRCAT2CEDAR = "mircat2cedar tool, part of ISA-tools ")
-            print(cedar_schema)
+            logger.debug(cedar_schema)
             return cedar_schema
 
     except IOError:

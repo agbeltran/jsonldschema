@@ -1,7 +1,7 @@
 {
   "id" : "http://fairsharing.github.io/MIRcat/sample_schema.json",
   "$schema": "http://json-schema.org/draft-04/schema",
-  "title": "Sample schema",
+  "title": "Sample",
   "description": "Sample Template Element",
   "type": "object",
   "properties": {
