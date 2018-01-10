@@ -29,7 +29,7 @@ class TestJSONschema2cedar(unittest.TestCase):
         output_schema_json = json.loads(output_schema)
         cedar_schema_file = open(os.path.join(self._data_dir, cedar_schema_filename), "rb")
         cedar_schema_json = json.load(cedar_schema_file)
-        comparison = equal_dicts(output_schema_json, cedar_schema_json, cedar.jsonschema2cedar.IGNORE_KEYS)
+        comparison = diff_dicts(output_schema_json, cedar_schema_json, cedar.jsonschema2cedar.IGNORE_KEYS)
         print(comparison)
 
         ### save converted file
@@ -46,3 +46,6 @@ class TestJSONschema2cedar(unittest.TestCase):
 
     def test_convert_sample(self):
         self.convert("sample_schema.json", 'sample_cedar_schema.json', 'sample_cedar_schema_out.json')
+
+    def test_convert_sample(self):
+        self.convert("sample_schema_required_name.json", 'sample_cedar_schema_required_name.json', 'sample_cedar_schema_required_name_out.json')
