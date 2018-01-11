@@ -25,7 +25,7 @@ def validate_schema(path, schema_file_name):
         logger.info("Validating schema %s", schema_file_name)
         with open(join(path, schema_file_name)) as schema_file:
             schema_file = json.load(schema_file)
-            validate_schema(schema_file)
+            return validate_schema_file(schema_file)
     except Exception as e:
         logger.error(e)
         logger.info("done.")
