@@ -28,3 +28,7 @@ class TestJSONschemaValidator(unittest.TestCase):
 
     def test_vendor(self):
         self.assertTrue(util.jsonschema_validator.validate_schema(self._data_dir, "vendor_schema.json"))
+
+    def test_sample_instance(self):
+        errors = util.jsonschema_validator.validate_instance(self._data_dir, "sample_schema.json", self._data_dir, "sample_data.json", 1, {})
+        self.assertTrue(errors.__len__()==0)

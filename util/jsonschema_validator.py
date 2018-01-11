@@ -38,7 +38,8 @@ def validate_instance(schemapath, schemafile, instancepath, instancefile, error_
         instancefile_fullpath = os.path.join(instancepath, instancefile)
         instance = json.load(open(instancefile_fullpath))
         schemafile_fullpath = os.path.join(schemapath, schemafile)
-        schema = json.load(open(schemafile_fullpath))
+        schema_file = open(schemafile_fullpath)
+        schema = json.load(schema_file)
         resolver = RefResolver('file://' + schemapath + '/' + schemafile, schema, store)
         validator = Draft4Validator(schema, resolver=resolver)
         logger.info("Validating instance %s against schema %s", instancefile_fullpath, schemafile_fullpath)
@@ -54,3 +55,5 @@ def validate_instance(schemapath, schemafile, instancepath, instancefile, error_
                 print(list(suberror.schema_path), suberror.message, sep=", ")
         else:
             validator.validate(instance, schema)
+        schema_file.close()
+        return errors

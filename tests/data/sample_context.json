@@ -1,0 +1,10 @@
+{
+  "@context": {
+    "sdo": "https://schema.org/",
+    "obo": "http://purl.obolibrary.org/obo/",
+    "name": {
+      "@id": "sdo:name",
+      "@type": "sdo:Text"
+    }
+  }
+}
