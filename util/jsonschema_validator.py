@@ -9,18 +9,31 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+"""
+Validate a JSON schema given the schema file.
+"""
+def validate_schema_file(schema_file):
+    Draft4Validator.check_schema(schema_file)
+    return True
+
+"""
+Validate a JSON schema given the folder/path and file name of the schema file.
+"""
 def validate_schema(path, schema_file_name):
     try:
         logger.info("Validating schema %s", schema_file_name)
         with open(join(path, schema_file_name)) as schema_file:
             schema_file = json.load(schema_file)
-            Draft4Validator.check_schema(schema_file)
-            return True
+            validate_schema(schema_file)
     except Exception as e:
         logger.error(e)
         logger.info("done.")
         return False
 
+"""
+Validate a JSON instance againsts a JSON schema.
+"""
 def validate_instance(schemapath, schemafile, instancepath, instancefile, error_printing, store):
         instancefile_fullpath = os.path.join(instancepath, instancefile)
         instance = json.load(open(instancefile_fullpath))
