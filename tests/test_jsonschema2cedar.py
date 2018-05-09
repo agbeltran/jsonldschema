@@ -4,6 +4,7 @@ from cedar.jsonschema2cedar import *
 import cedar.client
 import json
 import validate.jsonschema_validator
+import diff.jsonschema_diff
 
 
 class TestJSONschema2cedar(unittest.TestCase):
@@ -28,6 +29,12 @@ class TestJSONschema2cedar(unittest.TestCase):
     def convert(self, schema_filename, cedar_schema_filename, conversion_output_filename):
         full_schema_filename = os.path.join(self._data_dir, schema_filename)
         output_schema = cedar.jsonschema2cedar.convert_template_element(full_schema_filename)
+
+        print("*************** OUTPUT")
+        print(output_schema)
+        print("*************** END OUTPUT")
+
+
         output_schema_json = json.loads(output_schema)
 
         ##validate json_schema
@@ -36,10 +43,12 @@ class TestJSONschema2cedar(unittest.TestCase):
         cedar_schema_file = open(os.path.join(self._data_dir, cedar_schema_filename), "rb")
         cedar_schema_json = json.load(cedar_schema_file)
         cedar_schema_file.close()
-        comparison = diff_dicts(output_schema_json, cedar_schema_json, cedar.jsonschema2cedar.IGNORE_KEYS)
+        comparison = diff.jsonschema_diff.diff_dicts(output_schema_json, cedar_schema_json, cedar.jsonschema2cedar.IGNORE_KEYS)
+        print("*************** COMPARISON")
         print(comparison)
+        print("*************** END COMPARISON")
 
-        ### save converted file
+        ### save the converted file
         outfile = open(os.path.join(self._data_dir, conversion_output_filename), "w")
         json_pretty_dump(output_schema_json, outfile)
         outfile.close()
@@ -47,6 +56,9 @@ class TestJSONschema2cedar(unittest.TestCase):
         print("***************")
         print(output_schema)
         print("***************")
+
+        ### compare the files
+
 
         ### validate converted file
         self.validate_converted_file(output_schema, "production", "agb_production.apiKey")
