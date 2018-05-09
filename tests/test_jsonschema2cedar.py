@@ -3,7 +3,7 @@ import unittest
 from cedar.jsonschema2cedar import *
 import cedar.client
 import json
-import util.jsonschema_validator
+import validate.jsonschema_validator
 
 
 class TestJSONschema2cedar(unittest.TestCase):
@@ -19,6 +19,7 @@ class TestJSONschema2cedar(unittest.TestCase):
             api_key = f.read()
         response = self.client.validate_element(endpoint, api_key, cedar_schema)
         print(response)
+        f.close()
         self.assertTrue(response["validates"] == "true")
         self.assertTrue(response["warnings"] == [])
         self.assertTrue(response["errors"] == [])
@@ -30,21 +31,26 @@ class TestJSONschema2cedar(unittest.TestCase):
         output_schema_json = json.loads(output_schema)
 
         ##validate json_schema
-        self.assertTrue(util.jsonschema_validator.validate_schema_file(output_schema_json))
+        self.assertTrue(validate.jsonschema_validator.validate_schema_file(output_schema_json))
 
         cedar_schema_file = open(os.path.join(self._data_dir, cedar_schema_filename), "rb")
         cedar_schema_json = json.load(cedar_schema_file)
+        cedar_schema_file.close()
         comparison = diff_dicts(output_schema_json, cedar_schema_json, cedar.jsonschema2cedar.IGNORE_KEYS)
         print(comparison)
 
         ### save converted file
         outfile = open(os.path.join(self._data_dir, conversion_output_filename), "w")
         json_pretty_dump(output_schema_json, outfile)
+        outfile.close()
+
+        print("***************")
+        print(output_schema)
+        print("***************")
 
         ### validate converted file
         self.validate_converted_file(output_schema, "production", "agb_production.apiKey")
-        cedar_schema_file.close()
-        outfile.close()
+
 
     def test_convert_vendor(self):
         self.convert("vendor_schema.json", 'vendor_cedar_schema.json', 'vendor_cedar_schema_out.json')
