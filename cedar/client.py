@@ -52,6 +52,31 @@ class CEDARClient():
         request_url = server_address + "/command/validate?resource_type=instance"
         return self.validate_resource(api_key, request_url, instance)
 
+    """ DOM'S FUNCTIONS """
+
+    def get_template_content(self, endpoint_type, api_key, template_id):
+        """ Get the content of a template"""
+        headers = self.get_headers(api_key)
+        request_url = self.selectEndpoint(endpoint_type) + "/templates/https%3A%2F%2Frepo.metadatacenter.org%2Ftemplates%2F" + template_id
+        response = requests.request("GET", request_url, headers=headers)
+        return response
+
+    def get_folder_content(self, endpoint_type, api_key, folder_id):
+        """ Get the content of a folder """
+        headers = self.get_headers(api_key)
+        request_url = self.selectEndpoint(endpoint_type) + "/folders/https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" + folder_id
+        response = requests.request("GET", request_url, headers=headers)
+        return response
+
+    def create_template(self, endpoint_type, api_key, folder_id, template_file):
+        """ Upload the schema to the selected folder id """
+        headers = self.get_headers(api_key)
+        request_url = self.selectEndpoint(endpoint_type) + "/templates?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" + folder_id
+        with open(template_file, 'r') as template:
+            upload_schema = json.load(template)
+        response = requests.request("POST", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
+        return response
+
 
 
 def paging(url, params, data, method):
