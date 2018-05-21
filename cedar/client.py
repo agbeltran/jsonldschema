@@ -9,7 +9,9 @@ RESOURCE_API_ENDPOINT = "https://resource.metadatacenter.org"
 TERMINOLOGY_API_ENDPOINT = "http://terminology.metadatacenter.org"
 VALUE_RECOMMENDER_ENDPOINT = " http://valuerecommender.metadatacenter.org"
 
-class CEDARClient():
+
+class CEDARClient:
+
     def __init__(self):
         pass
 
@@ -20,7 +22,6 @@ class CEDARClient():
             "Cache-Control": "no-cache"
         }
         return headers
-
 
     def selectEndpoint(self, type):
         if type == "staging":
@@ -91,6 +92,7 @@ class CEDARClient():
         request_url = server_address + "/command/validate?resource_type=instance"
         return self.validate_resource(api_key, request_url, instance)
 
+
     def upload_resource(self, api_key, request_url, resource):
         headers = self.get_headers(api_key)
         response = requests.request("POST", request_url, headers=headers, data=json.dumps(resource), verify=True)
@@ -99,6 +101,42 @@ class CEDARClient():
             return message
         else:
             response.raise_for_status()
+
+    """ DOM'S FUNCTIONS """
+
+    def get_template_content(self, endpoint_type, api_key, template_id):
+        """ Get the content of a template"""
+        headers = self.get_headers(api_key)
+        request_url = self.selectEndpoint(endpoint_type) + "/templates/https%3A%2F%2Frepo.metadatacenter.org%2Ftemplates%2F" + template_id
+        response = requests.request("GET", request_url, headers=headers)
+        return response
+
+    def get_folder_content(self, endpoint_type, api_key, folder_id):
+        """ Get the content of a folder """
+        headers = self.get_headers(api_key)
+        request_url = self.selectEndpoint(endpoint_type) + "/folders/https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" + folder_id
+        response = requests.request("GET", request_url, headers=headers)
+        return response
+
+    def create_template(self, endpoint_type, api_key, folder_id, template_file):
+        """ Upload the schema to the selected folder id """
+        headers = self.get_headers(api_key)
+        request_url = self.selectEndpoint(endpoint_type) + "/templates?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" + folder_id
+        with open(template_file, 'r') as template:
+            upload_schema = json.load(template)
+        response = requests.request("POST", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
+        return response
+
+    def update_template(self, endpoint_type, api_key, template_file):
+        """ Update the content of template_file into the selected template"""
+        headers = self.get_headers(api_key)
+        with open(template_file, 'r') as template:
+            upload_schema = json.load(template)
+        template_id = upload_schema['@id'].replace('https://repo.metadatacenter.org/templates/', '')
+        request_url = self.selectEndpoint(endpoint_type) + "/templates/https%3A%2F%2Frepo.metadatacenter.org%2Ftemplates%2F" + template_id
+        response = requests.request("PUT", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
+        return response
+
 
     def updload_element(self, server_alias, api_key, schema_file, remote_folder_id):
         request_url = self.selectEndpoint(server_alias) + "/template-elements?folder_id="+ remote_folder_id
