@@ -44,8 +44,7 @@ class CEDARClientTestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 201)  # small trick: when creating an instance, code returned is 201
         self.assertTrue(response.text != None)
 
-    """
-    
+
     def test_get_users_staging(self):
         api_key_file = os.path.join(self._data_dir, config_json["api_key_file_staging"])
         with open(api_key_file, 'r') as f:
@@ -55,8 +54,9 @@ class CEDARClientTestCase(unittest.TestCase):
         self.assertTrue(response.text != None)
 
 
+    """
     Common method for the tests validating the elements
-    
+    """
 
     def validate_element(self, cedar_schema_json_filename, endpoint, endpoint_key_filename):
         cedar_schema_path = os.path.join(self._data_dir, cedar_schema_json_filename)
@@ -86,4 +86,3 @@ class CEDARClientTestCase(unittest.TestCase):
     def test_validate_element_vendor_staging(self):
         self.validate_element("vendor_cedar_schema.json", "staging", config_json["api_key_file_staging"])
     
-    """
