@@ -6,7 +6,9 @@ RESOURCE_API_ENDPOINT = "https://resource.metadatacenter.org"
 TERMINOLOGY_API_ENDPOINT = "http://terminology.metadatacenter.org"
 VALUE_RECOMMENDER_ENDPOINT = " http://valuerecommender.metadatacenter.org"
 
-class CEDARClient():
+
+class CEDARClient:
+
     def __init__(self):
         pass
 
@@ -17,7 +19,6 @@ class CEDARClient():
             "Cache-Control": "no-cache"
         }
         return headers
-
 
     def selectEndpoint(self, type):
         if type == "staging":
@@ -75,6 +76,15 @@ class CEDARClient():
         with open(template_file, 'r') as template:
             upload_schema = json.load(template)
         response = requests.request("POST", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
+        return response
+
+    def update_template(self, endpoint_type, api_key, template_file, template_id):
+        """ Update the content of template_file into the selected template"""
+        headers = self.get_headers(api_key)
+        with open(template_file, 'r') as template:
+            upload_schema = json.load(template)
+        request_url = self.selectEndpoint(endpoint_type) + "/templates/https%3A%2F%2Frepo.metadatacenter.org%2Ftemplates%2F" + template_id
+        response = requests.request("PUT", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
         return response
 
 
