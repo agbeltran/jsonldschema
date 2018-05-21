@@ -43,7 +43,7 @@ class CEDARClientTestCase(unittest.TestCase):
         self.assertTrue(response.text != None)
 
     def test_update_template(self):
-        response = self.client.update_template("production", self.production_api_key, self.template_path_with_id, self.template_id)
+        response = self.client.update_template("production", self.production_api_key, self.template_path_with_id)
         self.assertTrue(response.status_code == 200)
         self.assertTrue(response.text != None)
 

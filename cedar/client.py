@@ -78,11 +78,12 @@ class CEDARClient:
         response = requests.request("POST", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
         return response
 
-    def update_template(self, endpoint_type, api_key, template_file, template_id):
+    def update_template(self, endpoint_type, api_key, template_file):
         """ Update the content of template_file into the selected template"""
         headers = self.get_headers(api_key)
         with open(template_file, 'r') as template:
             upload_schema = json.load(template)
+        template_id = upload_schema['@id'].replace('https://repo.metadatacenter.org/templates/', '')
         request_url = self.selectEndpoint(endpoint_type) + "/templates/https%3A%2F%2Frepo.metadatacenter.org%2Ftemplates%2F" + template_id
         response = requests.request("PUT", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
         return response
