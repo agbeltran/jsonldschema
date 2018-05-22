@@ -3,24 +3,24 @@ import unittest
 import os
 import json
 
-configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json")
-with open(configfile_path) as config_data_file:
-    config_json = json.load(config_data_file)
-
 
 class CEDARClientTestCase(unittest.TestCase):
 
-    def setUp(self):
-        self.client = cedar.client.CEDARClient()
+    def __init__(self, *args, **kwargs):
+        super(CEDARClientTestCase, self).__init__(*args, **kwargs)
+        configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json")
+        with open(configfile_path) as config_data_file:
+            config_json = json.load(config_data_file)
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
-        with open(os.path.join(self._data_dir, config_json["api_key_file_production"])) as f:
-            self.production_api_key = f.read()
-        with open(os.path.join(self._data_dir, config_json["api_key_file_staging"])) as f:
-            self.staging_api_key = f.read()
+        self.production_api_key = config_json["production_key"]
+        self.staging_api_key = config_json["staging_key"]
         self.template_id = config_json["template_id"]
         self.folder_id = config_json["folder_id"]
         self.template_path_no_id = os.path.join(self._data_dir, config_json["example_template_file_no_id"])
         self.template_path_with_id = os.path.join(self._data_dir, config_json["example_template_file_with_id"])
+
+    def setUp(self):
+        self.client = cedar.client.CEDARClient()
 
     def test_get_users(self):
         response = self.client.get_users("production", self.production_api_key)
@@ -68,8 +68,14 @@ class CEDARClientTestCase(unittest.TestCase):
         self.assertTrue(response["warnings"] == [])
         self.assertTrue(response["errors"] == [])
 
-    def validate_template(self):
+    def test_validate_template(self):
         print("Trying to validate a template")
+        with open(self.template_path_with_id, 'r') as template_content:
+            template = json.load(template_content)
+        response = self.client.validate_template("production", self.production_api_key, template)
+        self.assertTrue(response["validates"] == "true")
+        self.assertTrue(response["warnings"] == [])
+        self.assertTrue(response["errors"] == [])
 
     def test_validate_element_sample(self):
         self.validate_element("example_template_with_id.json", "production", self.production_api_key)
