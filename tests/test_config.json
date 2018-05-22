@@ -1,8 +1,8 @@
 {
-  "api_key_file_production": "agb_production.apikey",
-  "api_key_file_staging": "agb_staging.apikey",
-  "folder_id":"6226f622-dfd9-441e-bab1-816c10398fc0",
-  "template_id": "b31c2aa9-1ea0-4a66-b3ee-c550d8a2aa2e",
-  "example_template_file_no_id":"example_template_no_id.json",
-  "example_template_file_with_id":"example_template_with_id.json"
+  "folder_id": "",
+  "template_id": "",
+  "example_template_file_no_id": "example_template_no_id.json",
+  "example_template_file_with_id": "example_template_with_id.json",
+  "production_key": "",
+  "staging_key":""
 }
