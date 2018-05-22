@@ -28,6 +28,7 @@ CONTEXT_TEMPLATE["oslc:modifiedBy"] = {}
 CONTEXT_TEMPLATE["oslc:modifiedBy"]["@type"] = "@id"
 
 
+###TODO provide option to set "@id"  
 ##TODO add required properties from the schema
 ##TODO extract the schema:name from the "id" property
 
