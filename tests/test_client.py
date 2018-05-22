@@ -8,7 +8,7 @@ class CEDARClientTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(CEDARClientTestCase, self).__init__(*args, **kwargs)
-        configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json")
+        configfile_path = os.path.join(os.path.dirname(__file__), "test_config.mine.json")
         with open(configfile_path) as config_data_file:
             config_json = json.load(config_data_file)
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
