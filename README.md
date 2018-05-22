@@ -18,6 +18,7 @@ You will need to provide:
 - your staging and production API keys
 - an existing and valid folder ID on which you can read/write content on the production server
 - an existing and valid template ID on which you can read/write content on the production server
+
 You can also configure the "example_template_file_no_id" and "example_template_file_with_id" file path to point to 
 another local json schema. When creating a new template on the server, a schema without an ID is necessary (the ID will
 be automatically given by the server); when updating a template, the ID is retrieved automatically from the file and 
