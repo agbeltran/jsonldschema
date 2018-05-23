@@ -6,6 +6,8 @@ python:
 branches:
 - master
 - DOM-CEDAR-CLIENT
+script:
+- make build
 deploy:
   user: Terazus
 dd:
