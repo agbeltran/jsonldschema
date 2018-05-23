@@ -8,7 +8,7 @@ branches:
 install:
 - pip install --upgrade pip && pip install -r requirements.txt
 script:
-- python -m nose
+- python -m nose /tests/test_mock_client.py
 deploy:
   user: Terazus
 dd:
