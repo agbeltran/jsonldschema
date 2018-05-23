@@ -8,7 +8,7 @@ branches:
 install:
 - pip install --upgrade pip && pip install -r requirements.txt
 script:
-- nose
+- python -m nose
 deploy:
   user: Terazus
 dd:
