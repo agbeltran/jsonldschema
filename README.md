@@ -23,3 +23,5 @@ You can also configure the "example_template_file_no_id" and "example_template_f
 another local json schema. When creating a new template on the server, a schema without an ID is necessary (the ID will
 be automatically given by the server); when updating a template, the ID is retrieved automatically from the file and 
 you the corresponding template gets updated on the server.
+
+[![Build Status](https://travis-ci.org/FAIRsharing/mircat-tools.svg?branch=master)](https://travis-ci.org/FAIRsharing/mircat-tools)

@@ -100,9 +100,9 @@ class CEDARClientTestCase(unittest.TestCase):
         with open(self.template_path_with_id, 'r') as template_content:
             template = json.load(template_content)
         response = self.client.validate_template("production", self.production_api_key, template)
-        self.assertTrue(response["validates"] == "true")
-        self.assertTrue(response["warnings"] == [])
-        self.assertTrue(response["errors"] == [])
+        self.assertTrue(json.loads(response.text)["validates"] == "true")
+        self.assertTrue(json.loads(response.text)["warnings"] == [])
+        self.assertTrue(json.loads(response.text)["errors"] == [])
 
     def test_validate_element_sample(self):
         self.validate_element("example_template_with_id.json", "production", self.production_api_key)
