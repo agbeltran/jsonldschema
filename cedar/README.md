@@ -1,9 +1,21 @@
-# CEDAR Template Model v1.3.0
+# CEDAR Client
 
-https://docs.google.com/document/d/1ugcE0eoNhZuEuaeQES4hNRri4VokcXBt0cfH91Sc5wc/edit#heading=h.ailpqdfgccfl
+client.py: implements a client of the CEDAR API
+jsonschema2cedar.py: implements a conversion from a generic JSON schema to a CEDAR template element and template, using jinja2
 
 
-# CEDAR code and API 
+# CEDAR Documentation
+
+## CEDAR Template Model v1.3.0
+
+[Document](https://docs.google.com/document/d/1ugcE0eoNhZuEuaeQES4hNRri4VokcXBt0cfH91Sc5wc/edit#heading=h.ailpqdfgccfl))
+
+## CEDAR Template Model v1.4.0
+
+[Document](https://docs.google.com/document/d/1mfrnIOvmzeA6nWIQbE6zuMmac2D52hnS4Pu6IrQs-Hg/edit#heading=h.ailpqdfgccfl) 
+
+
+## CEDAR code and API 
 
 
 - Model validation library:
@@ -27,7 +39,7 @@ Staging
 
 
 
-## Validation
+### Validation
 
 https://resource.metadatacenter.org/api/#!/Validate/post_command_validate
 
