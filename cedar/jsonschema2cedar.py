@@ -8,7 +8,6 @@ CEDAR_TEMPLATE_ELEMENT_TYPE = "https://schema.metadatacenter.org/core/TemplateEl
 
 IGNORE_KEYS = [ "@id", "pav:createdOn", "pav:createdOn", "pav:createdBy", "pav:lastUpdatedOn", "oslc:modifiedBy", "title", "description"]
 
-
 CONTEXT_TEMPLATE = {}
 CONTEXT_TEMPLATE["xsd"]="http://www.w3.org/2001/XMLSchema#"
 CONTEXT_TEMPLATE["pav"] = "http://purl.org/pav/"
@@ -26,6 +25,21 @@ CONTEXT_TEMPLATE["pav:lastUpdatedOn"] = {}
 CONTEXT_TEMPLATE["pav:lastUpdatedOn"]["@type"] = "xsd:dateTime"
 CONTEXT_TEMPLATE["oslc:modifiedBy"] = {}
 CONTEXT_TEMPLATE["oslc:modifiedBy"]["@type"] = "@id"
+CONTEXT_TEMPLATE["bibo"] = "http://purl.org/ontology/bibo/"
+
+SUB_CONTEXT_TEMPLATE = {}
+SUB_CONTEXT_TEMPLATE['properties'] = {}
+SUB_CONTEXT_TEMPLATE['properties']["orderNo"] = {}
+SUB_CONTEXT_TEMPLATE['properties']["orderNo"]["enum"] = ["https://schema.metadatacenter.org/properties/7fec2bd3-7689-41c4-8512-173a099d3d45"]
+SUB_CONTEXT_TEMPLATE['properties']["serialNo"] = {}
+SUB_CONTEXT_TEMPLATE['properties']["serialNo"]["enum"] = ["https://schema.metadatacenter.org/properties/2c157a2a-3b04-4a48-9600-1643845895d1"]
+SUB_CONTEXT_TEMPLATE['properties']["lotNo"] = {}
+SUB_CONTEXT_TEMPLATE['properties']["lotNo"]["enum"] = ["https://schema.metadatacenter.org/properties/5594f958-6528-4199-a3b2-ee0205e3a314"]
+SUB_CONTEXT_TEMPLATE['properties']["name"] = {}
+SUB_CONTEXT_TEMPLATE['properties']["name"]["enum"] = ["https://schema.metadatacenter.org/properties/5e4b7b92-3309-4b3a-a48c-843eccf75f2a"]
+SUB_CONTEXT_TEMPLATE['additionalProperties'] = False
+SUB_CONTEXT_TEMPLATE['type'] = "object"
+
 
 
 ###TODO provide option to set "@id"  
@@ -45,6 +59,8 @@ cedar_tmpl_element = Template('''
 "schema:name": "{{ id }}",
 "schema:description": "{{ description }}",
 "schema:schemaVersion": "1.4.0",
+"bibo:status":"bibo:draft",
+"pav:version":"0.1",
 "_ui": { 
     "order": [ 
     {% for item in properties %}
@@ -56,14 +72,35 @@ cedar_tmpl_element = Template('''
  },
   "pav:createdOn": "{{ DATE  }}",
   "pav:lastUpdatedOn": "{{ DATE  }}",
-  "pav:createdBy": "{{ MIRCAT }}",
-  "oslc:modifiedBy": "{{ MIRCAT }}",
+  "pav:createdBy": "{{ USER_URL }}",
+  "oslc:modifiedBy": "{{ USER_URL }}",
   "required": [
     "@context",
-    "@id"
+    "@id",
+    "name"
   ],
   {% set requiredList = required %}
-  "properties": { 
+  "properties": {
+  "@context": {{ SUB_CONTEXT_TEMPLATE | tojson }},
+  "@type": {
+          "oneOf": [
+            {
+              "format": "uri",
+              "type": "string"
+            },
+            {
+              "uniqueItems": true,
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "format": "uri",
+                "type": "string"
+              }
+            }
+          ]
+        },
+  "@id":{"format": "uri", "type": ["string", "null"]},
+  
   {% for item in properties %}
   
   "{{ item }}": {
@@ -89,7 +126,7 @@ cedar_tmpl_element = Template('''
         },
         "@value": {
           "type": [
-            {{ item.type }}
+            "string",
             "null"
           ]
         },
@@ -102,7 +139,7 @@ cedar_tmpl_element = Template('''
       },
       "schema:description": "{{ item }}",  
       "additionalProperties": false,
-      "oslc:modifiedBy": "{{ MIRCAT2CEDAR }}",
+      "oslc:modifiedBy": "{{ USER_URL }}",
       "pav:createdOn": "{{ DATE }}",
       "_ui": {
         "inputType": "textfield"
@@ -114,10 +151,9 @@ cedar_tmpl_element = Template('''
       ],
       "@type": "https://schema.metadatacenter.org/core/TemplateField",
       "_valueConstraints": {
-        "requiredValue":{% if (requiredList is defined) and (item in requiredList) %} true, {% else %} false, {% endif%}
-        "defaultValue": "{{title|lower}}1"
+        "requiredValue":{% if (requiredList is defined) and (item in requiredList) %} true {% else %} false {% endif%}
       },
-      "pav:createdBy": "{{ MIRCAT }}",
+      "pav:createdBy": "{{ USER_URL }}",
       "schema:name": "{{ item }}",
       "@id": "TODO",
       "schema:schemaVersion": "1.3.0",
@@ -154,19 +190,21 @@ cedar_tmpl_element = Template('''
 }
 ''')
 
-logger = logging.getLogger('jsonschema2cedar')
-logger.setLevel(logging.DEBUG)
+#logger = logging.getLogger('jsonschema2cedar')
+#logger.setLevel(logging.DEBUG)
 
 def convert_template_element(jsonschema_filename):
     try:
         with open(jsonschema_filename, 'r') as orig_schema_file:
             orig_schema = json.load(orig_schema_file)
             cedar_schema = cedar_tmpl_element.render(orig_schema,
-                                                     CEDAR_TEMPLATE_ELEMENT_TYPE= CEDAR_TEMPLATE_ELEMENT_TYPE,
-                                                     CONTEXT_TEMPLATE= CONTEXT_TEMPLATE,
-                                                     DATE= datetime.datetime.isoformat(datetime.datetime.now()),
-                                                     MIRCAT = "mircat-tools")
-            logger.debug(cedar_schema)
+                                                     CEDAR_TEMPLATE_ELEMENT_TYPE=CEDAR_TEMPLATE_ELEMENT_TYPE,
+                                                     CONTEXT_TEMPLATE=CONTEXT_TEMPLATE,
+                                                     DATE="2018-05-30T03:48:41-0700",
+                                                     USER_URL="https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
+                                                     MIRCAT="mircat-tools",
+                                                     SUB_CONTEXT_TEMPLATE = SUB_CONTEXT_TEMPLATE)
+            #logger.debug(cedar_schema)
             return cedar_schema
 
     except IOError:
