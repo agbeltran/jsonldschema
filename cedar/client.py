@@ -75,11 +75,6 @@ class CEDARClient:
         headers = self.get_headers(api_key)
         response = requests.request("POST", request_url, headers=headers, data=json.dumps(resource), verify=True)
         return response
-        """if response.status_code == requests.codes.ok:
-            message = json.loads(response.text)
-            return message
-        else:
-            response.raise_for_status()"""
 
     def validate_template(self, server_alias, api_key, template):
         request_url = self.selectEndpoint(server_alias) + "/command/validate?resource_type=template"
@@ -137,6 +132,6 @@ class CEDARClient:
         response = requests.request("PUT", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
         return response
 
-    def updload_element(self, server_alias, api_key, schema_file, remote_folder_id):
+    def upload_element(self, server_alias, api_key, schema_file, remote_folder_id):
         request_url = self.selectEndpoint(server_alias) + "/template-elements?folder_id="+ remote_folder_id
         return self.upload_resource(api_key, request_url, schema_file)
