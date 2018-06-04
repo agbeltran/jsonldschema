@@ -47,7 +47,7 @@ SUB_CONTEXT_TEMPLATE['type'] = "object"
 ##TODO extract the schema:name from the "id" property
 
 cedar_tmpl_element = Template('''
-{% set props = ["@context", "@type"] %}
+{% set props = ["@context", "@type", "@id" ] %}
 {
 "$schema": "http://json-schema.org/draft-04/schema#",
 "@id": "",
@@ -102,6 +102,8 @@ cedar_tmpl_element = Template('''
   "@id":{"format": "uri", "type": ["string", "null"]},
   
   {% for item in properties %}
+  
+  {% if not item in props %}  
   
   "{{ item }}": {
       "@context": {{ CONTEXT_TEMPLATE | tojson }},
@@ -184,6 +186,7 @@ cedar_tmpl_element = Template('''
       "type": "object",
       "$schema": "http://json-schema.org/draft-04/schema#"
     }{% if not loop.last %},{% endif %}
+  {% endif %} 
   {% endfor %}
   },
  "additionalProperties": {% if additionalProperties %} {{ additionalProperties }} {% else %} false {% endif%} 
