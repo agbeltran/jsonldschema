@@ -74,11 +74,6 @@ class CEDARClientTestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
         self.assertTrue(response.text != None)
 
-    def test_get_users_staging(self):
-        response = self.client.get_users("staging", self.staging_api_key)
-        self.assertTrue(response.status_code == 200)
-        self.assertTrue(response.text != None)
-
     """
     Common method for the tests validating the elements
     """
@@ -89,29 +84,36 @@ class CEDARClientTestCase(unittest.TestCase):
             cedar_schema = json.load(template)
         response = self.client.validate_element(endpoint, api_key, cedar_schema)
         template.close()
-        print("Test done")
-        print(json.dumps(response, indent=4, sort_keys=True))
-        self.assertTrue(response["validates"] == "true")
-        self.assertTrue(response["warnings"] == [])
-        self.assertTrue(response["errors"] == [])
+        print(response.text)
+        self.assertTrue(json.loads(response.text)["validates"] == "true")
+        self.assertTrue(json.loads(response.text)["warnings"] == [])
+        self.assertTrue(json.loads(response.text)["errors"] == [])
 
     def test_validate_template(self):
         print("Trying to validate a template")
         with open(self.template_path_with_id, 'r') as template_content:
             template = json.load(template_content)
+        template_content.close()
         response = self.client.validate_template("production", self.production_api_key, template)
-        self.assertTrue(response["validates"] == "true")
-        self.assertTrue(response["warnings"] == [])
-        self.assertTrue(response["errors"] == [])
+        self.assertTrue(json.loads(response.text)["validates"] == "true")
+        self.assertTrue(json.loads(response.text)["warnings"] == [])
+        self.assertTrue(json.loads(response.text)["errors"] == [])
 
     def test_validate_element_sample(self):
-        self.validate_element("example_template_with_id.json", "production", self.production_api_key)
-
-    def test_validate_element_sample_staging(self):
-        self.validate_element("sample_cedar_schema.json", "staging", self.staging_api_key)
+        self.validate_element("sample_cedar_schema.json", "production", self.production_api_key)
 
     def test_validate_element_vendor(self):
         self.validate_element("vendor_cedar_schema.json", "production", self.production_api_key)
 
+    """
+    def test_validate_element_sample_staging(self):
+        self.validate_element("sample_cedar_schema.json", "staging", self.staging_api_key)
+
     def test_validate_element_vendor_staging(self):
         self.validate_element("vendor_cedar_schema.json", "staging", self.staging_api_key)
+
+    def test_get_users_staging(self):
+           response = self.client.get_users("staging", self.staging_api_key)
+           self.assertTrue(response.status_code == 200)
+           self.assertTrue(response.text != None)
+    """
