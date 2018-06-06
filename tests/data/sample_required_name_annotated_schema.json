@@ -1,0 +1,32 @@
+{
+  "id" : "http://fairsharing.github.io/MIRcat/sample_schema.json",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "Sample",
+  "description": "Sample Template Element",
+  "type": "object",
+  "properties": {
+     "@context": {
+      "description": "The  JSON-LD context.",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "@type": {
+      "description": "The JSON-LD type",
+      "type": "string",
+      "format": "uri",
+      "enum": "http://purl.obolibrary.org/obo/OBI_0000747"
+    },
+    "name": {
+      "description": "the name of the sample",
+      "type": "string"
+    }
+  },
+  "required": [ "name" ],
+  "additionalProperties": false
+}

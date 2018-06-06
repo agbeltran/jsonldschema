@@ -81,4 +81,4 @@ class TestJSONschema2cedar(unittest.TestCase):
         self.convert("sample_schema.json", 'sample_cedar_schema.json', 'sample_cedar_schema_out.json')
 
     def test_convert_sample_required_name(self):
-        self.convert("sample_schema_required_name.json", 'sample_cedar_schema_required_name.json', 'sample_cedar_schema_required_name_out.json')
+        self.convert("sample_required_name_schema.json", 'sample_cedar_schema_required_name.json', 'sample_cedar_schema_required_name_out.json')
