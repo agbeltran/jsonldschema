@@ -16,7 +16,16 @@ pip install -r requirements.txt
 
 ### Setup
 
-To run the CEDAR client tests, you will need to configure a few variables in /tests/test_config.json.
+To run the tests related to the CEDAR client, you will need to:
+
+- make a copy of the ```/tests/test_config.json.sample``` file:
+
+```bash
+cp /tests/test_config.json.sample /tests/test_config.json
+```
+ 
+and configure a few variables in your local file ```/tests/test_config.json```.
+
 You will need to provide:
 - your staging and production API keys
 - an existing and valid folder ID on which you can read/write content on the production server
