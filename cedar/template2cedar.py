@@ -3,7 +3,6 @@ import logging
 from jinja2 import Template
 
 #TODO get required attributes from required
-#TODO add properties from the original schema
 #TODO Set _ui input type based on field expected type
 
 
@@ -12,7 +11,7 @@ cedar_template = Template('''
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "@id": "{{ID}}",
-    "@context": {{ CONTEXT_TEMPLATE | tojson }},
+    "@context": {{ TEMPLATE_CONTEXT | tojson }},
     "@type": "{{ TEMPLATE_TYPE }}",
     "type": "object",
     "title": "{{ title }} element schema", 
@@ -54,70 +53,13 @@ cedar_template = Template('''
     ],   
     "additionalProperties": {% if additionalProperties %} {{ additionalProperties }} {% else %} false {% endif%},
     "properties":{
-        "@type": {
-            "oneOf": [
-                {
-                    "format": "uri",
-                    "type": "string"
-                },
-                {
-                    "uniqueItems": true,
-                    "type": "array",
-                    "items": {
-                        "format": "uri",
-                        "type": "string"
-                    },
-                    "minItems": 1
-                }
-            ]
-        },
-        "@id": {
-            "format": "uri",
-            "type": "string"
-        },        
-        "pav:createdOn": {
-            "format": "date-time",
-            "type": [
-                "string",
-                "null"
-            ]
-        },
-        "schema:isBasedOn": {
-            "format": "uri",
-            "type": "string"
-        },
-        "schema:name": {
-              "minLength": 1,
-              "type": "string"
-        },
-        "oslc:modifiedBy": {
-              "format": "uri",
-              "type": [
-                    "string",
-                    "null"
-              ]
-        },
-        "pav:lastUpdatedOn": {
-              "format": "date-time",
-              "type": [
-                    "string",
-                    "null"
-              ]
-        },
-        "pav:createdBy": {
-              "format": "uri",
-                  "type": [
-                    "string",
-                    "null"
-              ]
-        },
-        "schema:description": {
-            "type": "string"
-        },
+        {% for itemKey, itemVal in PROP_ITEMS.items() %}
+            "{{itemKey}}": {{itemVal | tojson}} {% if not loop.last %},{% endif %}
+        {% endfor %},
         "@context":{
             "additionalProperties": false,
             "type": "object",
-            "properties": {{ BASE_PROP | tojson }},
+            "properties": {{ PROP_CONTEXT | tojson }},
             "required": [
                 "xsd",
                 "pav",
@@ -146,17 +88,18 @@ def convert_template(schema_filename):
         with open(schema_filename, 'r') as orig_schema_file:
 
             orig_schema = json.load(orig_schema_file)
-            PROPERTIES = set_required_item(orig_schema)
+            REQUIRED = set_required_item(orig_schema)
             ID = "https://repo.metadatacenter.org/templates/c72b7362-ad7a-4120-8b4b-46db8f98ad3b"
             orig_schema_file.close()
 
             cedar_schema = cedar_template.render(orig_schema,
-                                                 CONTEXT_TEMPLATE=set_context(),
+                                                 TEMPLATE_CONTEXT=set_context(),
                                                  TEMPLATE_TYPE=cedar_type,
-                                                 BASE_PROP=set_base_properties(orig_schema),
+                                                 PROP_CONTEXT=set_prop_context(orig_schema),
                                                  NOW="2018-05-30T06:43:49-0700",
-                                                 REQ=PROPERTIES,
+                                                 REQ=REQUIRED,
                                                  ID=ID,
+                                                 PROP_ITEMS=set_properties_base_item(),
                                                  USER_URL="https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2")
 
             return cedar_schema
@@ -166,30 +109,37 @@ def convert_template(schema_filename):
 
 
 def set_context():
-    CONTEXT_TEMPLATE = {}
-    CONTEXT_TEMPLATE["xsd"] = "http://www.w3.org/2001/XMLSchema#"
-    CONTEXT_TEMPLATE["pav"] = "http://purl.org/pav/"
-    CONTEXT_TEMPLATE["oslc"] = "http://open-services.net/ns/core#"
-    CONTEXT_TEMPLATE["schema"] = "http://schema.org/"
-    CONTEXT_TEMPLATE["schema:name"] = {}
-    CONTEXT_TEMPLATE["schema:name"]["@type"] = "xsd:string"
-    CONTEXT_TEMPLATE["schema:description"] = {}
-    CONTEXT_TEMPLATE["schema:description"]["@type"] = "xsd:string"
-    CONTEXT_TEMPLATE["pav:createdOn"] = {}
-    CONTEXT_TEMPLATE["pav:createdOn"]["@type"] = "xsd:dateTime"
-    CONTEXT_TEMPLATE["pav:createdBy"] = {}
-    CONTEXT_TEMPLATE["pav:createdBy"]["@type"] = "@id"
-    CONTEXT_TEMPLATE["pav:lastUpdatedOn"] = {}
-    CONTEXT_TEMPLATE["pav:lastUpdatedOn"]["@type"] = "xsd:dateTime"
-    CONTEXT_TEMPLATE["oslc:modifiedBy"] = {}
-    CONTEXT_TEMPLATE["oslc:modifiedBy"]["@type"] = "@id"
-    CONTEXT_TEMPLATE["bibo"] = "http://purl.org/ontology/bibo/"
-    return CONTEXT_TEMPLATE
+
+    return {
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "pav": "http://purl.org/pav/",
+        "oslc": "http://open-services.net/ns/core#",
+        "schema": "http://schema.org/",
+        "bibo": "http://purl.org/ontology/bibo/",
+        "schema:name": {
+            "@type": "xsd:string"
+        },
+        "schema:description": {
+            "@type": "xsd:string"
+        },
+        "pav:createdOn": {
+            "@type": "xsd:dateTime"
+        },
+        "pav:createdBy": {
+            "@type": "@id"
+        },
+        "pav:lastUpdatedOn": {
+            "@type": "xsd:dateTime"
+        },
+        "oslc:modifiedBy": {
+            "@type": "@id"
+        }
+    }
 
 
-def set_base_properties(schema):
+def set_prop_context(schema):
 
-    BASE_PROPERTIES= {
+    prop_context = {
         "pav:createdOn":{
             "properties": {
                 "@type": {
@@ -292,11 +242,11 @@ def set_base_properties(schema):
     ignored_key = ["@id", "@type", "@context"]
     for item in schema['properties']:
         if item not in ignored_key:
-            BASE_PROPERTIES[item] = {
+            prop_context[item] = {
                 "enum": [""]
             }
 
-    return BASE_PROPERTIES
+    return prop_context
 
 
 def set_required_item(schema):
@@ -338,19 +288,7 @@ def set_required_item(schema):
                 "_ui": {"inputType": "textfield"},
                 "_valueConstraints": {
                     "requiredValue": required,
-                    "classes": [],
                     "multipleChoice": False,
-                    "ontologies": [],
-                    "valueSets": [],
-                    "branches": [
-                        {
-                            "acronym": "SIO",
-                            "maxDepth": 0,
-                            "name": "title",
-                            "source": "undefined (SIO)",
-                            "uri": "http://semanticscience.org/resource/SIO_000185"
-                        }
-                    ]
                 },
                 "schema:name": propertyKey,
                 "pav:createdOn": "2018-06-07T03:07:47-0700",
@@ -360,11 +298,8 @@ def set_required_item(schema):
                 "schema:schemaVersion": "1.4.0",
                 "additionalProperties": False,
                 "schema:description": description,
+                "required": ["@value"],
                 "properties": {
-                    "@id": {
-                        "format": "uri",
-                        "type": "string"
-                    },
                     "@type": {
                         "oneOf": [
                             {
@@ -387,11 +322,84 @@ def set_required_item(schema):
                             "string",
                             "null"
                         ]
-                    }
+                    },
+                    "@value": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                 }
             }
 
     return properties
+
+
+def set_properties_base_item():
+    base_items = {
+        "@type": {
+            "oneOf": [
+                {
+                    "format": "uri",
+                    "type": "string"
+                },
+                {
+                    "uniqueItems": True,
+                    "type": "array",
+                    "items": {
+                        "format": "uri",
+                        "type": "string"
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "@id": {
+            "format": "uri",
+            "type": "string"
+        },
+        "pav:createdOn": {
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "schema:isBasedOn": {
+            "format": "uri",
+            "type": "string"
+        },
+        "schema:name": {
+            "minLength": 1,
+            "type": "string"
+        },
+        "oslc:modifiedBy": {
+            "format": "uri",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "pav:lastUpdatedOn": {
+            "format": "date-time",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "pav:createdBy": {
+            "format": "uri",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "schema:description": {
+            "type": "string"
+        }
+    }
+
+    return base_items
 
 
 def json_pretty_dump(json_object, output_file):
