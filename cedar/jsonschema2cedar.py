@@ -1,6 +1,7 @@
 import json
 import logging
 import datetime
+import cedar.utils
 from jinja2 import Template, Environment
 
 
@@ -8,35 +9,16 @@ CEDAR_TEMPLATE_ELEMENT_TYPE = "https://schema.metadatacenter.org/core/TemplateEl
 
 IGNORE_KEYS = [ "@id", "pav:createdOn", "pav:createdOn", "pav:createdBy", "pav:lastUpdatedOn", "oslc:modifiedBy", "title", "description"]
 
-CONTEXT_TEMPLATE = {}
-CONTEXT_TEMPLATE["xsd"]="http://www.w3.org/2001/XMLSchema#"
-CONTEXT_TEMPLATE["pav"] = "http://purl.org/pav/"
-CONTEXT_TEMPLATE["oslc"] = "http://open-services.net/ns/core#"
-CONTEXT_TEMPLATE["schema"] = "http://schema.org/"
-CONTEXT_TEMPLATE["schema:name"] = {}
-CONTEXT_TEMPLATE["schema:name"]["@type"] = "xsd:string"
-CONTEXT_TEMPLATE["schema:description"] = {}
-CONTEXT_TEMPLATE["schema:description"]["@type"] = "xsd:string"
-CONTEXT_TEMPLATE["pav:createdOn"] = {}
-CONTEXT_TEMPLATE["pav:createdOn"]["@type"] = "xsd:dateTime"
-CONTEXT_TEMPLATE["pav:createdBy"] = {}
-CONTEXT_TEMPLATE["pav:createdBy"]["@type"] = "@id"
-CONTEXT_TEMPLATE["pav:lastUpdatedOn"] = {}
-CONTEXT_TEMPLATE["pav:lastUpdatedOn"]["@type"] = "xsd:dateTime"
-CONTEXT_TEMPLATE["oslc:modifiedBy"] = {}
-CONTEXT_TEMPLATE["oslc:modifiedBy"]["@type"] = "@id"
-CONTEXT_TEMPLATE["bibo"] = "http://purl.org/ontology/bibo/"
-
 SUB_CONTEXT_TEMPLATE = {}
 SUB_CONTEXT_TEMPLATE['properties'] = {}
 SUB_CONTEXT_TEMPLATE['properties']["orderNo"] = {}
-SUB_CONTEXT_TEMPLATE['properties']["orderNo"]["enum"] = ["https://schema.metadatacenter.org/properties/7fec2bd3-7689-41c4-8512-173a099d3d45"]
+SUB_CONTEXT_TEMPLATE['properties']["orderNo"]["enum"] = [""]
 SUB_CONTEXT_TEMPLATE['properties']["serialNo"] = {}
-SUB_CONTEXT_TEMPLATE['properties']["serialNo"]["enum"] = ["https://schema.metadatacenter.org/properties/2c157a2a-3b04-4a48-9600-1643845895d1"]
+SUB_CONTEXT_TEMPLATE['properties']["serialNo"]["enum"] = [""]
 SUB_CONTEXT_TEMPLATE['properties']["lotNo"] = {}
-SUB_CONTEXT_TEMPLATE['properties']["lotNo"]["enum"] = ["https://schema.metadatacenter.org/properties/5594f958-6528-4199-a3b2-ee0205e3a314"]
+SUB_CONTEXT_TEMPLATE['properties']["lotNo"]["enum"] = [""]
 SUB_CONTEXT_TEMPLATE['properties']["name"] = {}
-SUB_CONTEXT_TEMPLATE['properties']["name"]["enum"] = ["https://schema.metadatacenter.org/properties/5e4b7b92-3309-4b3a-a48c-843eccf75f2a"]
+SUB_CONTEXT_TEMPLATE['properties']["name"]["enum"] = [""]
 SUB_CONTEXT_TEMPLATE['additionalProperties'] = False
 SUB_CONTEXT_TEMPLATE['type'] = "object"
 
@@ -179,7 +161,7 @@ def convert_template_element(jsonschema_filename):
             orig_schema = json.load(orig_schema_file)
             cedar_schema = cedar_tmpl_element.render(orig_schema,
                                                      CEDAR_TEMPLATE_ELEMENT_TYPE=CEDAR_TEMPLATE_ELEMENT_TYPE,
-                                                     CONTEXT_TEMPLATE=CONTEXT_TEMPLATE,
+                                                     TEMPLATE_CONTEXT=cedar.utils.set_context(),
                                                      DATE="2018-05-30T03:48:41-0700",
                                                      USER_URL="https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
                                                      MIRCAT="mircat-tools",
