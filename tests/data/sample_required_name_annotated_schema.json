@@ -20,7 +20,7 @@
       "description": "The JSON-LD type",
       "type": "string",
       "format": "uri",
-      "enum": "http://purl.obolibrary.org/obo/OBI_0000747"
+      "enum": [ "http://purl.obolibrary.org/obo/OBI_0000747" ]
     },
     "name": {
       "description": "the name of the sample",

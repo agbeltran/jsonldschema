@@ -17,7 +17,7 @@ class TestJSONschemaValidator(unittest.TestCase):
 
     def test_sample_cedar_required_name(self):
         self.assertTrue(
-            validate.jsonschema_validator.validate_schema(self._data_dir, "sample_cedar_schema_required_name.json"))
+            validate.jsonschema_validator.validate_schema(self._data_dir, "sample_required_name_cedar_schema.json"))
 
     def test_sample(self):
         self.assertTrue(validate.jsonschema_validator.validate_schema(self._data_dir, "sample_schema.json"))
