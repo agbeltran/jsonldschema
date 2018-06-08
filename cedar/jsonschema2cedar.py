@@ -45,6 +45,7 @@ SUB_CONTEXT_TEMPLATE['type'] = "object"
 ###TODO provide option to set "@id"  
 ##TODO add required properties from the schema
 ##TODO extract the schema:name from the "id" property
+##TODO Set _ui input type based on field expected type
 
 cedar_tmpl_element = Template('''
 {% set props = ["@context", "@type", "@id" ] %}
@@ -159,30 +160,6 @@ cedar_tmpl_element = Template('''
       "schema:name": "{{ item }}",
       "@id": "TODO",
       "schema:schemaVersion": "1.3.0",
-      "@context": {
-        "schema": "http://schema.org/",
-        "schema:description": {
-          "@type": "xsd:string"
-        },
-        "pav": "http://purl.org/pav/",
-        "pav:createdBy": {
-          "@type": "@id"
-        },
-        "oslc:modifiedBy": {
-          "@type": "@id"
-        },
-        "pav:createdOn": {
-          "@type": "xsd:dateTime"
-        },
-        "oslc": "http://open-services.net/ns/core#",
-        "schema:name": {
-          "@type": "xsd:string"
-        },
-        "xsd": "http://www.w3.org/2001/XMLSchema#",
-        "pav:lastUpdatedOn": {
-          "@type": "xsd:dateTime"
-        }
-      },
       "type": "object",
       "$schema": "http://json-schema.org/draft-04/schema#"
     }{% if not loop.last %},{% endif %}

@@ -1,7 +1,6 @@
 import os
 import unittest
 from cedar.jsonschema2cedar import *
-from cedar.template2cedar import *
 import cedar.client
 import json
 import validate.jsonschema_validator
@@ -73,21 +72,6 @@ class TestJSONschema2cedar(unittest.TestCase):
         outfile = open(os.path.join(self._data_dir, conversion_output_filename), "w")
         json_pretty_dump(output_schema_json, outfile)
         outfile.close()
-
-    def convert_template(self, schema_filename):
-        full_schema_filename = os.path.join(self._data_dir, schema_filename)
-        output_schema = cedar.template2cedar.convert_template(full_schema_filename)
-        output_schema_json = json.loads(output_schema)
-        print(json.dumps(output_schema_json, indent=4))
-        response = self.client.validate_template("production", self.production_api_key, output_schema_json)
-
-        print(json.dumps(json.loads(response.text)["errors"], indent=4))
-        self.assertTrue(json.loads(response.text)["validates"] == "true")
-        self.assertTrue(json.loads(response.text)["warnings"] == [])
-        self.assertTrue(json.loads(response.text)["errors"] == [])
-
-    def test_convert_access_schema(self):
-        self.convert_template("access_schema.json")
 
     def test_convert_vendor(self):
         self.convert("vendor_schema.json", 'vendor_cedar_schema.json', 'vendor_cedar_schema_out.json')
