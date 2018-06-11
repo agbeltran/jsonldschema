@@ -33,7 +33,6 @@ class TestSchema2TemplateElement(unittest.TestCase):
 
         full_schema_filename = os.path.join(self._data_dir, schema_filename)
         output_schema = schema2TemplateElement.convert_template_element(full_schema_filename)
-        print(output_schema)
         output_schema_json = json.loads(output_schema)
 
         response = self.client.validate_element("production", self.production_api_key, output_schema_json)

@@ -338,3 +338,14 @@ def set_template_element_property_minimals(sub_context):
     }
 
     return properties
+
+
+def set_stripped_properties(schema):
+    ignored_key = ["@id", "@type", "@context"]
+    properties = {}
+
+    for propertyKey in schema['properties']:
+        if propertyKey not in ignored_key:
+            properties[propertyKey] = schema['properties'][propertyKey]
+
+    return properties
