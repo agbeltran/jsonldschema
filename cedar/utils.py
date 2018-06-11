@@ -290,3 +290,51 @@ def set_required_item(schema):
             }
 
     return properties
+
+
+def set_sub_context(schema):
+    ignored_key = ["@id", "@type", "@context"]
+    sub_context = {'properties': {}}
+
+    for propertyKey in schema['properties']:
+        if propertyKey not in ignored_key:
+            sub_context['properties'][propertyKey] = {"enum": [""]}
+
+    sub_context["additionalProperties"] = False
+    sub_context["type"] = "object"
+
+    if "required" in schema:
+        sub_context["required"] = []
+        for item in schema["required"]:
+            sub_context["required"].append(item)
+
+    return sub_context
+
+
+def set_template_element_property_minimals(sub_context):
+    properties = {
+        "@context": sub_context,
+        "@type": {
+            "oneOf": [
+                {
+                    "format": "uri",
+                    "type": "string"
+                },
+                {
+                    "uniqueItems": True,
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                        "format": "uri",
+                        "type": "string"
+                    }
+                }
+            ]
+        },
+        "@id": {
+            "format": "uri",
+            "type": "string"
+        }
+    }
+
+    return properties
