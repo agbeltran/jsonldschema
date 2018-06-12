@@ -37,7 +37,7 @@ class TestSchema2TemplateElement(unittest.TestCase):
 
         response = self.client.validate_element("production", self.production_api_key, output_schema_json)
 
-        #print(json.dumps(json.loads(response.text)["errors"], indent=4))
+        print(json.dumps(json.loads(response.text)["errors"], indent=4))
 
 
         # save the converted file
@@ -51,7 +51,7 @@ class TestSchema2TemplateElement(unittest.TestCase):
         eq_(len(json.loads(response.text)["errors"]), 0)
 
     def test_convert_sample_schema(self):
-        self.convert_templateElement("sample_required_name_schema.json", "sample_required_name_schema_out.json")
+        self.convert_templateElement("sample_required_name_annotated_schema.json", "sample_required_name_annotated_schema_out.json")
 
     def test_convert_vendor_schema(self):
-        self.convert_templateElement("vendor_schema.json", "vendor_schema_out.json")
+        self.convert_templateElement("person_schema.json", "person_schema_out.json")

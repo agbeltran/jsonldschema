@@ -1,3 +1,7 @@
+import os
+import json
+from cedar import schema2TemplateElement
+
 def set_context():
 
     return {
@@ -349,3 +353,25 @@ def set_stripped_properties(schema):
             properties[propertyKey] = schema['properties'][propertyKey]
 
     return properties
+
+
+def set_sub_specs(schema, sub_spec_container):
+    ignored_key = ["@id", "@type", "@context"]
+    data_dir = os.path.join(os.path.dirname(__file__), "../tests/data")
+
+    for itemKey, itemVal in schema.items():
+        if itemKey not in ignored_key:
+            if '$ref' in itemVal:
+                schema = os.path.join(data_dir, itemVal['$ref'].replace('#', ''))
+                sub_spec = json.loads(schema2TemplateElement.convert_template_element(schema))
+                sub_spec_container[itemKey] = sub_spec
+                sub_spec_container = set_sub_specs(sub_spec['properties'], sub_spec_container)
+
+            elif 'items' in itemVal:
+                print(itemKey)
+                schema = os.path.join(data_dir, itemVal['items']['$ref'].replace('#', ''))
+                sub_spec = json.loads(schema2TemplateElement.convert_template_element(schema))
+                sub_spec_container[itemKey] = sub_spec
+                sub_spec_container = set_sub_specs(sub_spec['properties'], sub_spec_container)
+
+    return sub_spec_container
