@@ -133,8 +133,7 @@ def convert_template_element(schema_file_path):
     try:
         with open(schema_file_path, 'r') as orig_schema_file:
 
-            today = datetime.datetime.now()
-            now = today.strftime('%Y-%m-%dT%H:%M:%S-0700')
+            now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
             schema_as_json = json.load(orig_schema_file)
             orig_schema_file.close()
             property_context = set_template_element_property_minimals(set_sub_context(schema_as_json))

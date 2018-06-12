@@ -37,9 +37,6 @@ class TestSchema2TemplateElement(unittest.TestCase):
 
         response = self.client.validate_element("production", self.production_api_key, output_schema_json)
 
-        print(json.dumps(json.loads(response.text)["errors"], indent=4))
-
-
         # save the converted file
         outfile = open(os.path.join(self._data_dir, output_file), "w")
         schema2TemplateElement.json_pretty_dump(output_schema_json, outfile)
