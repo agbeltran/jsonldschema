@@ -368,9 +368,9 @@ def set_sub_specs(schema, sub_spec_container):
                 sub_spec_container = set_sub_specs(sub_spec['properties'], sub_spec_container)
 
             elif 'items' in itemVal:
-                print(itemKey)
                 schema = os.path.join(data_dir, itemVal['items']['$ref'].replace('#', ''))
                 sub_spec = json.loads(schema2TemplateElement.convert_template_element(schema))
+                print(sub_spec)
                 sub_spec_container[itemKey] = sub_spec
                 sub_spec_container = set_sub_specs(sub_spec['properties'], sub_spec_container)
 
