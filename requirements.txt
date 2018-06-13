@@ -3,3 +3,4 @@ requests
 jsonschema
 nose
 mock
+pyopenssl

@@ -11,6 +11,7 @@ VALUE_RECOMMENDER_ENDPOINT = " http://valuerecommender.metadatacenter.org"
 
 
 class CEDARClient:
+    """A client for the CEDAR API"""
 
     def __init__(self):
         pass
@@ -97,8 +98,6 @@ class CEDARClient:
         else:
             response.raise_for_status()
 
-    """ DOM'S FUNCTIONS """
-
     def get_template_content(self, endpoint_type, api_key, template_id):
         """ Get the content of a template"""
         headers = self.get_headers(api_key)
@@ -133,7 +132,12 @@ class CEDARClient:
         return response
 
     def update_template(self, endpoint_type, api_key, template_file):
-        """ Update the content of template_file into the selected template"""
+        """ Update the content of template_file into the selected template
+            Arguments:
+                endpoint_type: "staging" or "production"
+                api_key: the corresponding API KEY for the endpoint_type
+                template_file: the full path to a local template JSON file
+        """
         headers = self.get_headers(api_key)
         with open(template_file, 'r') as template:
             upload_schema = json.load(template)

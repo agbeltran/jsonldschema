@@ -31,24 +31,24 @@ class CEDARClientTestCase(unittest.TestCase):
     def validate_config(self, config_data):
         try:
             self.assertTrue(config_data['production_key'])
-        except AssertionError as inst:
-            print("Please provide an production API key before running tests")
-            raise
+        except (KeyError, AssertionError) as inst:
+            print("Please set your CEDAR production API key in the test_config.json file before running tests")
+            quit(0)
         try:
             self.assertTrue(config_data['staging_key'])
-        except AssertionError:
-            print("Please provide a staging API key before running tests")
-            raise
+        except (KeyError, AssertionError) :
+            print("Please set your CEDAR staging API key in the test_config.json file before running tests")
+            quit(0)
         try:
             self.assertTrue(config_data['folder_id'])
-        except AssertionError:
-            print("Please provide a valid folder ID before running tests")
-            raise
+        except (KeyError, AssertionError) :
+            print("Please set a valid CEDAR folder ID with read/write permissions in the test_config.json file before running tests")
+            quit(0)
         try:
             self.assertTrue(config_data['template_id'])
         except AssertionError:
-            print("Please provide a valid template ID before running tests")
-            raise
+            print("Please set a valid CEDAR template ID with read/write permissions in the test_config.json file before running tests")
+            quit(0)
 
     def test_get_users(self):
         response = self.client.get_users("production", self.production_api_key)
@@ -83,7 +83,6 @@ class CEDARClientTestCase(unittest.TestCase):
     """
     Common method for the tests validating the elements
     """
-
     def validate_element(self, cedar_schema_json_filename, endpoint, api_key):
         cedar_schema_path = os.path.join(self._data_dir, cedar_schema_json_filename)
         with open(cedar_schema_path, 'r') as template:
