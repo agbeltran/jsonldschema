@@ -53,7 +53,11 @@ cedar_template_element = Template('''
         {% for itemKey, itemVal in TEMP_PROP.items() %}
             {% if 'items' in itemVal or '$ref' in itemVal %}
                 {% if itemKey in SUB_SPECS %}
-                     "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}
+                     "{{itemKey}}": {
+                        "items": {{SUB_SPECS[itemKey] | tojson}},
+                        "minItems": 1,
+                        "type": "array"
+                     }
                 {% else %}
                     "{{itemKey}}": "test"
                 {% endif %}
@@ -177,12 +181,13 @@ def set_sub_specs(schema, sub_spec_container):
                 schema = os.path.join(data_dir, itemVal['$ref'].replace('#', ''))
                 sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
                 sub_spec_container[itemKey] = sub_spec
-                sub_spec_container = set_sub_specs(sub_spec['properties'], sub_spec_container)
+                sub_spec_container = set_sub_specs(itemVal, sub_spec_container)
 
             elif 'items' in itemVal:
+                print(itemKey)
                 schema = os.path.join(data_dir, itemVal['items']['$ref'].replace('#', ''))
                 sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
                 sub_spec_container[itemKey] = sub_spec
-                sub_spec_container = set_sub_specs(sub_spec['properties'], sub_spec_container)
+                sub_spec_container = set_sub_specs(itemVal, sub_spec_container)
 
     return sub_spec_container
