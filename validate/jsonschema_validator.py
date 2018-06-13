@@ -52,7 +52,7 @@ def validate_instance(schemapath, schemafile, instancepath, instancefile, error_
 
         for error in errors:
             for suberror in sorted(error.context, key=lambda e: e.schema_path):
-                print(list(suberror.schema_path), suberror.message, sep=", ")
+                print(list(suberror.schema_path), suberror.message)
         else:
             validator.validate(instance, schema)
         schema_file.close()

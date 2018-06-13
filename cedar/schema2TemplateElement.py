@@ -1,8 +1,9 @@
 import json
+import os
 import logging
 from jinja2 import Template
 import datetime
-from cedar.utils import set_template_element_property_minimals, set_sub_context, set_context, set_stripped_properties, set_sub_specs
+from cedar.utils import set_template_element_property_minimals, set_sub_context, set_context, set_stripped_properties
 
 
 cedar_template_element = Template('''
@@ -159,3 +160,24 @@ def convert_template_element(schema_file_path):
 
 def json_pretty_dump(json_object, output_file):
     return json.dump(json_object,  output_file, sort_keys=False, indent=4, separators=(',', ': '))
+
+
+def set_sub_specs(schema, sub_spec_container):
+    ignored_key = ["@id", "@type", "@context"]
+    data_dir = os.path.join(os.path.dirname(__file__), "../tests/data")
+
+    for itemKey, itemVal in schema.items():
+        if itemKey not in ignored_key:
+            if '$ref' in itemVal:
+                schema = os.path.join(data_dir, itemVal['$ref'].replace('#', ''))
+                sub_spec = json.loads(convert_template_element(schema))
+                sub_spec_container[itemKey] = sub_spec
+                sub_spec_container = set_sub_specs(sub_spec['properties'], sub_spec_container)
+
+            elif 'items' in itemVal:
+                schema = os.path.join(data_dir, itemVal['items']['$ref'].replace('#', ''))
+                sub_spec = json.loads(convert_template_element(schema))
+                sub_spec_container[itemKey] = sub_spec
+                sub_spec_container = set_sub_specs(sub_spec['properties'], sub_spec_container)
+
+    return sub_spec_container
