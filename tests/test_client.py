@@ -23,6 +23,7 @@ class CEDARClientTestCase(unittest.TestCase):
         self.folder_id = config_json["folder_id"]
         self.template_path_no_id = os.path.join(self._data_dir, config_json["example_template_file_no_id"])
         self.template_path_with_id = os.path.join(self._data_dir, config_json["example_template_file_with_id"])
+        self.person_schema_path = os.path.join(self._data_dir, "person_schema_out.json")
 
     def setUp(self):
         self.client = cedar.client.CEDARClient()
@@ -72,6 +73,11 @@ class CEDARClientTestCase(unittest.TestCase):
     def test_update_template(self):
         response = self.client.update_template("production", self.production_api_key, self.template_path_with_id)
         self.assertTrue(response.status_code == 200)
+        self.assertTrue(response.text != None)
+
+    def test_create_template_element(self):
+        response = self.client.create_template_element("production", self.production_api_key, self.folder_id, self.person_schema_path)
+        self.assertTrue(response.status_code == 201)
         self.assertTrue(response.text != None)
 
     """

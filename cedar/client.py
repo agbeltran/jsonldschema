@@ -110,6 +110,7 @@ class CEDARClient:
         """ Get the content of a folder """
         headers = self.get_headers(api_key)
         request_url = self.selectEndpoint(endpoint_type) + "/folders/https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" + folder_id
+        print(request_url)
         response = requests.request("GET", request_url, headers=headers)
         return response
 
@@ -117,6 +118,15 @@ class CEDARClient:
         """ Upload the schema to the selected folder id """
         headers = self.get_headers(api_key)
         request_url = self.selectEndpoint(endpoint_type) + "/templates?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" + folder_id
+        with open(template_file, 'r') as template:
+            upload_schema = json.load(template)
+        response = requests.request("POST", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
+        return response
+
+    def create_template_element(self, endpoint_type, api_key, folder_id, template_file):
+        """ Upload the schema to the selected folder id """
+        headers = self.get_headers(api_key)
+        request_url = self.selectEndpoint(endpoint_type) + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" + folder_id
         with open(template_file, 'r') as template:
             upload_schema = json.load(template)
         response = requests.request("POST", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)

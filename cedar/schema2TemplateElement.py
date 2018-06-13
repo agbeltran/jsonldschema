@@ -9,7 +9,7 @@ from cedar.utils import set_template_element_property_minimals, set_sub_context,
 cedar_template_element = Template('''
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "@id": "",
+    "@id": null,
     "@context": {{TEMPLATE_CONTEXT | tojson}},
     "@type": "{{TEMPLATE_TYPE}}",
     "type": "object",
@@ -84,7 +84,7 @@ cedar_template_element = Template('''
                     },
                     "pav:createdBy": "{{USER_URL}}",
                     "schema:name": "{{itemKey}}",
-                    "@id": "",
+                    "@id": null,
                     "schema:schemaVersion": "1.4.0",
                     "type": "object",
                     "$schema": "http://json-schema.org/draft-04/schema#",
