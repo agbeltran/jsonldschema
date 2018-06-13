@@ -15,7 +15,7 @@ cedar_template_element = Template('''
     "type": "object",
     "title": "{{title}} element schema", 
     "description": "{{description}} ",
-    "schema:name": "{{id}}",
+    "schema:name": "{{FIELD_KEY}}",
     "schema:description": "{{description}}",
     "schema:schemaVersion": "1.4.0",
     "bibo:status":"bibo:draft",
@@ -129,7 +129,7 @@ cedar_template_element = Template('''
 ''')
 
 
-def convert_template_element(schema_file_path):
+def convert_template_element(schema_file_path, **kwargs):
     cedar_type = "https://schema.metadatacenter.org/core/TemplateElement"
     try:
         with open(schema_file_path, 'r') as orig_schema_file:
@@ -142,6 +142,10 @@ def convert_template_element(schema_file_path):
             sub_spec_container = {}
             sub_spec = set_sub_specs(schema_as_json['properties'], sub_spec_container)
 
+            field_key = kwargs.get('fieldKey', None)
+            if field_key is None:
+                field_key = schema_as_json['title']
+
             cedar_schema = cedar_template_element.render(schema_as_json,
                                                          TEMPLATE_TYPE=cedar_type,
                                                          TEMPLATE_CONTEXT=set_context(),
@@ -150,7 +154,8 @@ def convert_template_element(schema_file_path):
                                                          MIRCAT="mircat-tools",
                                                          PROP_CONTEXT=property_context,
                                                          TEMP_PROP=set_stripped_properties(schema_as_json),
-                                                         SUB_SPECS=sub_spec)
+                                                         SUB_SPECS=sub_spec,
+                                                         FIELD_KEY=field_key)
 
             return cedar_schema
 
@@ -170,13 +175,13 @@ def set_sub_specs(schema, sub_spec_container):
         if itemKey not in ignored_key:
             if '$ref' in itemVal:
                 schema = os.path.join(data_dir, itemVal['$ref'].replace('#', ''))
-                sub_spec = json.loads(convert_template_element(schema))
+                sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
                 sub_spec_container[itemKey] = sub_spec
                 sub_spec_container = set_sub_specs(sub_spec['properties'], sub_spec_container)
 
             elif 'items' in itemVal:
                 schema = os.path.join(data_dir, itemVal['items']['$ref'].replace('#', ''))
-                sub_spec = json.loads(convert_template_element(schema))
+                sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
                 sub_spec_container[itemKey] = sub_spec
                 sub_spec_container = set_sub_specs(sub_spec['properties'], sub_spec_container)
 
