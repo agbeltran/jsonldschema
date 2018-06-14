@@ -4,3 +4,4 @@ jsonschema
 nose
 mock
 pyopenssl
+DeepDiff

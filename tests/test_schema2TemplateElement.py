@@ -3,6 +3,8 @@ import unittest
 from cedar import schema2TemplateElement
 import cedar.client
 import json
+from pprint import pprint
+from deepdiff import DeepDiff
 from nose.tools import eq_
 
 
@@ -29,7 +31,7 @@ class TestSchema2TemplateElement(unittest.TestCase):
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
         self.client = cedar.client.CEDARClient()
 
-    def convert_templateElement(self, schema_filename, output_file):
+    def convert_templateElement(self, schema_filename, output_file, cedar_file_path):
 
         full_schema_filename = os.path.join(self._data_dir, schema_filename)
         output_schema = schema2TemplateElement.convert_template_element(full_schema_filename)
@@ -47,8 +49,16 @@ class TestSchema2TemplateElement(unittest.TestCase):
         eq_(len(json.loads(response.text)["warnings"]), 0)
         eq_(len(json.loads(response.text)["errors"]), 0)
 
+        with open(os.path.join(self._data_dir, cedar_file_path)) as cedar_file:
+            cedar_schema = json.load(cedar_file)
+        pprint(DeepDiff(output_schema_json, cedar_schema), indent=4)
+
     def test_convert_sample_schema(self):
-        self.convert_templateElement("sample_required_name_annotated_schema.json", "sample_required_name_annotated_schema_out.json")
+        self.convert_templateElement("sample_required_name_annotated_schema.json",
+                                     "sample_required_name_annotated_schema_out.json",
+                                     "sample_required_name_annotated_cedar_schema.json")
 
     def test_convert_vendor_schema(self):
-        self.convert_templateElement("person_schema.json", "person_schema_out.json")
+        self.convert_templateElement("person_schema.json",
+                                     "person_schema_out.json",
+                                     "person_cedar_schema.json")
