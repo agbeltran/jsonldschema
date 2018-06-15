@@ -1,5 +1,7 @@
 import os
 import unittest
+from typing import Set
+
 from cedar import schema2TemplateElement
 import cedar.client
 import json
@@ -52,7 +54,38 @@ class TestSchema2TemplateElement(unittest.TestCase):
         with open(os.path.join(self._data_dir, cedar_file_path)) as cedar_file:
             cedar_schema = json.load(cedar_file)
         print("\n")
-        pprint(DeepDiff(output_schema_json, cedar_schema, verbose_level=0), indent=4)
+
+        ignored_keys = ["@type", "@id", "@context"]
+
+        ignored_paths = [
+            "root['@id']",
+            "root['description']",
+            "root['oslc:modifiedBy']",
+            "root['pav:createdBy']",
+            "root['pav:createdOn']",
+            "root['pav:lastUpdatedOn']",
+            "root['pav:version']",
+            "root['schema:description']",
+            "root['schema:name']",
+            "root['schema:title']",
+            "root['title']"
+        ]
+
+        for item in output_schema_json['properties']:
+            if item not in ignored_keys:
+                ignored_paths.append("root['properties']['"+item+"']['@id']")
+                ignored_paths.append("root['properties']['" + item + "']['oslc:modifiedBy']")
+                ignored_paths.append("root['properties']['" + item + "']['pav:createdBy']")
+                ignored_paths.append("root['properties']['" + item + "']['pav:createdOn']")
+                ignored_paths.append("root['properties']['" + item + "']['pav:lastUpdatedOn']")
+                ignored_paths.append("root['properties']['" + item + "']['pav:version']")
+                ignored_paths.append("root['properties']['" + item + "']['schema:description']")
+                ignored_paths.append("root['properties']['" + item + "']['schema:name']")
+                ignored_paths.append("root['properties']['" + item + "']['schema:title']")
+                ignored_paths.append("root['properties']['" + item + "']['title']")
+                ignored_paths.append("root['properties']['" + item + "']['description']")
+
+        pprint(DeepDiff(output_schema_json, cedar_schema, verbose_level=0, exclude_paths=ignored_paths), indent=4)
 
     def test_convert_sample_schema(self):
         self.convert_templateElement("sample_required_name_annotated_schema.json",

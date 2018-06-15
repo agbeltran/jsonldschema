@@ -232,7 +232,6 @@ def set_required_item(schema):
                 "@context": {
                     "xsd": "http://www.w3.org/2001/XMLSchema#",
                     "pav": "http://purl.org/pav/",
-                    "bibo": "http://purl.org/ontology/bibo/",
                     "oslc": "http://open-services.net/ns/core#",
                     "schema": "http://schema.org/",
                     "schema:name": {"@type": "xsd:string"},
