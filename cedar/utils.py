@@ -1,3 +1,6 @@
+from urllib.parse import quote
+
+
 def set_context():
 
     return {
@@ -298,7 +301,10 @@ def set_sub_context(schema):
 
     for propertyKey in schema['properties']:
         if propertyKey not in ignored_key:
-            sub_context['properties'][propertyKey] = {"enum": [""]}
+            if 'enum' in schema['properties'][propertyKey]:
+                sub_context['properties'][propertyKey] = {"enum": schema['properties'][propertyKey]["enum"]}
+            else:
+                sub_context['properties'][propertyKey] = {"enum": [""]}
 
     sub_context["additionalProperties"] = False
     sub_context["type"] = "object"
@@ -311,7 +317,7 @@ def set_sub_context(schema):
     return sub_context
 
 
-def set_template_element_property_minimals(sub_context):
+def set_template_element_property_minimals(sub_context, schema):
     properties = {
         "@context": sub_context,
         "@type": {
@@ -336,6 +342,29 @@ def set_template_element_property_minimals(sub_context):
             "type": "string"
         }
     }
+
+    if 'enum' in schema["@type"]:
+        enum = []
+        for item in schema["@type"]['enum']:
+            url = 'http://data.bioontology.org/ontologies/OBI/classes/'+quote(item, safe="")
+            enum.append(url)
+        properties["@type"]["oneOf"] = [
+            {
+                "format": "uri",
+                "type": "string",
+                "enum": enum
+            },
+            {
+                "uniqueItems": True,
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                    "format": "uri",
+                    "type": "string",
+                    "enum": enum
+                }
+            }
+        ]
 
     return properties
 

@@ -51,7 +51,8 @@ class TestSchema2TemplateElement(unittest.TestCase):
 
         with open(os.path.join(self._data_dir, cedar_file_path)) as cedar_file:
             cedar_schema = json.load(cedar_file)
-        pprint(DeepDiff(output_schema_json, cedar_schema), indent=4)
+        print("\n")
+        pprint(DeepDiff(output_schema_json, cedar_schema, verbose_level=0), indent=4)
 
     def test_convert_sample_schema(self):
         self.convert_templateElement("sample_required_name_annotated_schema.json",

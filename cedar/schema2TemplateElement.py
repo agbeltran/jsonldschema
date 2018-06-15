@@ -26,15 +26,13 @@ cedar_template_element = Template('''
     "oslc:modifiedBy": "{{USER_URL}}",
     "_ui": { 
         "order": [ 
-            {% for item in properties %}
-                {% if not item in props %} "{{item}}" {% if not loop.last %},{% endif %} {% endif %}       
+            {% for item in TEMP_PROP %}
+                "{{item}}" {% if not loop.last %},{% endif %}      
             {% endfor %} 
         ],
         "propertyLabels": {
-            {% for item in properties %} 
-                {% if not item in props %}  
-                    "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %} 
-                {% endif %}
+            {% for item in TEMP_PROP %}   
+                "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %} 
             {% endfor %}
         }
     },
@@ -141,7 +139,8 @@ def convert_template_element(schema_file_path, **kwargs):
             now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
             schema_as_json = json.load(orig_schema_file)
             orig_schema_file.close()
-            property_context = set_template_element_property_minimals(set_sub_context(schema_as_json))
+            property_context = set_template_element_property_minimals(set_sub_context(schema_as_json),
+                                                                                      schema_as_json['properties'])
 
             sub_spec_container = {}
             sub_spec = set_sub_specs(schema_as_json['properties'], sub_spec_container)
