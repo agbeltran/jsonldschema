@@ -79,6 +79,9 @@ cedar_template_element = Template('''
                     ],
                     "@type": "https://schema.metadatacenter.org/core/TemplateField",
                     "_valueConstraints": {
+                        {% if itemVal['_valueConstraints']['defaultValue'] is defined%}
+                            "defaultValue": "{{itemVal['_valueConstraints']['defaultValue']}}",
+                        {% endif %}
                         "requiredValue":{% if (requiredList is defined) and (itemKey in requiredList) %} true {% else %} false {% endif%}
                     },
                     "pav:createdBy": "{{USER_URL}}",
