@@ -79,10 +79,13 @@ cedar_template_element = Template('''
                     ],
                     "@type": "https://schema.metadatacenter.org/core/TemplateField",
                     "_valueConstraints": {
-                        {% if itemVal['_valueConstraints']['defaultValue'] is defined%}
+                        {% if itemVal['_valueConstraints']['defaultValue'] is defined %}
                             "defaultValue": "{{itemVal['_valueConstraints']['defaultValue']}}",
                         {% endif %}
-                        "requiredValue":{% if (requiredList is defined) and (itemKey in requiredList) %} true {% else %} false {% endif%}
+                        "requiredValue":
+                            {% if (requiredList is defined) and (itemKey in requiredList) %} true 
+                            {% else %} false 
+                            {% endif%}
                     },
                     "pav:createdBy": "{{USER_URL}}",
                     "schema:name": "{{itemKey}}",
@@ -144,40 +147,41 @@ def convert_template_element(schema_file_path, **kwargs):
             # Set the current date
             now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
 
-            # Set the context
+            # Set the user URL
+            user_url = "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2"
+
+            # Set the context root['@context']
             context = set_context()
 
-            # Set the property context
+            # Set the property context root['properties']['@context']
             property_context = set_template_element_property_minimals(set_sub_context(schema_as_json),
                                                                       schema_as_json['properties'])
 
-            # Set the items context
+            # Set the items context root['properties']['item_name']['@context']
             item_context = dict(context)
             item_context.pop("bibo")
 
-            # Set the sub-specifications from $ref if needed
+            # Set the sub-specifications from $ref if needed, enabling templateElement nesting
             sub_spec_container = {}
             sub_spec = set_sub_specs(schema_as_json['properties'], sub_spec_container)
 
-            # Get the optional parameter for schema:name
+            # Get the optional parameter for schema:name (useful when nesting)
             field_key = kwargs.get('fieldKey', None)
             if field_key is None:
                 field_key = schema_as_json['title']
 
             # Create the jinja2 template
-            cedar_schema = cedar_template_element.render(schema_as_json,
-                                                         TEMPLATE_TYPE=cedar_type,
-                                                         TEMPLATE_CONTEXT=context,
-                                                         NOW=now,
-                                                         USER_URL="https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
-                                                         MIRCAT="mircat-tools",
-                                                         PROP_CONTEXT=property_context,
-                                                         ITEM_CONTEXT=item_context,
-                                                         TEMP_PROP=set_stripped_properties(schema_as_json),
-                                                         SUB_SPECS=sub_spec,
-                                                         FIELD_KEY=field_key)
-
-            return cedar_schema
+            return cedar_template_element.render(schema_as_json,
+                                                 TEMPLATE_TYPE=cedar_type,
+                                                 TEMPLATE_CONTEXT=context,
+                                                 NOW=now,
+                                                 USER_URL=user_url,
+                                                 MIRCAT="mircat-tools for python 3",
+                                                 PROP_CONTEXT=property_context,
+                                                 ITEM_CONTEXT=item_context,
+                                                 TEMP_PROP=set_stripped_properties(schema_as_json),
+                                                 SUB_SPECS=sub_spec,
+                                                 FIELD_KEY=field_key)
 
     except IOError:
         logging.error("Error opening schema file")

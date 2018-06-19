@@ -85,7 +85,8 @@ class TestSchema2TemplateElement(unittest.TestCase):
                 ignored_paths.append("root['properties']['" + item + "']['title']")
                 ignored_paths.append("root['properties']['" + item + "']['description']")
 
-        pprint(DeepDiff(output_schema_json, cedar_schema, verbose_level=0, exclude_paths=ignored_paths), indent=4)
+        #pprint(DeepDiff(output_schema_json, cedar_schema, verbose_level=0, exclude_paths=ignored_paths), indent=4)
+        eq_(DeepDiff(output_schema_json, cedar_schema, exclude_paths=ignored_paths), {})
 
     def test_convert_sample_schema(self):
         self.convert_templateElement("sample_required_name_annotated_schema.json",
