@@ -84,8 +84,8 @@ cedar_template_element = Template('''
                     ],
                     "@type": "https://schema.metadatacenter.org/core/TemplateField",
                     "_valueConstraints": {
-                        {% if itemVal['default'] is defined %}
-                            "defaultValue": "{{itemVal['default']}}",
+                        {% if itemVal['_valueConstraints']['defaultValue'] is defined %}
+                            "defaultValue": "{{itemVal['_valueConstraints']['defaultValue']}}",
                         {% endif %}
                         "requiredValue":
                             {% if (requiredList is defined) and (itemKey in requiredList) %} true 
@@ -154,7 +154,6 @@ def convert_template_element(schema_file_path, **kwargs):
 
             # Set the user URL
             configfile_path = os.path.join(os.path.dirname(__file__), "../tests/test_config.json.sample")
-            print(configfile_path)
 
             with open(configfile_path) as config_data_file:
                 config_json = json.load(config_data_file)
@@ -182,6 +181,8 @@ def convert_template_element(schema_file_path, **kwargs):
             if field_key is None:
                 field_key = schema_as_json['title']
 
+
+            print(set_stripped_properties(schema_as_json))
             # Return the Jinja2 template
             return cedar_template_element.render(schema_as_json,
                                                  TEMPLATE_TYPE=cedar_type,
