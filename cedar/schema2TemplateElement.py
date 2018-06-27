@@ -5,6 +5,11 @@ from jinja2 import Template
 import datetime
 from cedar.utils import set_template_element_property_minimals, set_sub_context, set_context, set_stripped_properties
 
+# TODO : get fields cardinality rather than setting it up manually
+# TODO (OPTIONAL): update sub TemplateElements (starting with the deepest one), get their ID and replace root['properties']['templateElementName"]["@id"] = null with the retrieved ID
+# TODO : improve templateElement nesting
+# TODO: make user_id global so that it can be accessed from everywhere or have it passed as a parameter (to prevent reopening the config file every time when load a templateElement)
+
 cedar_template_element = Template('''
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -79,8 +84,8 @@ cedar_template_element = Template('''
                     ],
                     "@type": "https://schema.metadatacenter.org/core/TemplateField",
                     "_valueConstraints": {
-                        {% if itemVal['_valueConstraints']['defaultValue'] is defined %}
-                            "defaultValue": "{{itemVal['_valueConstraints']['defaultValue']}}",
+                        {% if itemVal['default'] is defined %}
+                            "defaultValue": "{{itemVal['default']}}",
                         {% endif %}
                         "requiredValue":
                             {% if (requiredList is defined) and (itemKey in requiredList) %} true 
@@ -148,7 +153,14 @@ def convert_template_element(schema_file_path, **kwargs):
             now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
 
             # Set the user URL
-            user_url = "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2"
+            configfile_path = os.path.join(os.path.dirname(__file__), "../tests/test_config.json.sample")
+            print(configfile_path)
+
+            with open(configfile_path) as config_data_file:
+                config_json = json.load(config_data_file)
+                config_data_file.close()
+
+            user_url = "https://metadatacenter.org/users/"+config_json["user_id"]
 
             # Set the context root['@context']
             context = set_context()
@@ -170,7 +182,7 @@ def convert_template_element(schema_file_path, **kwargs):
             if field_key is None:
                 field_key = schema_as_json['title']
 
-            # Create the jinja2 template
+            # Return the Jinja2 template
             return cedar_template_element.render(schema_as_json,
                                                  TEMPLATE_TYPE=cedar_type,
                                                  TEMPLATE_CONTEXT=context,
@@ -204,7 +216,6 @@ def set_sub_specs(schema, sub_spec_container):
                 sub_spec_container = set_sub_specs(itemVal, sub_spec_container)
 
             elif 'items' in itemVal:
-                print(itemKey)
                 schema = os.path.join(data_dir, itemVal['items']['$ref'].replace('#', ''))
                 sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
                 sub_spec_container[itemKey] = sub_spec
