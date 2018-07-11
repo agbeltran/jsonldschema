@@ -34,7 +34,7 @@ class TestSchema2TemplateElement(unittest.TestCase):
         self.client = cedar.client.CEDARClient()
 
     @staticmethod
-    def local_validate(cedar_schema, converted_schema):
+    def local_validate(converted_schema, cedar_schema):
 
         # set up the main keys we want to ignore (like dates ...)
         ignored_keys = ["@type", "@id", "@context"]
@@ -69,7 +69,7 @@ class TestSchema2TemplateElement(unittest.TestCase):
 
         eq_(DeepDiff(converted_schema, cedar_schema, exclude_paths=ignored_paths), {})
 
-    def convert_templateElement(self, schema_filename, output_file, cedar_file_path):
+    def convert_templateElement(self, schema_filename, cedar_file_path):
 
         full_schema_filename = os.path.join(self._data_dir, schema_filename)  # path to the schema we want to convert
         output_schema = schema2TemplateElement.convert_template_element(full_schema_filename)  # convert
@@ -87,14 +87,9 @@ class TestSchema2TemplateElement(unittest.TestCase):
             cedar_schema = json.load(cedar_file)
 
         # Validates against local schema
-        self.local_validate(cedar_schema, output_schema_json)
+        self.local_validate(output_schema_json, cedar_schema)
 
-    def test_convert_sample_schema(self):
-        self.convert_templateElement("sample_required_name_annotated_schema.json",
-                                     "sample_required_name_annotated_schema_out.json",
-                                     "sample_required_name_annotated_cedar_schema.json")
-
-    def test_convert_vendor_schema(self):
-        self.convert_templateElement("person_schema.json",
-                                     "person_schema_out.json",
-                                     "person_cedar_schema.json")
+    def test_convert_schema(self):
+        input_schema = "sample_required_name_annotated_schema.json"
+        cedar_schema = "sample_required_name_annotated_cedar_schema.json"
+        self.convert_templateElement(input_schema, cedar_schema)
