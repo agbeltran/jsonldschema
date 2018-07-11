@@ -181,8 +181,6 @@ def convert_template_element(schema_file_path, **kwargs):
             if field_key is None:
                 field_key = schema_as_json['title']
 
-
-            print(set_stripped_properties(schema_as_json))
             # Return the Jinja2 template
             return cedar_template_element.render(schema_as_json,
                                                  TEMPLATE_TYPE=cedar_type,

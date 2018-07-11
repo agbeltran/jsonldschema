@@ -33,30 +33,11 @@ class TestSchema2TemplateElement(unittest.TestCase):
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
         self.client = cedar.client.CEDARClient()
 
-    def convert_templateElement(self, schema_filename, output_file, cedar_file_path):
+    @staticmethod
+    def local_validate(cedar_schema, converted_schema):
 
-        full_schema_filename = os.path.join(self._data_dir, schema_filename)
-        output_schema = schema2TemplateElement.convert_template_element(full_schema_filename)
-        output_schema_json = json.loads(output_schema)
-
-        response = self.client.validate_element("production", self.production_api_key, output_schema_json)
-
-        # save the converted file
-        outfile = open(os.path.join(self._data_dir, output_file), "w")
-        schema2TemplateElement.json_pretty_dump(output_schema_json, outfile)
-        outfile.close()
-
-        eq_(response.status_code, 200)
-        eq_(json.loads(response.text)["validates"], "true")
-        eq_(len(json.loads(response.text)["warnings"]), 0)
-        eq_(len(json.loads(response.text)["errors"]), 0)
-
-        with open(os.path.join(self._data_dir, cedar_file_path)) as cedar_file:
-            cedar_schema = json.load(cedar_file)
-        print("\n")
-
+        # set up the main keys we want to ignore (like dates ...)
         ignored_keys = ["@type", "@id", "@context"]
-
         ignored_paths = [
             "root['@id']",
             "root['description']",
@@ -71,9 +52,10 @@ class TestSchema2TemplateElement(unittest.TestCase):
             "root['title']"
         ]
 
-        for item in output_schema_json['properties']:
+        # set up the properties keys we want to ignore (like dates ...)
+        for item in converted_schema['properties']:
             if item not in ignored_keys:
-                ignored_paths.append("root['properties']['"+item+"']['@id']")
+                ignored_paths.append("root['properties']['" + item + "']['@id']")
                 ignored_paths.append("root['properties']['" + item + "']['oslc:modifiedBy']")
                 ignored_paths.append("root['properties']['" + item + "']['pav:createdBy']")
                 ignored_paths.append("root['properties']['" + item + "']['pav:createdOn']")
@@ -85,8 +67,27 @@ class TestSchema2TemplateElement(unittest.TestCase):
                 ignored_paths.append("root['properties']['" + item + "']['title']")
                 ignored_paths.append("root['properties']['" + item + "']['description']")
 
-        #pprint(DeepDiff(output_schema_json, cedar_schema, verbose_level=0, exclude_paths=ignored_paths), indent=4)
-        eq_(DeepDiff(output_schema_json, cedar_schema, exclude_paths=ignored_paths), {})
+        eq_(DeepDiff(converted_schema, cedar_schema, exclude_paths=ignored_paths), {})
+
+    def convert_templateElement(self, schema_filename, output_file, cedar_file_path):
+
+        full_schema_filename = os.path.join(self._data_dir, schema_filename)  # path to the schema we want to convert
+        output_schema = schema2TemplateElement.convert_template_element(full_schema_filename)  # convert
+        output_schema_json = json.loads(output_schema)  # load the converted template into an object
+        response = self.client.validate_element("production", self.production_api_key, output_schema_json)  # Trigger the validation request to the server
+
+        # Validate against the server response
+        eq_(response.status_code, 200)
+        eq_(json.loads(response.text)["validates"], "true")
+        eq_(len(json.loads(response.text)["warnings"]), 0)
+        eq_(len(json.loads(response.text)["errors"]), 0)
+
+        # open the local file cedar file
+        with open(os.path.join(self._data_dir, cedar_file_path)) as cedar_file:
+            cedar_schema = json.load(cedar_file)
+
+        # Validates against local schema
+        self.local_validate(cedar_schema, output_schema_json)
 
     def test_convert_sample_schema(self):
         self.convert_templateElement("sample_required_name_annotated_schema.json",
