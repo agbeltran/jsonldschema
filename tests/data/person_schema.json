@@ -16,7 +16,7 @@
       ]
     },
     "@id": { "type": "string", "format": "uri" },
-    "@type": { "type": "string", "enum": [ "Person" ]},
+    "@type": { "type": "string", "format":"uri" },
     "identifier": {
       "description": "Primary identifier for the person.",
       "$ref": "identifier_info_schema.json#"
@@ -24,20 +24,6 @@
     "lastName": {
       "description": "The person's family name.",
       "type" :  "string"
-    },
-    "roles" : {
-      "description": "The roles assumed by a person, ideally from a controlled vocabulary/ontology.",
-      "type" : "array",
-      "items" : {
-        "$ref" : "annotation_schema.json#"
-      }
-    },
-    "extraProperties": {
-      "description": "Extra properties that do not fit in the previous specified attributes. ",
-      "type": "array",
-      "items": {
-        "$ref" : "category_values_pair_schema.json#"
-      }
     }
   },
   "additionalProperties": false

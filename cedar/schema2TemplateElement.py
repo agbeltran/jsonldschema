@@ -4,11 +4,29 @@ import logging
 from jinja2 import Template
 import datetime
 from cedar.utils import set_template_element_property_minimals, set_sub_context, set_context, set_stripped_properties
+import cedar.client
+import requests
 
 # TODO : get fields cardinality rather than setting it up manually
 # TODO (OPTIONAL): update sub TemplateElements (starting with the deepest one), get their ID and replace root['properties']['templateElementName"]["@id"] = null with the retrieved ID
 # TODO : improve templateElement nesting
 # TODO: make user_id global so that it can be accessed from everywhere or have it passed as a parameter (to prevent reopening the config file every time when load a templateElement)
+
+
+configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json")
+if not (os.path.exists(configfile_path)):
+    configfile_path = os.path.join(os.path.dirname(__file__), "../tests/test_config.json.sample")
+with open(configfile_path) as config_data_file:
+    config_json = json.load(config_data_file)
+
+_data_dir = os.path.join(os.path.dirname(__file__), "data")
+production_api_key = config_json["production_key"]
+staging_api_key = config_json["staging_key"]
+template_id = config_json["template_id"]
+folder_id = config_json["folder_id"]
+template_path_no_id = os.path.join(_data_dir, config_json["example_template_file_no_id"])
+template_path_with_id = os.path.join(_data_dir, config_json["example_template_file_with_id"])
+
 
 cedar_template_element = Template('''
 {
@@ -55,11 +73,9 @@ cedar_template_element = Template('''
         {% for itemKey, itemVal in TEMP_PROP.items() %}
             {% if 'items' in itemVal or '$ref' in itemVal %}
                 {% if itemKey in SUB_SPECS %}
-                     "{{itemKey}}": {
-                        "items": {{SUB_SPECS[itemKey] | tojson}},
-                        "minItems": 1,
-                        "type": "array"
-                     }
+                     "{{itemKey}}":
+                        {{SUB_SPECS[itemKey] | tojson}}
+                     
                 {% else %}
                     "{{itemKey}}": "test"
                 {% endif %}
@@ -84,7 +100,7 @@ cedar_template_element = Template('''
                     ],
                     "@type": "https://schema.metadatacenter.org/core/TemplateField",
                     "_valueConstraints": {
-                        {% if itemVal['_valueConstraints']['defaultValue'] is defined %}
+                        {% if itemVal['_valueConstraints'] is defined and itemVal['_valueConstraints']['defaultValue'] is defined %}
                             "defaultValue": "{{itemVal['_valueConstraints']['defaultValue']}}",
                         {% endif %}
                         "requiredValue":
@@ -211,6 +227,16 @@ def set_sub_specs(schema, sub_spec_container):
             if '$ref' in itemVal:
                 schema = os.path.join(data_dir, itemVal['$ref'].replace('#', ''))
                 sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
+
+                # WORK HERE: VALIDATES THE SUBSPECS, UPLOADS IT TO THE SERVER, GETS IT ID, FILL IT IN
+                client = cedar.client.CEDARClient()
+                headers = client.get_headers(production_api_key)
+                request_url = client.selectEndpoint('production') \
+                              + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" \
+                              + folder_id
+                response = requests.request("POST", request_url, headers=headers, data=json.dumps(sub_spec),
+                                            verify=True)
+                sub_spec["@id"] = json.loads(response.text)["@id"]
                 sub_spec_container[itemKey] = sub_spec
                 sub_spec_container = set_sub_specs(itemVal, sub_spec_container)
 

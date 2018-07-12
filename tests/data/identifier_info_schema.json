@@ -16,7 +16,7 @@
       ]
     },
     "@id": { "type": "string", "format": "uri" },
-    "@type": { "type": "string", "enum": [ "Identifier" ]},
+    "@type": {  "type": "string", "format":"uri" },
     "identifier": {
       "description": "A code uniquely identifying an entity locally to a system or globally.",
       "type" : "string",
