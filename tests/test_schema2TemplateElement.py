@@ -72,6 +72,7 @@ class TestSchema2TemplateElement(unittest.TestCase):
 
         full_schema_filename = os.path.join(self._data_dir, schema_filename)  # path to the schema we want to convert
         output_schema = schema2TemplateElement.convert_template_element(full_schema_filename)  # convert
+        print(output_schema)
         output_schema_json = json.loads(output_schema)  # load the converted template into an object
         response = self.client.validate_element("production", self.production_api_key, output_schema_json)  # Trigger the validation request to the server
 
@@ -84,9 +85,9 @@ class TestSchema2TemplateElement(unittest.TestCase):
             eq_(len(json.loads(response.text)["warnings"]), 0)
             eq_(len(json.loads(response.text)["errors"]), 0)
 
-            # open the local file cedar file
+            """ open the local file cedar file
             with open(os.path.join(self._data_dir, cedar_file_path)) as cedar_file:
-                cedar_schema = json.load(cedar_file)
+                cedar_schema = json.load(cedar_file)"""
 
             # Validates against local schema
             #self.local_validate(output_schema_json, cedar_schema)
@@ -108,7 +109,7 @@ class TestSchema2TemplateElement(unittest.TestCase):
         input_schema = "identifier_info_schema.json"
         cedar_schema = "identifier_info_cedar_schema.json"
 
-        input_schema = "person_schema.json"
-        output_schema = "person_schema_out.json"
+        input_schema = "dataset_schema.json"
+        output_schema = "dataset_schema_out.json"
         cedar_schema = "person_cedar_schema.json"
         self.convert_templateElement(input_schema, cedar_schema, output_schema)

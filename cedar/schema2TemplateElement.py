@@ -8,7 +8,6 @@ import cedar.client
 import requests
 
 # TODO : get fields cardinality rather than setting it up manually
-# TODO (OPTIONAL): update sub TemplateElements (starting with the deepest one), get their ID and replace root['properties']['templateElementName"]["@id"] = null with the retrieved ID
 # TODO : improve templateElement nesting
 # TODO: make user_id global so that it can be accessed from everywhere or have it passed as a parameter (to prevent reopening the config file every time when load a templateElement)
 
@@ -63,7 +62,7 @@ cedar_template_element = Template('''
         "@context",
         "@id"
         {% for item in requiredList %}
-            ,"{{item}}"{% if not loop.last %},{% endif %}
+            ,"{{item}}"
         {% endfor %}
     ],
     "properties": {
@@ -221,29 +220,43 @@ def json_pretty_dump(json_object, output_file):
 def set_sub_specs(schema, sub_spec_container):
     ignored_key = ["@id", "@type", "@context"]
     data_dir = os.path.join(os.path.dirname(__file__), "../tests/data")
+    client = cedar.client.CEDARClient()
+    headers = client.get_headers(production_api_key)
+    request_url = client.selectEndpoint('production') \
+                  + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" \
+                  + folder_id
 
+
+    # For each field in the properties array
     for itemKey, itemVal in schema.items():
-        if itemKey not in ignored_key:
-            if '$ref' in itemVal:
-                schema = os.path.join(data_dir, itemVal['$ref'].replace('#', ''))
-                sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
 
-                # WORK HERE: VALIDATES THE SUBSPECS, UPLOADS IT TO THE SERVER, GETS IT ID, FILL IT IN
-                client = cedar.client.CEDARClient()
-                headers = client.get_headers(production_api_key)
-                request_url = client.selectEndpoint('production') \
-                              + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" \
-                              + folder_id
-                response = requests.request("POST", request_url, headers=headers, data=json.dumps(sub_spec),
+        # If the field key is not to be igored
+        if itemKey not in ignored_key:
+
+            # if there's a $ref subfield
+            if '$ref' in itemVal:
+                schema = os.path.join(data_dir, itemVal['$ref'].replace('#', ''))  # build the file path
+                # load and convert the template element
+                sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
+                response = requests.request("POST",
+                                            request_url,
+                                            headers=headers,
+                                            data=json.dumps(sub_spec),
+                                            verify=True)  # Upload it to the server
+                sub_spec["@id"] = json.loads(response.text)["@id"]  # change the spec @id with the one from the server
+                sub_spec_container[itemKey] = sub_spec  # add to container
+                sub_spec_container = set_sub_specs(itemVal, sub_spec_container)  # try to locate deeper spec to load
+
+            """elif 'items' in itemVal:
+                schema = os.path.join(data_dir, itemVal['items']['$ref'].replace('#', ''))
+                sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
+                response = requests.request("POST",
+                                            request_url,
+                                            headers=headers,
+                                            data=json.dumps(sub_spec),
                                             verify=True)
                 sub_spec["@id"] = json.loads(response.text)["@id"]
                 sub_spec_container[itemKey] = sub_spec
-                sub_spec_container = set_sub_specs(itemVal, sub_spec_container)
-
-            elif 'items' in itemVal:
-                schema = os.path.join(data_dir, itemVal['items']['$ref'].replace('#', ''))
-                sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
-                sub_spec_container[itemKey] = sub_spec
-                sub_spec_container = set_sub_specs(itemVal, sub_spec_container)
+                sub_spec_container = set_sub_specs(itemVal, sub_spec_container)"""
 
     return sub_spec_container
