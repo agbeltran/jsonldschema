@@ -102,7 +102,7 @@ class TestSchema2TemplateElement(unittest.TestCase):
                                                 os.path.join(self._data_dir, output_schema_name))
 
         except AssertionError:
-            raise AssertionError
+            raise AssertionError(response.status_code)
 
     def test_convert_schema(self):
 
