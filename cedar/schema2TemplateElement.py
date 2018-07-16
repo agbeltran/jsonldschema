@@ -11,9 +11,9 @@ import requests
 # TODO: make user_id global so that it can be accessed from everywhere or have it passed as a parameter (to prevent reopening the config file every time when load a templateElement)
 # TODO: solve problem: is the algo crashes for any reason, all templates laoded remain on the server
 
-configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json")
+configfile_path = os.path.join(os.path.dirname(__file__), "../tests/test_config.json")
 if not (os.path.exists(configfile_path)):
-    configfile_path = os.path.join(os.path.dirname(__file__), "../tests/test_config.json.sample")
+    print("Please, create the config file.")
 with open(configfile_path) as config_data_file:
     config_json = json.load(config_data_file)
 
@@ -167,7 +167,7 @@ def convert_template_element(schema_file_path, **kwargs):
             now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
 
             # Set the user URL
-            configfile_path = os.path.join(os.path.dirname(__file__), "../tests/test_config.json.sample")
+            configfile_path = os.path.join(os.path.dirname(__file__), "../tests/test_config.json")
 
             with open(configfile_path) as config_data_file:
                 config_json = json.load(config_data_file)
