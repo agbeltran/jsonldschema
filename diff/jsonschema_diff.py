@@ -1,8 +1,8 @@
 
-"""
-Compare two dictionaries d1 and d2, ignoring the list of keys given as ignore_keys
-"""
 def equal_dicts(d1, d2, ignore_keys):
+    """
+    Compare two dictionaries d1 and d2, ignoring the list of keys given as ignore_keys
+    """
     ignored = set(ignore_keys)
     for k1, v1 in iter(d1.items()):
         if k1 not in ignored and (k1 not in d2 or d2[k1] != v1):
@@ -13,12 +13,10 @@ def equal_dicts(d1, d2, ignore_keys):
     return True
 
 
-"""
-Return the difference between two dictionaries d1 and d2, ignoring the list of keys given as parameter ignore_keys
-"""
-
-
 def diff_dicts(d1, d2, ignore_keys):
+    """
+    Return the difference between two dictionaries d1 and d2, ignoring the list of keys given as parameter ignore_keys
+    """
     ignored = set(ignore_keys)
     diff = set()
     for k1, v1 in iter(d1.items()):
@@ -30,11 +28,10 @@ def diff_dicts(d1, d2, ignore_keys):
     return diff
 
 
-"""
-Display the difference between a source to validate (source_tempalte) and a valid template (valid_template)
-"""
-
 def compare_dicts(source_template, valid_template, lvl):
+    """
+    Display the difference between a source to validate (source_template) and a valid template (valid_template)
+    """
     for key in source_template:
 
         if key not in valid_template:

@@ -35,7 +35,7 @@ You will need to provide:
 You can also configure the "example_template_file_no_id" and "example_template_file_with_id" file path to point to 
 other local JSON schemas. These two schemas are needed for the following cases:
 
-- shen creating a new template on the server, a schema without an ID is necessary (the ID will
+- when creating a new template on the server, a schema without an ID is necessary (the ID will
 be automatically given by the server); 
 - when updating a template, the ID is retrieved automatically from the file and 
 the corresponding template gets updated on the server.
