@@ -8,7 +8,6 @@ import cedar.client
 import requests
 
 # TODO : get fields cardinality rather than setting it up manually
-# TODO : improve templateElement nesting
 # TODO: make user_id global so that it can be accessed from everywhere or have it passed as a parameter (to prevent reopening the config file every time when load a templateElement)
 
 
@@ -25,6 +24,8 @@ template_id = config_json["template_id"]
 folder_id = config_json["folder_id"]
 template_path_no_id = os.path.join(_data_dir, config_json["example_template_file_no_id"])
 template_path_with_id = os.path.join(_data_dir, config_json["example_template_file_with_id"])
+
+loaded_specs = {}
 
 
 cedar_template_element = Template('''
@@ -226,12 +227,11 @@ def set_sub_specs(schema, sub_spec_container):
                   + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" \
                   + folder_id
 
-
     # For each field in the properties array
     for itemKey, itemVal in schema.items():
 
         # If the field key is not to be igored
-        if itemKey not in ignored_key:
+        if itemKey not in ignored_key and itemKey not in loaded_specs.keys():
 
             # if there's a $ref subfield
             if '$ref' in itemVal:
@@ -244,7 +244,13 @@ def set_sub_specs(schema, sub_spec_container):
                                             data=json.dumps(sub_spec),
                                             verify=True)  # Upload it to the server
                 sub_spec["@id"] = json.loads(response.text)["@id"]  # change the spec @id with the one from the server
+                loaded_specs[itemKey] = json.loads(response.text)
                 sub_spec_container[itemKey] = sub_spec  # add to container
+                sub_spec_container = set_sub_specs(itemVal, sub_spec_container)  # try to locate deeper spec to load
+
+        elif itemKey not in ignored_key and itemKey in loaded_specs.keys():
+            if '$ref' in itemVal:
+                sub_spec_container[itemKey] = loaded_specs[itemKey]
                 sub_spec_container = set_sub_specs(itemVal, sub_spec_container)  # try to locate deeper spec to load
 
             """elif 'items' in itemVal:
