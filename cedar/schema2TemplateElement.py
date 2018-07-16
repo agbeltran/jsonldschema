@@ -3,13 +3,13 @@ import os
 import logging
 from jinja2 import Template
 import datetime
+import collections
 from cedar.utils import set_template_element_property_minimals, set_sub_context, set_context, set_stripped_properties
 import cedar.client
 import requests
 
-# TODO : get fields cardinality rather than setting it up manually
 # TODO: make user_id global so that it can be accessed from everywhere or have it passed as a parameter (to prevent reopening the config file every time when load a templateElement)
-
+# TODO: solve problem: is the algo crashes for any reason, all templates laoded remain on the server
 
 configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json")
 if not (os.path.exists(configfile_path)):
@@ -71,14 +71,12 @@ cedar_template_element = Template('''
             "{{itemKey}}": {{itemVal | tojson}} {% if not loop.last %},{% endif %}
         {% endfor %},
         {% for itemKey, itemVal in TEMP_PROP.items() %}
-            {% if 'items' in itemVal or '$ref' in itemVal %}
-                {% if itemKey in SUB_SPECS %}
-                     "{{itemKey}}":
-                        {{SUB_SPECS[itemKey] | tojson}}
-                     
-                {% else %}
-                    "{{itemKey}}": "test"
+            {% if '$ref' in itemVal %}
+                {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}                     
                 {% endif %}
+            {% elif 'items' in itemVal and '$ref' in itemVal['items'] %}
+                {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}                     
+                {% endif %}    
             {% else %}               
                 "{{itemKey}}": {
                     "@context": {{ITEM_CONTEXT | tojson}},
@@ -230,39 +228,51 @@ def set_sub_specs(schema, sub_spec_container):
     # For each field in the properties array
     for itemKey, itemVal in schema.items():
 
-        # If the field key is not to be igored
-        if itemKey not in ignored_key and itemKey not in loaded_specs.keys():
+        # if the field is not to be ignored
+        if itemKey not in ignored_key:
 
-            # if there's a $ref subfield
+            # set the schema_path to load to None
+            schema_path = None
+            multiple_items = False
+
             if '$ref' in itemVal:
-                schema = os.path.join(data_dir, itemVal['$ref'].replace('#', ''))  # build the file path
-                # load and convert the template element
-                sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
-                response = requests.request("POST",
-                                            request_url,
-                                            headers=headers,
-                                            data=json.dumps(sub_spec),
-                                            verify=True)  # Upload it to the server
-                sub_spec["@id"] = json.loads(response.text)["@id"]  # change the spec @id with the one from the server
-                loaded_specs[itemKey] = json.loads(response.text)
-                sub_spec_container[itemKey] = sub_spec  # add to container
-                sub_spec_container = set_sub_specs(itemVal, sub_spec_container)  # try to locate deeper spec to load
+                schema_path = os.path.join(data_dir, itemVal['$ref'].replace('#', ''))  # build the file path
 
-        elif itemKey not in ignored_key and itemKey in loaded_specs.keys():
-            if '$ref' in itemVal:
-                sub_spec_container[itemKey] = loaded_specs[itemKey]
-                sub_spec_container = set_sub_specs(itemVal, sub_spec_container)  # try to locate deeper spec to load
+            elif 'items' in itemVal and '$ref' in itemVal['items']:
+                schema_path = os.path.join(data_dir, itemVal['items']['$ref'].replace('#', ''))  # build the file path
+                multiple_items = True
 
-            """elif 'items' in itemVal:
-                schema = os.path.join(data_dir, itemVal['items']['$ref'].replace('#', ''))
-                sub_spec = json.loads(convert_template_element(schema, fieldKey=itemKey))
-                response = requests.request("POST",
-                                            request_url,
-                                            headers=headers,
-                                            data=json.dumps(sub_spec),
-                                            verify=True)
-                sub_spec["@id"] = json.loads(response.text)["@id"]
+            elif ('items' in itemVal and ('anyOf' in itemVal['items'] or 'oneOf' in itemVal['items'])) \
+                    or ('anyOf' in itemVal) \
+                    or ('oneOf' in itemVal):
+
+                # REFINING HERE -> DELETE ALL ITEMS FROM SERVER !! (or change algo to validate all templates first.
+                raise ValueError("'anyOf' and 'oneOf' are not supported by CEDAR")
+
+            # if the schema_path is set
+            if schema_path is not None:
+
+                if itemKey not in loaded_specs.keys():
+                    temp_spec = json.loads(convert_template_element(schema_path, fieldKey=itemKey))
+
+                    # NEED SOME REFINING HERE -> VALIDATE BEFORE POST !!!
+                    response = requests.request("POST",
+                                                request_url,
+                                                headers=headers,
+                                                data=json.dumps(temp_spec),
+                                                verify=True)
+
+                    temp_spec["@id"] = json.loads(response.text)["@id"]
+                    if multiple_items:
+                        sub_spec = {'items': temp_spec, "type": "array", "minItems": 1}
+                    else:
+                        sub_spec = temp_spec
+
+                    loaded_specs[itemKey] = sub_spec
+
+                else:
+                    sub_spec = loaded_specs[itemKey]
+
                 sub_spec_container[itemKey] = sub_spec
-                sub_spec_container = set_sub_specs(itemVal, sub_spec_container)"""
 
     return sub_spec_container

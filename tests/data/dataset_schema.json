@@ -24,11 +24,18 @@
         "creators" : {
             "description": "The person(s) or organization(s) which contributed to the creation of the dataset.",
             "type" : "array",
-            "$ref" : "person_schema.json#"
+            "items" : {
+                "$ref" : "person_schema.json#"
+            },
+            "minItems" : 1
         },
         "version" : {
             "description": "A release point for the dataset when applicable.",
             "type" : "string"
+        },
+        "identifier": {
+            "description": "Primary identifier for the person.",
+            "$ref": "identifier_info_schema.json#"
         }
     },
     "additionalProperties": false,

@@ -72,7 +72,6 @@ class TestSchema2TemplateElement(unittest.TestCase):
 
         full_schema_filename = os.path.join(self._data_dir, schema_filename)  # path to the schema we want to convert
         output_schema = schema2TemplateElement.convert_template_element(full_schema_filename)  # convert
-        print(output_schema)
         output_schema_json = json.loads(output_schema)  # load the converted template into an object
         response = self.client.validate_element("production", self.production_api_key, output_schema_json)  # Trigger the validation request to the server
 
@@ -90,9 +89,9 @@ class TestSchema2TemplateElement(unittest.TestCase):
                 cedar_schema = json.load(cedar_file)"""
 
             # Validates against local schema
-            #self.local_validate(output_schema_json, cedar_schema)
+            # self.local_validate(output_schema_json, cedar_schema)
 
-            ### save the converted file
+            # save the converted file
             output_schema = open(os.path.join(self._data_dir, output_schema_name), "w")
             schema2TemplateElement.json_pretty_dump(output_schema_json, output_schema)
             output_schema.close()
@@ -106,10 +105,11 @@ class TestSchema2TemplateElement(unittest.TestCase):
             raise AssertionError
 
     def test_convert_schema(self):
-        input_schema = "identifier_info_schema.json"
-        cedar_schema = "identifier_info_cedar_schema.json"
 
+        # Set the schema to convert, the file to write the converted schema and the template to locally match against,
+        # in that order
         input_schema = "dataset_schema.json"
         output_schema = "dataset_schema_out.json"
         cedar_schema = "person_cedar_schema.json"
+
         self.convert_templateElement(input_schema, cedar_schema, output_schema)
