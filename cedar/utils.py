@@ -214,14 +214,21 @@ def set_required_item(schema):
     properties = {}
 
     for propertyKey in schema['properties']:
-        if propertyKey not in ignored_key:
+        if propertyKey not in ignored_key \
+                and '$ref' not in schema['properties'][propertyKey]\
+                and (('items' in schema['properties'][propertyKey]
+                     and '$ref' not in schema['properties'][propertyKey]['items'])
+                     or 'items' not in schema['properties'][propertyKey]):
+
             if "description" in schema['properties'][propertyKey]:
                 description = schema['properties'][propertyKey]['description']
+
             else:
                 description = propertyKey
 
             if propertyKey in schema['required']:
                 required = True
+
             else:
                 required = False
 
@@ -342,7 +349,7 @@ def set_template_element_property_minimals(sub_context, schema):
         }
     }
 
-    if 'enum' in schema["@type"]:
+    if "@type" in schema and 'enum' in schema["@type"]:
         enum = []
         for item in schema["@type"]['enum']:
             url = 'http://data.bioontology.org/ontologies/OBI/classes/'+quote(item, safe="")

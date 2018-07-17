@@ -1,0 +1,44 @@
+{
+  "id": "http://fairsharing.github.io/MIRcat/miaca/project_schema.json",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "MIACA (Minimum Information about a Cellular Assay) project schema",
+  "description": "JSON-schema representing MIACA reporting guideline.",
+  "type": "object",
+  "properties": {
+    "ID": {
+      "type": "string"
+    },
+    "source": {
+      "description": "Contact details of researcher/person/laboratory/institution in charge of the project",
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/source_schema.json#"
+    },
+    "projectDescription": {
+      "description": "Description of biological process that is addressed and description of measured effect.",
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/project_description_schema.json#"
+    },
+    "application": {
+      "description": "Description of the specific application of this project within a larger context, if applicable.",
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/application_schema.json#"
+    },
+    "arraySupport": {
+      "description": "Array supports (reaction vessels where perturbations are carried out) that are used during the project",
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/array_support_schema.json#"
+    },
+    "materialList": {
+      "description": "Description of the materials that are utilized in the project.",
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/material_list_schema.json#"
+    },
+    "instrument": {
+      "description": "Description of the instruments required for the assay, e.g. data acquisition station. Detailed descriptions of such instruments and their settings could be part of spezialized documents or be given in Treatment, Post-Treatment, or Data Acquisition.",
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/instrument_schema.json#"
+    },
+    "cellAssay": {
+      "description": "The actual experimental part decribing the performed steps, like  treatments, perturbation(s) and data acquisition in necessary detail.",
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/cell_assay_schema.json#"
+    },
+    "dataProcessing": {
+      "description": "Description of the processes applied to analyze the raw-data in order to generate a hit list. Data analysis is usually carried out sequentially, applying a number of algorithms and analysis tools",
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/data_acquisition_schema.json#"
+    }
+  }
+}

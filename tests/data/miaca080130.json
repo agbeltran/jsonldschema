@@ -1,0 +1,26 @@
+{
+  "project": {
+    "ID": "p1",
+    "source": {
+      "ID": "s1",
+      "name": "Stephanie Bechtel",
+      "institution": "German Cancer Research Center",
+      "department": "Molecular Genome Analysis",
+      "address": "Im Neuenheimer Feld 580",
+      "city": "Heidelberg",
+      "country": "Germany",
+      "email": "s.bechtel@dkfz-heidelberg.de"
+    },
+    "projectDescription": {
+      "ID": "pd1",
+      "title": "Genome-wide p38 RNAi screen",
+      "process": "activation or inhibition of P38 MAPK signaling by knock-down of endogenously expressed genes/proteins - whole genome",
+      "effect": "luciferase reporter gene assay reflecting the activation state of the P38 MAPK signaling",
+      "controls": "Not defined"
+    },
+    "application": {
+      "ID": "app1",
+      "abstract": "A Genome-wide RNAi screen to identify modulators of human P38 signalling using a human siRNA library containing 21.000 different siRNA pools"
+    }
+  }
+}

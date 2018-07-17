@@ -3,7 +3,6 @@ import os
 import logging
 from jinja2 import Template
 import datetime
-import collections
 from cedar.utils import set_template_element_property_minimals, set_sub_context, set_context, set_stripped_properties
 import cedar.client
 import requests
@@ -16,14 +15,12 @@ if not (os.path.exists(configfile_path)):
     print("Please, create the config file.")
 with open(configfile_path) as config_data_file:
     config_json = json.load(config_data_file)
+config_data_file.close()
 
 _data_dir = os.path.join(os.path.dirname(__file__), "data")
 production_api_key = config_json["production_key"]
-staging_api_key = config_json["staging_key"]
-template_id = config_json["template_id"]
 folder_id = config_json["folder_id"]
-template_path_no_id = os.path.join(_data_dir, config_json["example_template_file_no_id"])
-template_path_with_id = os.path.join(_data_dir, config_json["example_template_file_with_id"])
+user_id = config_json["user_id"]
 
 loaded_specs = {}
 
@@ -166,23 +163,17 @@ def convert_template_element(schema_file_path, **kwargs):
             # Set the current date
             now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
 
-            # Set the user URL
-            configfile_path = os.path.join(os.path.dirname(__file__), "../tests/test_config.json")
-
-            with open(configfile_path) as config_data_file:
-                config_json = json.load(config_data_file)
-                config_data_file.close()
-
+            # Set the user url
             user_url = "https://metadatacenter.org/users/"+config_json["user_id"]
 
-            # Set the context root['@context']
+            # Set root['@context']
             context = set_context()
 
-            # Set the property context root['properties']['@context']
+            # Set root['properties']['@context']
             property_context = set_template_element_property_minimals(set_sub_context(schema_as_json),
                                                                       schema_as_json['properties'])
 
-            # Set the items context root['properties']['item_name']['@context']
+            # Set root['properties']['item_name']['@context']
             item_context = dict(context)
             item_context.pop("bibo")
 
@@ -236,10 +227,12 @@ def set_sub_specs(schema, sub_spec_container):
             multiple_items = False
 
             if '$ref' in itemVal:
-                schema_path = os.path.join(data_dir, itemVal['$ref'].replace('#', ''))  # build the file path
+                schema_path = os.path.join(data_dir, itemVal['$ref']
+                                           .replace('#', ''))\
+                    .replace("http://fairsharing.github.io/MIRcat/miaca/", "")  # build the file path
 
             elif 'items' in itemVal and '$ref' in itemVal['items']:
-                schema_path = os.path.join(data_dir, itemVal['items']['$ref'].replace('#', ''))  # build the file path
+                schema_path = os.path.join(data_dir, itemVal['items']['$ref'][0].replace('#', ''))  # build the file path
                 multiple_items = True
 
             elif ('items' in itemVal and ('anyOf' in itemVal['items'] or 'oneOf' in itemVal['items'])) \
@@ -247,10 +240,11 @@ def set_sub_specs(schema, sub_spec_container):
                     or ('oneOf' in itemVal):
 
                 # REFINING HERE -> DELETE ALL ITEMS FROM SERVER !! (or change algo to validate all templates first.
-                raise ValueError("'anyOf' and 'oneOf' are not supported by CEDAR")
+                raise ValueError("'anyOf' and 'oneOf' are not supported by CEDAR (schema affected: )")
 
             # if the schema_path is set
             if schema_path is not None:
+                print(schema_path)
 
                 if itemKey not in loaded_specs.keys():
                     temp_spec = json.loads(convert_template_element(schema_path, fieldKey=itemKey))

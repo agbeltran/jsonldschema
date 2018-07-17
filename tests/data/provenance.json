@@ -1,0 +1,62 @@
+{
+  "wasAttributedTo": {
+    "_:id5": {
+      "prov:agent": "mircat:Alejandra",
+      "prov:entity": "mircat:miaca-schema.json"
+    },
+    "_:id6": {
+      "prov:agent": "mircat:Philippe",
+      "prov:entity": "mircat:miaca-schema.json"
+    }
+  },
+  "used": {
+    "_:id1": {
+      "prov:entity": "mircat:CAOM080115.xsd",
+      "prov:activity": "mircat:fairifyChecklist"
+    }
+  },
+  "prefix": {
+    "mircat": "http://fairsharing.github.io",
+    "sdo": "https://schema.org"
+  },
+  "wasDerivedFrom": {
+    "_:id3": {
+      "prov:usedEntity": "mircat:CAOM080115.xsd",
+      "prov:generatedEntity": "mircat:miaca-schema.json"
+    },
+    "_:id4": {
+      "prov:usedEntity": "mircat:Wiemann.pdf",
+      "prov:generatedEntity": "mircat:miaca-schema.json"
+    }
+  },
+  "agent": {
+    "mircat:Alejandra": {
+      "sdo:name": "Alejandra Gonzalez-Beltran",
+      "prov:type": "sdo:Person"
+    },
+    "mircat:Philippe": {}
+  },
+  "wasGeneratedBy": {
+    "_:id2": {
+      "prov:entity": "mircat:miaca-schema.json",
+      "prov:activity": "mircat:fairifyChecklist"
+    }
+  },
+  "entity": {
+    "mircat:Wiemann.pdf": {
+      "prov:label": "Wiemann.pdf",
+      "prov:type": "sdo:ScholarlyArticle"
+    },
+    "mircat:CAOM080115.xsd": {
+      "prov:label": "CAOM080115.xsd",
+      "prov:type": "void:Dataset"
+    },
+    "mircat:miaca-schema.json": {
+      "prov:label": "miaca-schema.json",
+      "prov:type": "void:Dataset"
+    }
+  },
+  "activity": {
+    "mircat:fairifyChecklist": {}
+  }
+}
