@@ -122,6 +122,18 @@ class CEDARClient:
         response = requests.request("POST", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
         return response
 
+    def create_folder(self, endpoint_type, api_key, target_folder_id, new_folder_name, new_folder_description):
+        """ Create a folder with new_folder_name in the target_folder_id location """
+        headers = self.get_headers(api_key)
+        request_url = self.selectEndpoint(endpoint_type) + '/folders'
+        folder_json = {
+            "folderId": "https://repo.metadatacenter.org/folders/"+target_folder_id,
+            "name": new_folder_name,
+            "description": new_folder_description
+        }
+        response = requests.request("POST", request_url, headers=headers, data=json.dumps(folder_json), verify=True)
+        return response
+
     def create_template_element(self, endpoint_type, api_key, folder_id, template_file):
         """ Upload the schema to the selected folder id """
         headers = self.get_headers(api_key)

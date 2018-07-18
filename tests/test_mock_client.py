@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from mock import patch
 from nose.tools import assert_true, eq_
 from cedar.client import CEDARClient
 import os
@@ -51,6 +51,11 @@ class TestClient(object):
     def test_create_template(self):
         self.mock_request.return_value.status_code = 201
         response = self.client.create_template('production', self.production_api_key, self.folder_id, self.template_path_no_id)
+        eq_(response.status_code, 201)
+
+    def test_create_folder(self):
+        self.mock_request.return_value.status_code = 201
+        response = self.client.create_folder("production", self.production_api_key, self.folder_id, "folderName", "folderDescription")
         eq_(response.status_code, 201)
 
     def test_update_template(self):
