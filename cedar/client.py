@@ -3,6 +3,8 @@ import json
 import os
 import time
 import datetime
+import urllib.parse
+
 
 STAGING_RESOURCE_API_ENDPOINT = "https://resource.staging.metadatacenter.org"
 RESOURCE_API_ENDPOINT = "https://resource.metadatacenter.org"
@@ -109,7 +111,6 @@ class CEDARClient:
         """ Get the content of a folder """
         headers = self.get_headers(api_key)
         request_url = self.selectEndpoint(endpoint_type) + "/folders/https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" + folder_id
-        print(request_url)
         response = requests.request("GET", request_url, headers=headers)
         return response
 
@@ -132,6 +133,14 @@ class CEDARClient:
             "description": new_folder_description
         }
         response = requests.request("POST", request_url, headers=headers, data=json.dumps(folder_json), verify=True)
+        return response
+
+    def delete_folder(self, endpoint_type, api_key, folder_id):
+        """ Delete the selected folder """
+        headers = self.get_headers(api_key)
+        requests_url = self.selectEndpoint(endpoint_type) + "/folders/" + urllib.parse.quote_plus(folder_id)
+        print(requests_url)
+        response = requests.request("DELETE", requests_url, headers=headers)
         return response
 
     def create_template_element(self, endpoint_type, api_key, folder_id, template_file):

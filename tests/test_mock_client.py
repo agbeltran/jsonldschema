@@ -53,6 +53,11 @@ class TestClient(object):
         response = self.client.create_template('production', self.production_api_key, self.folder_id, self.template_path_no_id)
         eq_(response.status_code, 201)
 
+    def test_delete_folder(self):
+        self.mock_request.return_value.status_code = 204
+        response = self.client.delete_folder('production', self.production_api_key, self.folder_id)
+        eq_(response.status_code, 204)
+
     def test_create_folder(self):
         self.mock_request.return_value.status_code = 201
         response = self.client.create_folder("production", self.production_api_key, self.folder_id, "folderName", "folderDescription")
