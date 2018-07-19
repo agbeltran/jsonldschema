@@ -2,8 +2,8 @@ import json
 import os
 import logging
 from jinja2 import Template
+from urllib.parse import quote
 import datetime
-from cedar.utils import set_template_element_property_minimals, set_sub_context, set_context, set_stripped_properties
 import cedar.client
 import requests
 
@@ -33,6 +33,388 @@ class Schema2CedarBase:
     @staticmethod
     def json_pretty_dump(json_object, output_file):
         return json.dump(json_object, output_file, sort_keys=False, indent=4, separators=(',', ': '))
+
+    @staticmethod
+    def set_context():
+        return {
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+            "pav": "http://purl.org/pav/",
+            "oslc": "http://open-services.net/ns/core#",
+            "schema": "http://schema.org/",
+            "bibo": "http://purl.org/ontology/bibo/",
+            "schema:name": {
+                "@type": "xsd:string"
+            },
+            "schema:description": {
+                "@type": "xsd:string"
+            },
+            "pav:createdOn": {
+                "@type": "xsd:dateTime"
+            },
+            "pav:createdBy": {
+                "@type": "@id"
+            },
+            "pav:lastUpdatedOn": {
+                "@type": "xsd:dateTime"
+            },
+            "oslc:modifiedBy": {
+                "@type": "@id"
+            }
+        }
+
+    @staticmethod
+    def set_properties_base_item():
+        return {
+            "@type": {
+                "oneOf": [
+                    {
+                        "format": "uri",
+                        "type": "string"
+                    },
+                    {
+                        "uniqueItems": True,
+                        "type": "array",
+                        "items": {
+                            "format": "uri",
+                            "type": "string"
+                        },
+                        "minItems": 1
+                    }
+                ]
+            },
+            "@id": {
+                "format": "uri",
+                "type": "string"
+            },
+            "pav:createdOn": {
+                "format": "date-time",
+                "type": [
+                    "string",
+                    "null"
+                ]
+            },
+            "schema:isBasedOn": {
+                "format": "uri",
+                "type": "string"
+            },
+            "schema:name": {
+                "minLength": 1,
+                "type": "string"
+            },
+            "oslc:modifiedBy": {
+                "format": "uri",
+                "type": [
+                    "string",
+                    "null"
+                ]
+            },
+            "pav:lastUpdatedOn": {
+                "format": "date-time",
+                "type": [
+                    "string",
+                    "null"
+                ]
+            },
+            "pav:createdBy": {
+                "format": "uri",
+                "type": [
+                    "string",
+                    "null"
+                ]
+            },
+            "schema:description": {
+                "type": "string"
+            }
+        }
+
+    @staticmethod
+    def set_prop_context(schema):
+
+        prop_context = {
+            "pav:createdOn": {
+                "properties": {
+                    "@type": {
+                        "enum": ["xsd:dateTime"],
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "pav:lastUpdatedOn": {
+                'properties': {
+                    "@type": {
+                        "enum": ["xsd:dateTime"],
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "pav:createdBy": {
+                "properties": {
+                    "@type": {
+                        "enum": ["@id"],
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "schema:isBasedOn": {
+                "properties": {
+                    "@type": {
+                        "enum": ["@id"],
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "schema:name": {
+                "properties": {
+                    "@type": {
+                        "enum": ["xsd:string"],
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "schema:description": {
+                "properties": {
+                    "@type": {
+                        "enum": ["xsd:string"],
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "rdfs:label": {
+                "properties": {
+                    "@type": {
+                        "enum": ["xsd:string"],
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "oslc:modifiedBy": {
+                "properties": {
+                    "@type": {
+                        "enum": ["@id"],
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "oslc": {
+                "enum": ["http://open-services.net/ns/core#"],
+                "type": "string",
+                "format": "uri"
+            },
+            "schema": {
+                "enum": ["http://schema.org/"],
+                "type": "string",
+                "format": "uri"
+            },
+            "rdfs": {
+                "enum": ["http://www.w3.org/2000/01/rdf-schema#"],
+                "type": "string",
+                "format": "uri"
+            },
+            "pav": {
+                "enum": ["http://purl.org/pav/"],
+                "type": "string",
+                "format": "uri"
+            },
+            "xsd": {
+                "enum": ["http://www.w3.org/2001/XMLSchema#"],
+                "type": "string",
+                "format": "uri"
+            }
+        }
+
+        ignored_key = ["@id", "@type", "@context"]
+        for item in schema['properties']:
+            if item not in ignored_key:
+                prop_context[item] = {
+                    "enum": [""]
+                }
+
+        return prop_context
+
+    @staticmethod
+    def set_required_item(schema):
+        ignored_key = ["@id", "@type", "@context"]
+        properties = {}
+
+        for propertyKey in schema['properties']:
+            if propertyKey not in ignored_key \
+                    and '$ref' not in schema['properties'][propertyKey] \
+                    and (('items' in schema['properties'][propertyKey]
+                          and '$ref' not in schema['properties'][propertyKey]['items'])
+                         or 'items' not in schema['properties'][propertyKey]):
+
+                if "description" in schema['properties'][propertyKey]:
+                    description = schema['properties'][propertyKey]['description']
+
+                else:
+                    description = propertyKey
+
+                if 'required' in schema and propertyKey in schema['required']:
+                    required = True
+
+                else:
+                    required = False
+
+                properties[propertyKey] = {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "@id": "",
+                    "@type": "https://schema.metadatacenter.org/core/TemplateField",
+                    "@context": {
+                        "xsd": "http://www.w3.org/2001/XMLSchema#",
+                        "pav": "http://purl.org/pav/",
+                        "oslc": "http://open-services.net/ns/core#",
+                        "schema": "http://schema.org/",
+                        "schema:name": {"@type": "xsd:string"},
+                        "schema:description": {"@type": "xsd:string"},
+                        "pav:createdOn": {"@type": "xsd:dateTime"},
+                        "pav:createdBy": {"@type": "@id"},
+                        "pav:lastUpdatedOn": {"@type": "xsd:dateTime"},
+                        "oslc:modifiedBy": {"@type": "@id"}
+                    },
+                    "type": "object",
+                    "title": propertyKey + " field schema generated by MIRCAT",
+                    "description": description,
+                    "_ui": {"inputType": "textfield"},
+                    "_valueConstraints": {
+                        "requiredValue": required,
+                        "multipleChoice": False,
+                    },
+                    "schema:name": propertyKey,
+                    "pav:createdOn": "2018-06-07T03:07:47-0700",
+                    "pav:createdBy": "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
+                    "pav:lastUpdatedOn": "2018-06-07T03:07:47-0700",
+                    "oslc:modifiedBy": "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
+                    "schema:schemaVersion": "1.4.0",
+                    "additionalProperties": False,
+                    "schema:description": description,
+                    "required": ["@value"],
+                    "properties": {
+                        "@type": {
+                            "oneOf": [
+                                {
+                                    "format": "uri",
+                                    "type": "string"
+                                },
+                                {
+                                    "items": {
+                                        "format": "uri",
+                                        "type": "string"
+                                    },
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "uniqueItems": True
+                                }
+                            ]
+                        },
+                        "rdfs:label": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "@value": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                    }
+                }
+
+        return properties
+
+    @staticmethod
+    def set_sub_context(schema):
+        ignored_key = ["@id", "@type", "@context"]
+        sub_context = {'properties': {}}
+
+        for propertyKey in schema['properties']:
+            if propertyKey not in ignored_key:
+                if 'enum' in schema['properties'][propertyKey]:
+                    sub_context['properties'][propertyKey] = {"enum": schema['properties'][propertyKey]["enum"]}
+                else:
+                    sub_context['properties'][propertyKey] = {"enum": [""]}
+
+        sub_context["additionalProperties"] = False
+        sub_context["type"] = "object"
+
+        if "required" in schema:
+            sub_context["required"] = []
+            for item in schema["required"]:
+                sub_context["required"].append(item)
+
+        return sub_context
+
+    @staticmethod
+    def set_template_element_property_minimals(sub_context, schema):
+        properties = {
+            "@context": sub_context,
+            "@type": {
+                "oneOf": [
+                    {
+                        "format": "uri",
+                        "type": "string"
+                    },
+                    {
+                        "uniqueItems": True,
+                        "minItems": 1,
+                        "type": "array",
+                        "items": {
+                            "format": "uri",
+                            "type": "string"
+                        }
+                    }
+                ]
+            },
+            "@id": {
+                "format": "uri",
+                "type": "string"
+            }
+        }
+
+        if "@type" in schema and 'enum' in schema["@type"]:
+            enum = []
+            for item in schema["@type"]['enum']:
+                url = 'http://data.bioontology.org/ontologies/OBI/classes/' + quote(item, safe="")
+                enum.append(url)
+            properties["@type"]["oneOf"] = [
+                {
+                    "format": "uri",
+                    "type": "string",
+                    "enum": enum
+                },
+                {
+                    "uniqueItems": True,
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                        "format": "uri",
+                        "type": "string",
+                        "enum": enum
+                    }
+                }
+            ]
+
+        return properties
+
+    @staticmethod
+    def set_stripped_properties(schema):
+        ignored_key = ["@id", "@type", "@context"]
+        properties = {}
+
+        for propertyKey in schema['properties']:
+            if propertyKey not in ignored_key:
+                properties[propertyKey] = schema['properties'][propertyKey]
+
+        return properties
 
 
 class Schema2CedarTemplate(Schema2CedarBase):
@@ -106,7 +488,6 @@ class Schema2CedarTemplate(Schema2CedarBase):
                 "oslc:modifiedBy"
             ]    
         }
-        {% if REQ %},{% endif %}
         {% for itemKey, itemVal in REQ.items() %}
             ,"{{itemKey}}": {{itemVal | tojson}}
         {% endfor %}
@@ -137,14 +518,14 @@ class Schema2CedarTemplate(Schema2CedarBase):
                 sub_spec = Schema2CedarTemplateElement().set_sub_specs(input_json_schema['properties'], sub_spec_container)
 
                 cedar_schema = self.cedar_template.render(input_json_schema,
-                                                          TEMPLATE_CONTEXT=cedar.utils.set_context(),
+                                                          TEMPLATE_CONTEXT=self.set_context(),
                                                           TEMPLATE_TYPE=cedar_type,
-                                                          PROP_CONTEXT=cedar.utils.set_prop_context(input_json_schema),
+                                                          PROP_CONTEXT=self.set_prop_context(input_json_schema),
                                                           NOW=now,
-                                                          REQ=cedar.utils.set_required_item(input_json_schema),
-                                                          PROP_ITEMS=cedar.utils.set_properties_base_item(),
+                                                          REQ=self.set_required_item(input_json_schema),
+                                                          PROP_ITEMS=self.set_properties_base_item(),
                                                           USER_URL=user_url,
-                                                          TEMP_PROP=cedar.utils.set_stripped_properties(input_json_schema),
+                                                          TEMP_PROP=self.set_stripped_properties(input_json_schema),
                                                           SUB_SPECS=sub_spec)
 
                 return cedar_schema
@@ -297,11 +678,11 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                 user_url = "https://metadatacenter.org/users/" + config_json["user_id"]
 
                 # Set root['@context']
-                context = set_context()
+                context = self.set_context()
 
                 # Set root['properties']['@context']
-                property_context = set_template_element_property_minimals(set_sub_context(schema_as_json),
-                                                                          schema_as_json['properties'])
+                property_context = self.set_template_element_property_minimals(self.set_sub_context(schema_as_json),
+                                                                               schema_as_json['properties'])
 
                 # Set root['properties']['item_name']['@context']
                 item_context = dict(context)
@@ -318,16 +699,16 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
 
                 # Return the Jinja2 template
                 return self.cedar_template_element.render(schema_as_json,
-                                                     TEMPLATE_TYPE=cedar_type,
-                                                     TEMPLATE_CONTEXT=context,
-                                                     NOW=now,
-                                                     USER_URL=user_url,
-                                                     MIRCAT="mircat-tools for python 3",
-                                                     PROP_CONTEXT=property_context,
-                                                     ITEM_CONTEXT=item_context,
-                                                     TEMP_PROP=set_stripped_properties(schema_as_json),
-                                                     SUB_SPECS=sub_spec,
-                                                     FIELD_KEY=field_key)
+                                                          TEMPLATE_TYPE=cedar_type,
+                                                          TEMPLATE_CONTEXT=context,
+                                                          NOW=now,
+                                                          USER_URL=user_url,
+                                                          MIRCAT="mircat-tools for python 3",
+                                                          PROP_CONTEXT=property_context,
+                                                          ITEM_CONTEXT=item_context,
+                                                          TEMP_PROP=self.set_stripped_properties(schema_as_json),
+                                                          SUB_SPECS=sub_spec,
+                                                          FIELD_KEY=field_key)
 
         except IOError:
             logging.error("Error opening schema file")

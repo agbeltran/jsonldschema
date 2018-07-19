@@ -65,7 +65,7 @@ class TestSchema2Cedar(unittest.TestCase):
 
         # save the converted file
         output_schema_file = open(os.path.join(self.cedar_schema_file), "w")
-        self.template.json_pretty_dump(json.loads(output_schema), self.output_schema_file)
+        self.template.json_pretty_dump(json.loads(output_schema), output_schema_file)
         output_schema_file.close()
 
         response = self.client.create_template("production",
