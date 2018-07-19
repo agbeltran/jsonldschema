@@ -27,3 +27,8 @@ class TestSchema2Cedar(object):
         self.mock_request.return_value.status_code = 200
         response = self.cedarTemplate.convert_template("tests/data/schema.json")
         assert_true(response)
+
+    def test_convert_template_element(self):
+        self.mock_request.return_value.status_code = 200
+        response = self.cedarTemplateElement.convert_template_element("tests/data/schema.json")
+        assert_true(response)
