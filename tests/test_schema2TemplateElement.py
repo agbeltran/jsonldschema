@@ -7,7 +7,6 @@ from nose.tools import eq_
 import cedar.client
 
 
-
 class TestSchema2TemplateElement(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
@@ -102,7 +101,7 @@ class TestSchema2TemplateElement(unittest.TestCase):
                                                 os.path.join(self._data_dir, output_schema_name))
 
         except AssertionError:
-            raise AssertionError(response.status_code)
+            raise AssertionError(response.text)
 
     def test_convert_schema(self):
 
