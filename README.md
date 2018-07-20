@@ -7,6 +7,7 @@ Functionality included:
  - validation of JSON schemas
  - comparison between JSON schemas
  - conversion of a generic json-schema, and especially mircat json schemas, into a CEDAR template json-schema
+ - CEDAR API function: get folders and templates content, upload or update templates, get users ...
 
 ### Create and use a virtual environment
 
@@ -33,6 +34,7 @@ You will need to provide:
 - an existing and valid CEDAR folder ID on which you can read/write content on the production server
 - an existing and valid CEDAR template ID on which you can read/write content on the production server
 - a valid user ID which will become the author of created content (UUID on your CEDAR user page)
+
 
 You can also configure the "example_template_file_no_id" and "example_template_file_with_id" file path to point to 
 other local JSON schemas. These two schemas are needed for the following cases:
