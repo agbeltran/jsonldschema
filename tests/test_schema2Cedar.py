@@ -6,19 +6,36 @@ from nose.tools import eq_
 from cedar import schema2Cedar, client
 
 
+# Set some required variables
+configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json")
+if not (os.path.exists(configfile_path)):
+    print("Please, create the config file.")
+with open(configfile_path) as config_data_file:
+    config_json = json.load(config_data_file)
+config_data_file.close()
+
+production_api_key = config_json["production_key"]
+folder_id = config_json["folder_id"]
+user_id = config_json["user_id"]
+
+
 class TestSchema2Cedar(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestSchema2Cedar, self).__init__(*args, **kwargs)
-        self.input_schema_file = "data/schema.json"
-        self.output_schema_file = "data/schema_out.json"
-        self.cedar_schema_file = "cedar_schema.json"
+        self.input_schema_file = "data/person_schema.json"
+        self.output_schema_file = "data/person_schema_out.json"
+        self.cedar_schema_file = "data/dataset_cedar_schema.json"
 
     def setUp(self):
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
         self.client = client.CEDARClient()
-        self.templateElement = schema2Cedar.Schema2CedarTemplateElement()
-        self.template = schema2Cedar.Schema2CedarTemplate()
+        self.templateElement = schema2Cedar.Schema2CedarTemplateElement(production_api_key,
+                                                                        folder_id,
+                                                                        user_id)
+        self.template = schema2Cedar.Schema2CedarTemplate(production_api_key,
+                                                          folder_id,
+                                                          user_id)
 
     @staticmethod
     def local_validate(converted_schema, cedar_schema):
@@ -58,7 +75,13 @@ class TestSchema2Cedar(unittest.TestCase):
         eq_(DeepDiff(converted_schema, cedar_schema, exclude_paths=ignored_paths), {})
 
     def convert_template(self):
-        output_schema = self.template.convert_template(self.input_schema_file)
+
+        with open(self.input_schema_file, 'r') as orig_schema_file:
+            # Load the JSON schema and close the file
+            schema_as_json = json.load(orig_schema_file)
+        orig_schema_file.close()
+
+        output_schema = self.template.convert_template(schema_as_json)
         validation_response = self.client.validate_template("production",
                                                             self.template.production_api_key,
                                                             json.loads(output_schema))
@@ -68,19 +91,28 @@ class TestSchema2Cedar(unittest.TestCase):
         self.template.json_pretty_dump(json.loads(output_schema), output_schema_file)
         output_schema_file.close()
 
+        print(output_schema)
+
         response = self.client.create_template("production",
                                                self.template.production_api_key,
                                                self.template.folder_id,
-                                               os.path.join(self.output_schema_file))
+                                               output_schema)
+        print(response)
 
     def convert_template_element(self):
-        output_schema = self.templateElement.convert_template_element(self.input_schema_file)
-        validation_respons = self.client.validate_element("production",
-                                                          self.templateElement.production_api_key,
-                                                          json.loads(output_schema))
+
+        with open(self.input_schema_file, 'r') as orig_schema_file:
+            # Load the JSON schema and close the file
+            schema_as_json = json.load(orig_schema_file)
+        orig_schema_file.close()
+
+        output_schema = self.templateElement.convert_template_element(schema_as_json)
+        validation_response = self.client.validate_element("production",
+                                                           self.templateElement.production_api_key,
+                                                           json.loads(output_schema))
 
         # save the converted file
-        output_schema_file = open(os.path.join(self.cedar_schema_file), "w")
+        output_schema_file = open(os.path.join(self.output_schema_file), "w")
         self.template.json_pretty_dump(json.loads(output_schema), self.output_schema_file)
         output_schema_file.close()
 
