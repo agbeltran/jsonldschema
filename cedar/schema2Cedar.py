@@ -2,7 +2,7 @@ import json
 import os
 import logging
 from jinja2 import Template
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 import datetime
 import cedar.client
 import requests
@@ -491,43 +491,32 @@ class Schema2CedarTemplate(Schema2CedarBase):
 }
 ''')
 
-    def convert_template(self, schema_filename):
+    def convert_template(self, input_json_schema):
         cedar_type = "https://schema.metadatacenter.org/core/Template"
 
-        try:
-            with open(schema_filename, 'r') as orig_schema_file:
+        # Set the current date
+        now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
 
-                input_json_schema = json.load(orig_schema_file)
-                orig_schema_file.close()
+        # Set the user url
+        user_url = "https://metadatacenter.org/users/" + self.user_id
 
-                # Set the current date
-                now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
+        # Set the sub-specifications from $ref if needed, enabling templateElement nesting
+        sub_spec_container = {}
+        sub_spec = Schema2CedarTemplateElement(self.production_api_key,
+                                               self.folder_id,
+                                               self.user_id)\
+            .find_sub_specs(input_json_schema, sub_spec_container)
 
-                # Set the user url
-                user_url = "https://metadatacenter.org/users/" + self.user_id
-
-                # Set the sub-specifications from $ref if needed, enabling templateElement nesting
-                sub_spec_container = {}
-                sub_spec = Schema2CedarTemplateElement(self.production_api_key,
-                                                       self.folder_id,
-                                                       self.user_id)\
-                    .set_sub_specs(input_json_schema['properties'], sub_spec_container)
-
-                cedar_schema = self.cedar_template.render(input_json_schema,
-                                                          TEMPLATE_CONTEXT=self.set_context(),
-                                                          TEMPLATE_TYPE=cedar_type,
-                                                          PROP_CONTEXT=self.set_prop_context(input_json_schema),
-                                                          NOW=now,
-                                                          REQ=self.set_required_item(input_json_schema),
-                                                          PROP_ITEMS=self.set_properties_base_item(),
-                                                          USER_URL=user_url,
-                                                          TEMP_PROP=self.set_stripped_properties(input_json_schema),
-                                                          SUB_SPECS=sub_spec)
-
-                return cedar_schema
-
-        except IOError:
-            logging.error("Error opening schema file")
+        return self.cedar_template.render(input_json_schema,
+                                          TEMPLATE_CONTEXT=self.set_context(),
+                                          TEMPLATE_TYPE=cedar_type,
+                                          PROP_CONTEXT=self.set_prop_context(input_json_schema),
+                                          NOW=now,
+                                          REQ=self.set_required_item(input_json_schema),
+                                          PROP_ITEMS=self.set_properties_base_item(),
+                                          USER_URL=user_url,
+                                          TEMP_PROP=self.set_stripped_properties(input_json_schema),
+                                          SUB_SPECS=sub_spec)
 
 
 class Schema2CedarTemplateElement(Schema2CedarBase):
@@ -657,59 +646,53 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
     }
     ''')
 
-    def convert_template_element(self, schema_file_path, **kwargs):
+    def convert_template_element(self, input_json_schema, **kwargs):
         cedar_type = "https://schema.metadatacenter.org/core/TemplateElement"
 
         try:
-            with open(schema_file_path, 'r') as orig_schema_file:
+            # Set the current date
+            now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
 
-                # Load the JSON schema and close the file
-                schema_as_json = json.load(orig_schema_file)
-                orig_schema_file.close()
+            # Set the user url
+            user_url = "https://metadatacenter.org/users/" + self.user_id
 
-                # Set the current date
-                now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
+            # Set root['@context']
+            context = self.set_context()
 
-                # Set the user url
-                user_url = "https://metadatacenter.org/users/" + self.user_id
+            # Set root['properties']['@context']
+            property_context = self.set_template_element_property_minimals(self.set_sub_context(input_json_schema),
+                                                                           input_json_schema['properties'])
 
-                # Set root['@context']
-                context = self.set_context()
+            # Set root['properties']['item_name']['@context']
+            item_context = dict(context)
+            item_context.pop("bibo")
 
-                # Set root['properties']['@context']
-                property_context = self.set_template_element_property_minimals(self.set_sub_context(schema_as_json),
-                                                                               schema_as_json['properties'])
+            # Set the sub-specifications from $ref if needed, enabling templateElement nesting
+            sub_spec_container = {}
+            sub_spec = self.find_sub_specs(input_json_schema, sub_spec_container)
 
-                # Set root['properties']['item_name']['@context']
-                item_context = dict(context)
-                item_context.pop("bibo")
+            # Get the optional parameter for schema:name (useful when nesting)
+            field_key = kwargs.get('fieldKey', None)
+            if field_key is None:
+                field_key = input_json_schema['title']
 
-                # Set the sub-specifications from $ref if needed, enabling templateElement nesting
-                sub_spec_container = {}
-                sub_spec = self.set_sub_specs(schema_as_json['properties'], sub_spec_container)
-
-                # Get the optional parameter for schema:name (useful when nesting)
-                field_key = kwargs.get('fieldKey', None)
-                if field_key is None:
-                    field_key = schema_as_json['title']
-
-                # Return the Jinja2 template
-                return self.cedar_template_element.render(schema_as_json,
-                                                          TEMPLATE_TYPE=cedar_type,
-                                                          TEMPLATE_CONTEXT=context,
-                                                          NOW=now,
-                                                          USER_URL=user_url,
-                                                          MIRCAT="mircat-tools for python 3",
-                                                          PROP_CONTEXT=property_context,
-                                                          ITEM_CONTEXT=item_context,
-                                                          TEMP_PROP=self.set_stripped_properties(schema_as_json),
-                                                          SUB_SPECS=sub_spec,
-                                                          FIELD_KEY=field_key)
+            # Return the Jinja2 template
+            return self.cedar_template_element.render(input_json_schema,
+                                                      TEMPLATE_TYPE=cedar_type,
+                                                      TEMPLATE_CONTEXT=context,
+                                                      NOW=now,
+                                                      USER_URL=user_url,
+                                                      MIRCAT="mircat-tools for python 3",
+                                                      PROP_CONTEXT=property_context,
+                                                      ITEM_CONTEXT=item_context,
+                                                      TEMP_PROP=self.set_stripped_properties(input_json_schema),
+                                                      SUB_SPECS=sub_spec,
+                                                      FIELD_KEY=field_key)
 
         except IOError:
             logging.error("Error opening schema file")
 
-    def set_sub_specs(self, schema, sub_spec_container):
+    def find_sub_specs(self, schema, sub_spec_container):
         ignored_key = ["@id", "@type", "@context"]
         data_dir = os.path.join(os.path.dirname(__file__), "../tests/data")
         client = cedar.client.CEDARClient()
@@ -719,7 +702,7 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                       + self.folder_id
 
         # For each field in the properties array
-        for itemKey, itemVal in schema.items():
+        for itemKey, itemVal in schema['properties'].items():
 
             # if the field is not to be ignored
             if itemKey not in ignored_key:
@@ -729,11 +712,14 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                 multiple_items = False
 
                 if '$ref' in itemVal:
+                    self.load_sub_spec(itemVal['$ref'], schema)
                     schema_path = os.path.join(data_dir, itemVal['$ref']
                                                .replace('#', '')) \
                         .replace("http://fairsharing.github.io/MIRcat/miaca/", "")  # build the file path
 
                 elif 'items' in itemVal and '$ref' in itemVal['items']:
+                    self.load_sub_spec(itemVal['items']['$ref'][0], schema)
+
                     schema_path = os.path.join(data_dir,
                                                itemVal['items']['$ref'][0].replace('#', ''))  # build the file path
                     multiple_items = True
@@ -749,7 +735,13 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                 if schema_path is not None:
 
                     if itemKey not in loaded_specs.keys():
-                        temp_spec = json.loads(self.convert_template_element(schema_path, fieldKey=itemKey))
+
+                        with open(schema_path, 'r') as orig_schema_file:
+                            # Load the JSON schema and close the file
+                            schema_json = json.load(orig_schema_file)
+                        orig_schema_file.close()
+
+                        temp_spec = json.loads(self.convert_template_element(schema_json, fieldKey=itemKey))
 
                         # NEED SOME REFINING HERE -> VALIDATE BEFORE POST !!!
                         response = requests.request("POST",
@@ -771,3 +763,19 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                     sub_spec_container[itemKey] = sub_spec
 
         return sub_spec_container
+
+    def load_sub_spec(self, path_to_load, parent_schema):
+        path = None
+
+        # Path to load id a URL
+        if urlparse(path_to_load).scheme != "":
+            path = path_to_load
+
+        # Path to load isn't a URL
+        else:
+            if 'id' in parent_schema:
+                path = parent_schema['id'].rsplit('/', 1)[0]+"/"+path_to_load
+            else:
+                path = None
+
+        return path

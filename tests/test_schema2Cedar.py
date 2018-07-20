@@ -75,7 +75,13 @@ class TestSchema2Cedar(unittest.TestCase):
         eq_(DeepDiff(converted_schema, cedar_schema, exclude_paths=ignored_paths), {})
 
     def convert_template(self):
-        output_schema = self.template.convert_template(self.input_schema_file)
+
+        with open(self.input_schema_file, 'r') as orig_schema_file:
+            # Load the JSON schema and close the file
+            schema_as_json = json.load(orig_schema_file)
+        orig_schema_file.close()
+
+        output_schema = self.template.convert_template(schema_as_json)
         validation_response = self.client.validate_template("production",
                                                             self.template.production_api_key,
                                                             json.loads(output_schema))
@@ -91,7 +97,13 @@ class TestSchema2Cedar(unittest.TestCase):
                                                os.path.join(self.output_schema_file))
 
     def convert_template_element(self):
-        output_schema = self.templateElement.convert_template_element(self.input_schema_file)
+
+        with open(self.input_schema_file, 'r') as orig_schema_file:
+            # Load the JSON schema and close the file
+            schema_as_json = json.load(orig_schema_file)
+        orig_schema_file.close()
+
+        output_schema = self.templateElement.convert_template_element(schema_as_json)
         validation_respons = self.client.validate_element("production",
                                                           self.templateElement.production_api_key,
                                                           json.loads(output_schema))

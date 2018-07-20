@@ -1,4 +1,5 @@
 from mock import patch
+import json
 from nose.tools import assert_true, eq_
 from cedar.schema2Cedar import Schema2CedarTemplate, Schema2CedarTemplateElement
 from random import randint
@@ -28,10 +29,22 @@ class TestSchema2Cedar(object):
 
     def test_convert_template(self):
         self.mock_request.return_value.status_code = 200
-        response = self.cedarTemplate.convert_template("tests/data/schema.json")
+
+        with open("tests/data/schema.json", 'r') as orig_schema_file:
+            # Load the JSON schema and close the file
+            schema_as_json = json.load(orig_schema_file)
+        orig_schema_file.close()
+
+        response = self.cedarTemplate.convert_template(schema_as_json)
         assert_true(response)
 
     def test_convert_template_element(self):
         self.mock_request.return_value.status_code = 200
-        response = self.cedarTemplateElement.convert_template_element("tests/data/schema.json")
+
+        with open("tests/data/schema.json", 'r') as orig_schema_file:
+            # Load the JSON schema and close the file
+            schema_as_json = json.load(orig_schema_file)
+        orig_schema_file.close()
+
+        response = self.cedarTemplateElement.convert_template_element(schema_as_json)
         assert_true(response)
