@@ -708,20 +708,14 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
             if itemKey not in ignored_key:
 
                 # set the schema_path to load to None
-                schema_path = None
+                schema_as_json = None
                 multiple_items = False
 
                 if '$ref' in itemVal:
-                    self.load_sub_spec(itemVal['$ref'], schema)
-                    schema_path = os.path.join(data_dir, itemVal['$ref']
-                                               .replace('#', '')) \
-                        .replace("http://fairsharing.github.io/MIRcat/miaca/", "")  # build the file path
+                    schema_as_json = self.load_sub_spec(itemVal['$ref'], schema, itemKey)
 
                 elif 'items' in itemVal and '$ref' in itemVal['items']:
-                    self.load_sub_spec(itemVal['items']['$ref'][0], schema)
-
-                    schema_path = os.path.join(data_dir,
-                                               itemVal['items']['$ref'][0].replace('#', ''))  # build the file path
+                    schema_as_json = self.load_sub_spec(itemVal['items']['$ref'], schema, itemKey)
                     multiple_items = True
 
                 elif ('items' in itemVal and ('anyOf' in itemVal['items'] or 'oneOf' in itemVal['items'])) \
@@ -729,19 +723,15 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                         or ('oneOf' in itemVal):
 
                     # REFINING HERE -> DELETE ALL ITEMS FROM SERVER !! (or change algo to validate all templates first.
+                    print(schema)
                     raise ValueError("'anyOf' and 'oneOf' are not supported by CEDAR (schema affected: )")
 
                 # if the schema_path is set
-                if schema_path is not None:
+                if schema_as_json is not None:
 
                     if itemKey not in loaded_specs.keys():
 
-                        with open(schema_path, 'r') as orig_schema_file:
-                            # Load the JSON schema and close the file
-                            schema_json = json.load(orig_schema_file)
-                        orig_schema_file.close()
-
-                        temp_spec = json.loads(self.convert_template_element(schema_json, fieldKey=itemKey))
+                        temp_spec = json.loads(self.convert_template_element(schema_as_json, fieldKey=itemKey))
 
                         # NEED SOME REFINING HERE -> VALIDATE BEFORE POST !!!
                         response = requests.request("POST",
@@ -764,18 +754,28 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
 
         return sub_spec_container
 
-    def load_sub_spec(self, path_to_load, parent_schema):
-        path = None
+    def load_sub_spec(self, path_to_load, parent_schema, field_key):
+        string_to_json = None
+        url_to_load = None
 
-        # Path to load id a URL
+        # Path to load is a URL
         if urlparse(path_to_load).scheme != "":
-            path = path_to_load
+            url_to_load = path_to_load
 
         # Path to load isn't a URL
         else:
             if 'id' in parent_schema:
-                path = parent_schema['id'].rsplit('/', 1)[0]+"/"+path_to_load
+                url_to_load = parent_schema['id'].rsplit('/', 1)[0]+"/"+path_to_load
             else:
-                path = None
+                with open(path_to_load, 'r') as orig_schema_file:
+                    # Load the JSON schema and close the file
+                    string_to_json = json.load(orig_schema_file)
+                orig_schema_file.close()
 
-        return path
+        if url_to_load:
+            if field_key not in loaded_specs.keys():
+                string_from_url = requests.request("GET", url_to_load)
+                string_to_json = json.loads(string_from_url.text)
+
+        return string_to_json
+

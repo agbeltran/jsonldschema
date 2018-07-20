@@ -23,9 +23,9 @@ class TestSchema2Cedar(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestSchema2Cedar, self).__init__(*args, **kwargs)
-        self.input_schema_file = "data/schema.json"
-        self.output_schema_file = "data/schema_out.json"
-        self.cedar_schema_file = "data/cedar_schema.json"
+        self.input_schema_file = "data/person_schema.json"
+        self.output_schema_file = "data/person_schema_out.json"
+        self.cedar_schema_file = "data/dataset_cedar_schema.json"
 
     def setUp(self):
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
@@ -91,10 +91,13 @@ class TestSchema2Cedar(unittest.TestCase):
         self.template.json_pretty_dump(json.loads(output_schema), output_schema_file)
         output_schema_file.close()
 
+        print(output_schema)
+
         response = self.client.create_template("production",
                                                self.template.production_api_key,
                                                self.template.folder_id,
-                                               os.path.join(self.output_schema_file))
+                                               output_schema)
+        print(response)
 
     def convert_template_element(self):
 
@@ -104,12 +107,12 @@ class TestSchema2Cedar(unittest.TestCase):
         orig_schema_file.close()
 
         output_schema = self.templateElement.convert_template_element(schema_as_json)
-        validation_respons = self.client.validate_element("production",
-                                                          self.templateElement.production_api_key,
-                                                          json.loads(output_schema))
+        validation_response = self.client.validate_element("production",
+                                                           self.templateElement.production_api_key,
+                                                           json.loads(output_schema))
 
         # save the converted file
-        output_schema_file = open(os.path.join(self.cedar_schema_file), "w")
+        output_schema_file = open(os.path.join(self.output_schema_file), "w")
         self.template.json_pretty_dump(json.loads(output_schema), self.output_schema_file)
         output_schema_file.close()
 

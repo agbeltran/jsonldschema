@@ -118,8 +118,7 @@ class CEDARClient:
         """ Upload the schema to the selected folder id """
         headers = self.get_headers(api_key)
         request_url = self.selectEndpoint(endpoint_type) + "/templates?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" + folder_id
-        with open(template_file, 'r') as template:
-            upload_schema = json.load(template)
+        upload_schema = json.loads(template_file)
         response = requests.request("POST", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
         return response
 
@@ -139,7 +138,6 @@ class CEDARClient:
         """ Delete the selected folder """
         headers = self.get_headers(api_key)
         requests_url = self.selectEndpoint(endpoint_type) + "/folders/" + urllib.parse.quote_plus(folder_id)
-        print(requests_url)
         response = requests.request("DELETE", requests_url, headers=headers)
         return response
 
