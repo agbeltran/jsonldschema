@@ -1,0 +1,21 @@
+{
+  "id" : "http://fairsharing.github.io/MIRcat/miaca/cell_assay_schema.json",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "MIACA cell assay schema",
+  "description": "The actual experimental part describing the performed steps, like  treatments, perturbation(s) and data acquisition in necessary detail.",
+  "type": "object",
+  "properties": {
+    "ID": {
+      "type": "string"
+    },
+    "treamtment": {
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/treatment_schema.json"
+    },
+    "postTreatment": {
+      "type": "string"
+    },
+    "dataAcquisition": {
+      "type": "string"
+    }
+  }
+}

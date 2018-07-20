@@ -1,0 +1,21 @@
+{
+  "id": "http://fairsharing.github.io/MIRcat/miaca/compound_schema.json",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "MIACA Compound",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "purity": {
+      "description": "% of compounds with >80% purity",
+      "type": "string"
+    },
+    "lipinski": {
+      "description": "% of compound comply with Lipinski rule-of-5",
+      "type": "string"
+    },
+    "weight": {
+      "description": "Average molecular weight",
+      "type": "string"
+    }
+  }
+}

@@ -3,6 +3,8 @@ import json
 import os
 import time
 import datetime
+import urllib.parse
+
 
 STAGING_RESOURCE_API_ENDPOINT = "https://resource.staging.metadatacenter.org"
 RESOURCE_API_ENDPOINT = "https://resource.metadatacenter.org"
@@ -11,6 +13,7 @@ VALUE_RECOMMENDER_ENDPOINT = " http://valuerecommender.metadatacenter.org"
 
 
 class CEDARClient:
+    """A client for the CEDAR API"""
 
     def __init__(self):
         pass
@@ -75,11 +78,6 @@ class CEDARClient:
         headers = self.get_headers(api_key)
         response = requests.request("POST", request_url, headers=headers, data=json.dumps(resource), verify=True)
         return response
-        """if response.status_code == requests.codes.ok:
-            message = json.loads(response.text)
-            return message
-        else:
-            response.raise_for_status()"""
 
     def validate_template(self, server_alias, api_key, template):
         request_url = self.selectEndpoint(server_alias) + "/command/validate?resource_type=template"
@@ -101,8 +99,6 @@ class CEDARClient:
             return message
         else:
             response.raise_for_status()
-
-    """ DOM'S FUNCTIONS """
 
     def get_template_content(self, endpoint_type, api_key, template_id):
         """ Get the content of a template"""
@@ -127,8 +123,42 @@ class CEDARClient:
         response = requests.request("POST", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
         return response
 
+    def create_folder(self, endpoint_type, api_key, target_folder_id, new_folder_name, new_folder_description):
+        """ Create a folder with new_folder_name in the target_folder_id location """
+        headers = self.get_headers(api_key)
+        request_url = self.selectEndpoint(endpoint_type) + '/folders'
+        folder_json = {
+            "folderId": "https://repo.metadatacenter.org/folders/"+target_folder_id,
+            "name": new_folder_name,
+            "description": new_folder_description
+        }
+        response = requests.request("POST", request_url, headers=headers, data=json.dumps(folder_json), verify=True)
+        return response
+
+    def delete_folder(self, endpoint_type, api_key, folder_id):
+        """ Delete the selected folder """
+        headers = self.get_headers(api_key)
+        requests_url = self.selectEndpoint(endpoint_type) + "/folders/" + urllib.parse.quote_plus(folder_id)
+        print(requests_url)
+        response = requests.request("DELETE", requests_url, headers=headers)
+        return response
+
+    def create_template_element(self, endpoint_type, api_key, folder_id, template_file):
+        """ Upload the schema to the selected folder id """
+        headers = self.get_headers(api_key)
+        request_url = self.selectEndpoint(endpoint_type) + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" + folder_id
+        with open(template_file, 'r') as template:
+            upload_schema = json.load(template)
+        response = requests.request("POST", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
+        return response
+
     def update_template(self, endpoint_type, api_key, template_file):
-        """ Update the content of template_file into the selected template"""
+        """ Update the content of template_file into the selected template
+            Arguments:
+                endpoint_type: "staging" or "production"
+                api_key: the corresponding API KEY for the endpoint_type
+                template_file: the full path to a local template JSON file
+        """
         headers = self.get_headers(api_key)
         with open(template_file, 'r') as template:
             upload_schema = json.load(template)
@@ -137,6 +167,6 @@ class CEDARClient:
         response = requests.request("PUT", request_url, headers=headers, data=json.dumps(upload_schema), verify=True)
         return response
 
-    def updload_element(self, server_alias, api_key, schema_file, remote_folder_id):
+    def upload_element(self, server_alias, api_key, schema_file, remote_folder_id):
         request_url = self.selectEndpoint(server_alias) + "/template-elements?folder_id="+ remote_folder_id
         return self.upload_resource(api_key, request_url, schema_file)

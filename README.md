@@ -1,7 +1,13 @@
+
+[![Build Status](https://travis-ci.org/FAIRsharing/mircat-tools.svg?branch=master)](https://travis-ci.org/FAIRsharing/mircat-tools)
+
 Utility code for the Minimum Information Requirements Catalogue.
 
 Functionality included:
+ - validation of JSON schemas
+ - comparison between JSON schemas
  - conversion of a generic json-schema, and especially mircat json schemas, into a CEDAR template json-schema
+ - CEDAR API function: get folders and templates content, upload or update templates, get users ...
 
 ### Create and use a virtual environment
 
@@ -13,15 +19,27 @@ pip install -r requirements.txt
 
 ### Setup
 
-To run the CEDAR client tests, you will need to configure a few variables in /tests/test_config.json.
+To run the tests related to the [CEDAR client](https://raw.githubusercontent.com/FAIRsharing/mircat-tools/master/tests/test_client.py), you will need to:
+
+- make a copy of the ```/tests/test_config.json.sample``` file:
+
+```bash
+cp /tests/test_config.json.sample /tests/test_config.json
+```
+ 
+and configure a few variables in your local file ```/tests/test_config.json```.
+
 You will need to provide:
-- your staging and production API keys
-- an existing and valid folder ID on which you can read/write content on the production server
-- an existing and valid template ID on which you can read/write content on the production server
+- your staging and production CEDAR API keys (include the key string in the corresponding attribute)
+- an existing and valid CEDAR folder ID on which you can read/write content on the production server
+- an existing and valid CEDAR template ID on which you can read/write content on the production server
+- a valid user ID which will become the author of created content (UUID on your CEDAR user page)
+
 
 You can also configure the "example_template_file_no_id" and "example_template_file_with_id" file path to point to 
-another local json schema. When creating a new template on the server, a schema without an ID is necessary (the ID will
-be automatically given by the server); when updating a template, the ID is retrieved automatically from the file and 
-you the corresponding template gets updated on the server.
+other local JSON schemas. These two schemas are needed for the following cases:
 
-[![Build Status](https://travis-ci.org/FAIRsharing/mircat-tools.svg?branch=master)](https://travis-ci.org/FAIRsharing/mircat-tools)
+- when creating a new template on the server, a schema without an ID is necessary (the ID will
+be automatically given by the server); 
+- when updating a template, the ID is retrieved automatically from the file and 
+the corresponding template gets updated on the server.

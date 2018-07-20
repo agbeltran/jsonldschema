@@ -1,0 +1,18 @@
+{
+  "id": "http://fairsharing.github.io/MIRcat/miaca/ontology_annotation_schema.json",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "MIACA reagent schema",
+  "description": "A reagent as defined by MIACA, Reagents are media, media supplements, kits, buffers and solutions, water and so on. ",
+  "type": "object",
+  "properties": {
+    "ontologyValue": {
+      "type": "string"
+    },
+    "ontologySource": {
+      "type": "string"
+    },
+    "comment": {
+      "type": "string"
+    }
+  }
+}

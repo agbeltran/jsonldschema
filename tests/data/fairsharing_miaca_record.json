@@ -1,0 +1,56 @@
+{
+  "id": "http://fairsharing.github.io/MIRcat/miaca/fairsharing_miaca_record.json",
+  "fairSharingID": "https://fairsharing.org/bsg-s000164",
+  "abbreviation": "MIACA",
+  "fullName": "Minimum Information About a Cellular Assay",
+  "generalInformation": "The Minimum Information About a Cellular Assay (MIACA) was developed as an information guideline and a modular Cellular Assay Object Model (CA-OM) that is capable of covering the range of cellular assays possible and which is the basis for efficient data exchange. We invite broad participation in the further development of MIACA and the contents of its object model, to create a widely accepted guideline that will facilitate an efficient assessment of data quality and relevance, and to stimulate the development of databases that will take cell assay data and their accompanying description in a standardized format.",
+  "homepage": "http://miaca.sourceforge.net/",
+  "developedIn": [
+    "China",
+    "Finland",
+    "Germany",
+    "Japan",
+    "Sweden",
+    "Switzerland",
+    "United Kingdom",
+    "United States of America"
+  ],
+  "createdIn": 2006,
+  "taxonomicRange": [
+    "All"
+  ],
+  "domains": [
+    "Assay",
+    "Cell",
+    "Biomedical Science",
+    "Life Science",
+    "Cell-Based Screens"
+  ],
+  "inCollections": [
+    "https://fairsharing.org/collection/31",
+    "https://fairsharing.org/collection/32",
+    "https://fairsharing.org/collection/46"
+  ],
+  "implementingDatabases": [],
+  "relatedStandards": [
+    "https://fairsharing.org/bsg-s000679",
+    "https://fairsharing.org/bsg-s000652",
+    "https://fairsharing.org/bsg-s000651",
+    "https://fairsharing.org/bsg-s000188"
+  ],
+  "standard": {
+    "standardType": "reporting guideline",
+    "jsonSchemas": [
+      {
+        "provenance": "http://localhost:8080/instances/miaca_schema_provenance.json",
+        "jsonSchema": "miaca-schema.json"
+      }
+      ]
+  },
+   "support" : {
+    "contact" : {
+        "fullName" : "Stephan Wiemann" ,
+        "email" : "s.wiemann@dkfz.de"
+    }   
+   }
+  }

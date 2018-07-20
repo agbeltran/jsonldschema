@@ -1,0 +1,43 @@
+{
+    "id": "https://w3id.org/dats/schema/dataset_schema.json",
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "title": "DATS Dataset Schema",
+    "description": "A set of dimensions about an entity being observed. A collection of data, published or curated by a single agent, and available for access or download in one or more formats (from DCAT: http://www.w3.org/TR/vocab-dcat/#Class:_Dataset). A body of structured information describing some topic(s) of interest (from: http://schema.org/Dataset).",
+    "type": "object",
+    "properties": {
+        "@context": {
+            "anyOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "object"
+                }
+            ]
+        },
+        "@id": { "type": "string", "format": "uri" },
+        "@type": { "type": "string", "enum": [ "Dataset"] },
+        "title" : {
+            "description" : "The name of the dataset, usually one sentece or short description of the dataset.",
+            "type" : "string"
+        },
+        "creators" : {
+            "description": "The person(s) or organization(s) which contributed to the creation of the dataset.",
+            "type" : "array",
+            "items" : {
+                "$ref" : "person_schema.json#"
+            },
+            "minItems" : 1
+        },
+        "version" : {
+            "description": "A release point for the dataset when applicable.",
+            "type" : "string"
+        },
+        "identifier": {
+            "description": "Primary identifier for the person.",
+            "$ref": "identifier_info_schema.json#"
+        }
+    },
+    "additionalProperties": false,
+    "required" : [ "title", "creators" ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "http://fairsharing.github.io/MIRcat/miaca/material_list_schema.json",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "MIACA material list chema",
+  "description": "JSON-schema representing MIACA material list.",
+  "type": "object",
+  "properties": {
+    "ID": {
+      "type": "string"
+    },
+    "cellLine": {
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/cell_line_schema.json#"
+    },
+    "reagent": {
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/reagent_schema.json#"
+    }
+  }
+}

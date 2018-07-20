@@ -1,0 +1,25 @@
+{
+  "id": "http://fairsharing.github.io/MIRcat/miaca/application_schema.json",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "MIACA application schema",
+  "description": "JSON-schema representing MIACA application type.",
+  "type": "object",
+  "properties": {
+    "ID": {
+      "type": "string"
+    },
+    "abstract": {
+      "description": "Application abstract, e. g. as taken from a publication",
+       "type": "string"
+    },
+    "pubref": {
+      "description": "reference to publication",
+      "type": "string"
+    },
+    "bibref": {
+      "description": "Bibliographic reference for the data generated during the project. Cross reference for the data source. Example: Entry in a database of databases.",
+      "$ref": "http://fairsharing.github.io/MIRcat/miaca/open_cv_schema.json#"
+    }
+  },
+  "additionalProperties": false
+}
