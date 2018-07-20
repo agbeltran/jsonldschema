@@ -7,27 +7,20 @@ import datetime
 import cedar.client
 import requests
 
-# Set some required variables
-configfile_path = os.path.join(os.path.dirname(__file__), "../tests/test_config.json")
-if not (os.path.exists(configfile_path)):
-    print("Please, create the config file.")
-with open(configfile_path) as config_data_file:
-    config_json = json.load(config_data_file)
-config_data_file.close()
+
 loaded_specs = {}
 
 
 class Schema2CedarBase:
     """ The base converter class, should not be called ! """
 
-    def __init__(self):
-        self.production_api_key = config_json["production_key"]
-        self.folder_id = config_json["folder_id"]
-        self.user_id = config_json["user_id"]
-
-    def __new__(cls):
+    def __new__(cls, api_key, folder_id, user_id):
         if cls is Schema2CedarBase:
             raise TypeError("base class may not be instantiated")
+        else:
+            cls.production_api_key = api_key
+            cls.folder_id = folder_id
+            cls.user_id = user_id
         return object.__new__(cls)
 
     @staticmethod
@@ -511,11 +504,14 @@ class Schema2CedarTemplate(Schema2CedarBase):
                 now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
 
                 # Set the user url
-                user_url = "https://metadatacenter.org/users/" + config_json["user_id"]
+                user_url = "https://metadatacenter.org/users/" + self.user_id
 
                 # Set the sub-specifications from $ref if needed, enabling templateElement nesting
                 sub_spec_container = {}
-                sub_spec = Schema2CedarTemplateElement().set_sub_specs(input_json_schema['properties'], sub_spec_container)
+                sub_spec = Schema2CedarTemplateElement(self.production_api_key,
+                                                       self.folder_id,
+                                                       self.user_id)\
+                    .set_sub_specs(input_json_schema['properties'], sub_spec_container)
 
                 cedar_schema = self.cedar_template.render(input_json_schema,
                                                           TEMPLATE_CONTEXT=self.set_context(),
@@ -675,7 +671,7 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                 now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S-0700')
 
                 # Set the user url
-                user_url = "https://metadatacenter.org/users/" + config_json["user_id"]
+                user_url = "https://metadatacenter.org/users/" + self.user_id
 
                 # Set root['@context']
                 context = self.set_context()

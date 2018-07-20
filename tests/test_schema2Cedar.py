@@ -6,19 +6,36 @@ from nose.tools import eq_
 from cedar import schema2Cedar, client
 
 
+# Set some required variables
+configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json")
+if not (os.path.exists(configfile_path)):
+    print("Please, create the config file.")
+with open(configfile_path) as config_data_file:
+    config_json = json.load(config_data_file)
+config_data_file.close()
+
+production_api_key = config_json["production_key"]
+folder_id = config_json["folder_id"]
+user_id = config_json["user_id"]
+
+
 class TestSchema2Cedar(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestSchema2Cedar, self).__init__(*args, **kwargs)
         self.input_schema_file = "data/schema.json"
         self.output_schema_file = "data/schema_out.json"
-        self.cedar_schema_file = "cedar_schema.json"
+        self.cedar_schema_file = "data/cedar_schema.json"
 
     def setUp(self):
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
         self.client = client.CEDARClient()
-        self.templateElement = schema2Cedar.Schema2CedarTemplateElement()
-        self.template = schema2Cedar.Schema2CedarTemplate()
+        self.templateElement = schema2Cedar.Schema2CedarTemplateElement(production_api_key,
+                                                                        folder_id,
+                                                                        user_id)
+        self.template = schema2Cedar.Schema2CedarTemplate(production_api_key,
+                                                          folder_id,
+                                                          user_id)
 
     @staticmethod
     def local_validate(converted_schema, cedar_schema):
