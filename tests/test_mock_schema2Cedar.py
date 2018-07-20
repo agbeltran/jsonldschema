@@ -1,16 +1,19 @@
 from mock import patch
 from nose.tools import assert_true, eq_
 from cedar.schema2Cedar import Schema2CedarTemplate, Schema2CedarTemplateElement
-import os
-import json
 from random import randint
+
+production_api_key = str(randint(1, 100))
+folder_id = str(randint(1, 100))
+user_id = str(randint(1, 100))
 
 
 class TestSchema2Cedar(object):
+
     @classmethod
     def setup_class(cls):
-        cls.cedarTemplate = Schema2CedarTemplate()
-        cls.cedarTemplateElement = Schema2CedarTemplateElement()
+        cls.cedarTemplate = Schema2CedarTemplate(production_api_key, folder_id, user_id)
+        cls.cedarTemplateElement = Schema2CedarTemplateElement(production_api_key, folder_id, user_id)
 
         cls.mock_request_patcher = patch('cedar.schema2Cedar.requests.request')
         cls.mock_json_patcher = patch('cedar.schema2Cedar.json.loads')
