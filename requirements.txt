@@ -2,3 +2,7 @@ jinja2
 requests
 jsonschema
 nose
+mock
+pyopenssl
+DeepDiff
+mock

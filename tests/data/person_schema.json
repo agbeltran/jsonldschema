@@ -1,0 +1,30 @@
+{
+  "id": "https://w3id.org/dats/schema/person_schema.json",
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "DATS person schema",
+  "description": "A human being",
+  "type": "object",
+  "properties": {
+    "@context": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "@id": { "type": "string", "format": "uri" },
+    "@type": { "type": "string", "format":"uri" },
+    "identifier": {
+      "description": "Primary identifier for the person.",
+      "$ref": "identifier_info_schema.json#"
+    },
+    "lastName": {
+      "description": "The person's family name.",
+      "type" :  "string"
+    }
+  },
+  "additionalProperties": false
+}
