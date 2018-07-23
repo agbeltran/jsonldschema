@@ -45,7 +45,14 @@ class TestClient(object):
 
     def test_create_template(self):
         self.mock_request.return_value.status_code = 201
-        response = self.client.create_template('production', self.production_api_key, self.folder_id, self.template_path_no_id)
+        with open(self.template_path_no_id, 'r') as orig_schema_file:
+            # Load the JSON schema and close the file
+            schema_as_json = json.load(orig_schema_file)
+        orig_schema_file.close()
+        response = self.client.create_template('production',
+                                               self.production_api_key,
+                                               self.folder_id,
+                                               json.dumps(schema_as_json))
         eq_(response.status_code, 201)
 
     def test_update_template(self):
