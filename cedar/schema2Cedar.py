@@ -6,6 +6,7 @@ from urllib.parse import quote, urlparse
 import datetime
 import cedar.client
 import requests
+import sys
 
 
 loaded_specs = {}
@@ -734,11 +735,21 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                         temp_spec = json.loads(self.convert_template_element(schema_as_json, fieldKey=itemKey))
 
                         # NEED SOME REFINING HERE -> VALIDATE BEFORE POST !!!
-                        response = requests.request("POST",
+                        try:
+                            response = requests.request("POST",
                                                     request_url,
                                                     headers=headers,
                                                     data=json.dumps(temp_spec),
                                                     verify=True)
+                            response.raise_for_status()
+                        except requests.exceptions.HTTPError as err:
+                            print("Http Error:", err)
+                            if err.response.status_code == 401:
+                                print("Make sure that the API keys in the test_config.json file are correct")
+                            if err.response.status_code == 404:
+                                print("Make sure that the folder_id in the test_config.json file is correct")
+                            sys.exit(1)
+
                         temp_spec["@id"] = json.loads(response.text)["@id"]
                         if multiple_items:
                             sub_spec = {'items': temp_spec, "type": "array", "minItems": 1}
