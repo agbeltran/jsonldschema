@@ -765,7 +765,8 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
 
         return sub_spec_container
 
-    def load_sub_spec(self, path_to_load, parent_schema, field_key):
+    @staticmethod
+    def load_sub_spec( path_to_load, parent_schema, field_key):
         string_to_json = None
         url_to_load = None
 
