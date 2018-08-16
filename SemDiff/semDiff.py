@@ -237,9 +237,9 @@ def build_context_dict(schema_input, sorted_values):
 
 def process_field(field_name, field_value, context, comparator):
 
-    # if the raw value is already an URL, it does not need processing
     base_url = urlparse(field_value).scheme
 
+    # if the raw value is already an URL, it does not need processing
     if base_url in ('http', 'https'):
         if field_value not in comparator:
             comparator[field_value] = [field_name]
@@ -257,6 +257,15 @@ def process_field(field_name, field_value, context, comparator):
     return comparator
 
 
+def compute_coverage(comp1, comp2):
+    overlap = 0
+    for field in comp1:
+        if field in comp2:
+            overlap += len(comparator[field])
+
+    return [str(round((overlap * 100) / len(comparator), 2)), overlap]
+
+
 if __name__ == "__main__":
     comparator = {}
     comparator = build_context_dict(schemasInput["schema1"], comparator)
@@ -264,10 +273,5 @@ if __name__ == "__main__":
     comparator2 = {}
     comparator2 = build_context_dict(schemasInput["schema2"], comparator2)
 
-    overlap = 0
-    for field in comparator:
-        if field in comparator2:
-            overlap += len(comparator[field])
-
-    coverage = str((overlap*100)/len(comparator))
-    print("Current coverage: " + coverage + "%" + " (" + str(overlap) + "/" + str(len(comparator)) + " fields)")
+    coverage = compute_coverage(comparator, comparator2)
+    print("Current coverage: " + coverage[0] + "%" + " (" + str(coverage[1]) + "/" + str(len(comparator)) + " fields)")
