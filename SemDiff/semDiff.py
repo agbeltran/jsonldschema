@@ -267,7 +267,7 @@ if __name__ == "__main__":
     overlap = 0
     for field in comparator:
         if field in comparator2:
-            overlap += 1
+            overlap += len(comparator[field])
 
     coverage = str((overlap*100)/len(comparator))
     print("Current coverage: " + coverage + "%" + " (" + str(overlap) + "/" + str(len(comparator)) + " fields)")
