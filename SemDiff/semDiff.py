@@ -260,4 +260,14 @@ def process_field(field_name, field_value, context, comparator):
 if __name__ == "__main__":
     comparator = {}
     comparator = build_context_dict(schemasInput["schema1"], comparator)
-    print(comparator)
+
+    comparator2 = {}
+    comparator2 = build_context_dict(schemasInput["schema2"], comparator2)
+
+    overlap = 0
+    for field in comparator:
+        if field in comparator2:
+            overlap += 1
+
+    coverage = str((overlap*100)/len(comparator))
+    print("Current coverage: " + coverage + "%" + " (" + str(overlap) + "/" + str(len(comparator)) + " fields)")
