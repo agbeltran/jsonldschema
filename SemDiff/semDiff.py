@@ -262,6 +262,7 @@ def process_field(field_name, field_value, context, comparator):
 def compute_context_coverage(context1, context2):
 
     Overlap = namedtuple('Overlap', ['first_field', 'second_field'])
+    OverlapValue = namedtuple('OverlapValue', ['relative_coverage', 'absolute_coverage'])
 
     overlap_number = 0
     overlap_output = []
@@ -274,9 +275,9 @@ def compute_context_coverage(context1, context2):
                     local_overlap = Overlap(first_field_val, second_field_val)
                     overlap_output.append(local_overlap)
 
-    overlap_value = [str(round((overlap_number * 100) / len(context1), 2)), overlap_number]
+    local_overlap_value = OverlapValue(str(round((overlap_number * 100) / len(context1), 2)), overlap_number)
 
-    return overlap_value, overlap_output
+    return local_overlap_value, overlap_output
 
 
 def compute_coverage(schema1, context1, schema2, context2):
@@ -291,19 +292,24 @@ def compute_coverage(schema1, context1, schema2, context2):
         "context": context2
     }
 
-    comparator = build_context_dict(input1)
+    comparator1 = build_context_dict(input1)
     comparator2 = build_context_dict(input2)
 
-    coverage = compute_context_coverage(comparator[0], comparator2[0])
-    print("----- \nCoverage: " + coverage[0][0] + "%")
+    coverage = compute_context_coverage(comparator1[0], comparator2[0])
+    print("----- \nCoverage: " + coverage[0].relative_coverage + "%")
     print("----- \nOverlapping fields:")
     print(coverage[1])
     print("----- \nIgnored fields:")
-    print(comparator[1])
+    print(comparator1[1])
 
-    return coverage, comparator[1]
+    return {
+        "coverage": coverage[0],
+        "overlapping fields": coverage[1],
+        "ignored fields": comparator1[1]
+    }
 
 
 if __name__ == "__main__":
     output = compute_coverage(personC, personA_context,
                               personB, personB_context)
+    print(output)
