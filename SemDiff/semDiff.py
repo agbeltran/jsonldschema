@@ -196,8 +196,9 @@ schemasInput = {
 }
 
 
-def build_context_dict(schema_input, sorted_values):
+def build_context_dict(schema_input):
 
+    sorted_values = {}
     ignored_keys = ["@id", "@context", "@type"]
     schema = copy.deepcopy(schema_input)
     ignored_fields = []
@@ -232,7 +233,7 @@ def build_context_dict(schema_input, sorted_values):
             else:
                 ignored_fields.append(field)
 
-    return sorted_values
+    return sorted_values, ignored_fields
 
 
 def process_field(field_name, field_value, context, comparator):
@@ -257,21 +258,35 @@ def process_field(field_name, field_value, context, comparator):
     return comparator
 
 
-def compute_coverage(comp1, comp2):
+def compute_context_coverage(context1, context2):
     overlap = 0
-    for field in comp1:
-        if field in comp2:
-            overlap += len(comparator[field])
+    overlap_output = []
+    for field in context1:
+        if field in context2:
+            overlap += len(context1[field])
 
-    return [str(round((overlap * 100) / len(comparator), 2)), overlap]
+            for first_field_val in context1[field]:
+                for second_field_val in context2[field]:
+                    overlap_output.append((first_field_val, second_field_val))
+
+    overlap_value = [str(round((overlap * 100) / len(context1), 2)), overlap]
+
+    return overlap_value, overlap_output
+
+
+def compute_coverage():
+    comparator = build_context_dict(schemasInput["schema1"])[0]
+    comparator2 = build_context_dict(schemasInput["schema2"])[0]
+
+    coverage = compute_context_coverage(comparator, comparator2)
+    print("----- \nCoverage: " + coverage[0][0] + "%")
+    print("----- \nOverlapping fields:")
+    print(coverage[1])
+    print("----- \nIgnored fields:")
+    print(build_context_dict(schemasInput["schema1"])[1])
+
+    return coverage, build_context_dict(schemasInput["schema1"])[1]
 
 
 if __name__ == "__main__":
-    comparator = {}
-    comparator = build_context_dict(schemasInput["schema1"], comparator)
-
-    comparator2 = {}
-    comparator2 = build_context_dict(schemasInput["schema2"], comparator2)
-
-    coverage = compute_coverage(comparator, comparator2)
-    print("Current coverage: " + coverage[0] + "%" + " (" + str(coverage[1]) + "/" + str(len(comparator)) + " fields)")
+    output = compute_coverage()
