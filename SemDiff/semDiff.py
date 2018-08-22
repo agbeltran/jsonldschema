@@ -1,6 +1,7 @@
 import pprint
 import copy
 from urllib.parse import urlparse
+from collections import namedtuple
 
 prettyPrint = pprint.PrettyPrinter(indent=2)
 
@@ -259,17 +260,21 @@ def process_field(field_name, field_value, context, comparator):
 
 
 def compute_context_coverage(context1, context2):
-    overlap = 0
+
+    Overlap = namedtuple('FieldOverlap', ['field_from_first_parent', 'field_from_second_parent'])
+
+    overlap_number = 0
     overlap_output = []
     for field in context1:
         if field in context2:
-            overlap += len(context1[field])
+            overlap_number += len(context1[field])
 
             for first_field_val in context1[field]:
                 for second_field_val in context2[field]:
-                    overlap_output.append((first_field_val, second_field_val))
+                    local_overlap = Overlap(first_field_val, second_field_val)
+                    overlap_output.append(local_overlap)
 
-    overlap_value = [str(round((overlap * 100) / len(context1), 2)), overlap]
+    overlap_value = [str(round((overlap_number * 100) / len(context1), 2)), overlap_number]
 
     return overlap_value, overlap_output
 
