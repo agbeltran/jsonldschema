@@ -188,11 +188,11 @@ personB_context = {
 schemasInput = {
     "schema1": {
         "schema": personC,
-        "contexts": personA_context
+        "context": personA_context
     },
     "schema2": {
         "schema": personB,
-        "contexts": personB_context
+        "context": personB_context
     }
 }
 
@@ -211,23 +211,23 @@ def build_context_dict(schema_input):
         if field not in ignored_keys:
 
             # If the field can be found in the context, process it
-            if field in schema["contexts"]["@context"].keys():
+            if field in schema["context"]["@context"].keys():
 
                 # This is the raw semantic value of the field, it might need some processing
-                raw_semantic_value = schema["contexts"]["@context"][field]
+                raw_semantic_value = schema["context"]["@context"][field]
 
                 # If the field raw semantic value is a string
                 if isinstance(raw_semantic_value, str):
                     sorted_values = process_field(field,
                                                   raw_semantic_value,
-                                                  schema["contexts"]["@context"],
+                                                  schema["context"]["@context"],
                                                   sorted_values)
 
                 # if the field raw semantic value is not a string
                 else:
                     sorted_values = process_field(field,
                                                   raw_semantic_value['@id'],
-                                                  schema["contexts"]["@context"],
+                                                  schema["context"]["@context"],
                                                   sorted_values)
 
             # if the field is absent from the context file, ignore it as it has no semantic definition
@@ -261,7 +261,7 @@ def process_field(field_name, field_value, context, comparator):
 
 def compute_context_coverage(context1, context2):
 
-    Overlap = namedtuple('FieldOverlap', ['field_from_first_parent', 'field_from_second_parent'])
+    Overlap = namedtuple('Overlap', ['first_field', 'second_field'])
 
     overlap_number = 0
     overlap_output = []
@@ -279,19 +279,31 @@ def compute_context_coverage(context1, context2):
     return overlap_value, overlap_output
 
 
-def compute_coverage():
-    comparator = build_context_dict(schemasInput["schema1"])[0]
-    comparator2 = build_context_dict(schemasInput["schema2"])[0]
+def compute_coverage(schema1, context1, schema2, context2):
 
-    coverage = compute_context_coverage(comparator, comparator2)
+    input1 = {
+        "schema": schema1,
+        "context": context1
+    }
+
+    input2 = {
+        "schema": schema2,
+        "context": context2
+    }
+
+    comparator = build_context_dict(input1)
+    comparator2 = build_context_dict(input2)
+
+    coverage = compute_context_coverage(comparator[0], comparator2[0])
     print("----- \nCoverage: " + coverage[0][0] + "%")
     print("----- \nOverlapping fields:")
     print(coverage[1])
     print("----- \nIgnored fields:")
-    print(build_context_dict(schemasInput["schema1"])[1])
+    print(comparator[1])
 
-    return coverage, build_context_dict(schemasInput["schema1"])[1]
+    return coverage, comparator[1]
 
 
 if __name__ == "__main__":
-    output = compute_coverage()
+    output = compute_coverage(personC, personA_context,
+                              personB, personB_context)
