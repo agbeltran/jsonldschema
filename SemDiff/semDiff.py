@@ -1,9 +1,7 @@
-import pprint
 import copy
 from urllib.parse import urlparse
 from collections import namedtuple
 
-prettyPrint = pprint.PrettyPrinter(indent=2)
 
 personA = {
   "id": "https://w3id.org/dats/schema/person_schema.json",
@@ -304,32 +302,6 @@ class SemanticComparator:
 
         return local_overlap_value, overlap_output
 
-
-"""
-def compute_coverage(schema1, context1, schema2, context2):
-
-    input1 = {
-        "schema": schema1,
-        "context": context1
-    }
-
-    input2 = {
-        "schema": schema2,
-        "context": context2
-    }
-
-    comparator1 = build_context_dict(input1)
-    comparator2 = build_context_dict(input2)
-
-    coverage = compute_context_coverage(comparator1[0], comparator2[0])
-
-    return {
-        "coverage": coverage[0],
-        "overlapping fields": coverage[1],
-        "ignored fields": comparator1[1]
-    }
-
-"""
 
 if __name__ == "__main__":
     output = SemanticComparator(personC, personA_context, personB, personB_context)
