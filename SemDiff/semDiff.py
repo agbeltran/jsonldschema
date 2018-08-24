@@ -3,198 +3,6 @@ from urllib.parse import urlparse
 from collections import namedtuple
 
 
-personA = {
-  "id": "https://w3id.org/dats/schema/person_schema.json",
-  "$schema": "http://json-schema.org/draft-04/schema",
-  "title": "DATS person schema",
-  "description": "A human being",
-  "type": "object",
-  "properties": {
-    "@context": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "object"
-        }
-      ]
-    },
-    "@id": {"type": "string", "format": "uri"},
-    "@type": {"type": "string", "format": "uri"},
-    "identifier": {
-      "description": "Primary identifier for the person.",
-      "$ref": "identifier_info_schema.json#"
-    },
-    "lastName": {
-      "description": "The person's family name.",
-      "type":  "string"
-    }
-  },
-  "additionalProperties": False
-}
-
-personB = {
-  "id": "https://w3id.org/dats/schema/person_schema.json",
-  "$schema": "http://json-schema.org/draft-04/schema",
-  "title": "DATS person schema",
-  "description": "A human being",
-  "type": "object",
-  "properties": {
-    "@context": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "object"
-        }
-      ]
-    },
-    "@id": {"type": "string", "format": "uri"},
-    "@type": {"type": "string", "format": "uri"},
-    "identifier": {
-      "description": "Primary identifier for the person.",
-      "$ref": "identifier_info_schema.json#"
-    },
-    "familyName": {
-      "description": "The person's family name.",
-      "type":  "string"
-    }
-  },
-  "additionalProperties": False
-}
-
-personC = {
-  "id": "https://w3id.org/dats/schema/person_schema.json",
-  "$schema": "http://json-schema.org/draft-04/schema",
-  "title": "DATS person schema",
-  "description": "A human being",
-  "type": "object",
-  "properties": {
-    "@context": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "object"
-        }
-      ]
-    },
-    "@id": { "type": "string", "format": "uri" },
-    "@type": { "type": "string", "enum": [ "Person" ]},
-    "identifier": {
-      "description": "Primary identifier for the person.",
-      "$ref": "identifier_info_schema.json#"
-    },
-    "alternateIdentifiers": {
-      "description": "Alternate identifiers for the person.",
-      "type": "array",
-      "items": {
-        "$ref": "alternate_identifier_info_schema.json#"
-      }
-    },
-    "relatedIdentifiers": {
-      "description": "Related identifiers for the person.",
-      "type": "array",
-      "items": {
-        "$ref": "related_identifier_info_schema.json#"
-      }
-    },
-
-    "fullName": {
-      "description": "The first name, any middle names, and surname of a person.",
-      "type" :  "string"
-    },
-    "firstName": {
-      "description": "The given name of the person.",
-      "type" :  "string"
-    },
-    "middleInitial": {
-      "description": "The first letter of the person's middle name.",
-      "type" :  "string"
-    },
-    "lastName": {
-      "description": "The person's family name.",
-      "type" :  "string"
-    },
-    "email": {
-      "description": "An electronic mail address for the person.",
-      "type" :  "string",
-      "format": "email"
-    },
-    "affiliations" : {
-      "description": "The organizations to which the person is associated with.",
-      "type" : "array",
-      "items" : {
-        "$ref" : "organization_schema.json#"
-      }
-    },
-    "roles" : {
-      "description": "The roles assumed by a person, ideally from a controlled vocabulary/ontology.",
-      "type" : "array",
-      "items" : {
-        "$ref" : "annotation_schema.json#"
-      }
-    },
-    "extraProperties": {
-      "description": "Extra properties that do not fit in the previous specified attributes. ",
-      "type": "array",
-      "items": {
-        "$ref" : "category_values_pair_schema.json#"
-      }
-    }
-  },
-  "additionalProperties": False
-}
-
-personA_context = {
-    "@context": {
-        "sdo": "https://schema.org/",
-        "Person": "sdo:Person",
-        "identifier": {
-            "@id": "sdo:identifier",
-            "@type": "sdo:Text"
-        },
-        "firstName": "sdo:givenName",
-        "lastName": "sdo:familyName",
-        "fullName": "sdo:name",
-        "email": "sdo:email",
-        "affiliations": "sdo:affiliation",
-        "roles": "sdo:roleName"
-    }
-}
-
-personB_context = {
-    "@context": {
-        "sdo": "https://schema.org/",
-        "Person": "sdo:Person",
-        "identifier": {
-            "@id": "sdo:identifier",
-            "@type": "sdo:Text"
-        },
-        "firstName": "sdo:givenName",
-        "familyName": "sdo:familyName",
-        "fullName": "sdo:name",
-        "email": "sdo:email",
-        "affiliations": "sdo:affiliation",
-        "roles": "sdo:roleName"
-    }
-}
-
-schemasInput = {
-    "schema1": {
-        "schema": personC,
-        "context": personA_context
-    },
-    "schema2": {
-        "schema": personB,
-        "context": personB_context
-    }
-}
-
-
 class SemanticComparator:
     """
      A class that compute the overlap between two JSON schemas semantic values taken from context files
@@ -210,18 +18,17 @@ class SemanticComparator:
             "context": context_b
         }
 
-        self.comparator1 = self.build_context_dict(self.input1)
-        self.comparator2 = self.build_context_dict(self.input2)
-        self.overlaps = self.compute_context_coverage(self.comparator1[0], self.comparator2[0])
+        self.comparator1 = self.__build_context_dict(self.input1)
+        self.comparator2 = self.__build_context_dict(self.input2)
+        self.overlaps = self.__compute_context_coverage(self.comparator1[0], self.comparator2[0])
 
-    def compute_coverage(self):
-        return {
+        self.full_coverage = {
             "coverage": self.overlaps[0],
             "overlapping fields": self.overlaps[1],
             "ignored fields": self.comparator1[1]
         }
 
-    def build_context_dict(self, schema_input):
+    def __build_context_dict(self, schema_input):
         sorted_values = {}
         ignored_keys = ["@id", "@context", "@type"]
         schema = copy.deepcopy(schema_input)
@@ -241,17 +48,17 @@ class SemanticComparator:
 
                     # If the field raw semantic value is a string
                     if isinstance(raw_semantic_value, str):
-                        sorted_values = self.process_field(field,
-                                                           raw_semantic_value,
-                                                           schema["context"]["@context"],
-                                                           sorted_values)
+                        sorted_values = self.__process_field(field,
+                                                             raw_semantic_value,
+                                                             schema["context"]["@context"],
+                                                             sorted_values)
 
                     # if the field raw semantic value is not a string
                     else:
-                        sorted_values = self.process_field(field,
-                                                           raw_semantic_value['@id'],
-                                                           schema["context"]["@context"],
-                                                           sorted_values)
+                        sorted_values = self.__process_field(field,
+                                                             raw_semantic_value['@id'],
+                                                             schema["context"]["@context"],
+                                                             sorted_values)
 
                 # if the field is absent from the context file, ignore it as it has no semantic definition
                 else:
@@ -260,7 +67,7 @@ class SemanticComparator:
         return sorted_values, ignored_fields
 
     @staticmethod
-    def process_field(field_name, field_value, context, comparator):
+    def __process_field(field_name, field_value, context, comparator):
 
         base_url = urlparse(field_value).scheme
 
@@ -282,7 +89,7 @@ class SemanticComparator:
         return comparator
 
     @staticmethod
-    def compute_context_coverage(context1, context2):
+    def __compute_context_coverage(context1, context2):
 
         Overlap = namedtuple('Overlap', ['first_field', 'second_field'])
         OverlapValue = namedtuple('OverlapValue', ['relative_coverage', 'absolute_coverage'])
@@ -301,8 +108,3 @@ class SemanticComparator:
         local_overlap_value = OverlapValue(str(round((overlap_number * 100) / len(context1), 2)), str(overlap_number))
 
         return local_overlap_value, overlap_output
-
-
-if __name__ == "__main__":
-    output = SemanticComparator(personC, personA_context, personB, personB_context)
-    print(output.compute_coverage())
