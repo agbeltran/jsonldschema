@@ -96,7 +96,10 @@ class SemanticComparator:
 
         overlap_number = 0
         overlap_output = []
+        processed_field = 0
+
         for field in context1:
+            processed_field+=1
             if field in context2:
                 overlap_number += len(context1[field])
 
@@ -105,6 +108,8 @@ class SemanticComparator:
                         local_overlap = Overlap(first_field_val, second_field_val)
                         overlap_output.append(local_overlap)
 
-        local_overlap_value = OverlapValue(str(round((overlap_number * 100) / len(context1), 2)), str(overlap_number))
+        absolute_coverage = namedtuple('AbsoluteCoverage', ['overlap_number', 'total_fields'])
+        AbsoluteCoverage = absolute_coverage(str(overlap_number), str(processed_field))
+        local_overlap_value = OverlapValue(str(round((overlap_number * 100) / len(context1), 2)), AbsoluteCoverage)
 
         return local_overlap_value, overlap_output

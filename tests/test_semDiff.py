@@ -113,7 +113,7 @@ context_2 = {
 
 class SemDiffTestCase(unittest.TestCase):
 
-    def __init(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(SemDiffTestCase, self).__init__(*args, **kwargs)
 
     def setUp(self):
@@ -162,7 +162,8 @@ class SemDiffTestCase(unittest.TestCase):
         coverage = self.semantic_comparator._SemanticComparator__compute_context_coverage(comparator1[0], comparator2[0])
 
         self.assertTrue(coverage[0].relative_coverage == "50.0")
-        self.assertTrue(coverage[0].absolute_coverage == "2")
+        self.assertTrue(coverage[0].absolute_coverage[0] == "2")
+        self.assertTrue(coverage[0].absolute_coverage[1] == "4")
         self.assertTrue(len(coverage[1]) == 2)
 
         """
