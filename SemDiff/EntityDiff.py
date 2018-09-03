@@ -83,13 +83,14 @@ if __name__ == '__main__':
             context_type2 = MIACA_network[item2]
             if context_type == context_type2:
                 matched = True
-                matched_item += 1
                 if item in coverage.keys():
                     coverage[item].append(item)
                 else:
                     coverage[item] = [item2]
         if matched is False:
             coverage[item] = None
+        else:
+            matched_item += 1
 
     print(coverage)
     print('Coverage:' + str((matched_item/item_total)*100) + '%')
