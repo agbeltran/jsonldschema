@@ -3,6 +3,7 @@ import os
 import json
 from SemDiff.coverage import Coverage
 
+
 class CoverageTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
@@ -22,9 +23,6 @@ class CoverageTestCase(unittest.TestCase):
         self.assertTrue("firstName" in overlap)
         self.assertTrue("alternateIdentifiers" in diff)
 
-
     def test_json_schema_context_mapping(self):
-       mappings = Coverage.json_schema_context_mapping(self.schema, self.context1, self.context2)
-       self.assertTrue(mappings["fullName"] == ['sdo:name', 'sdo:name'])
-
-
+        mappings = Coverage.json_schema_context_mapping(self.schema, self.context1, self.context2)
+        self.assertTrue(mappings["fullName"] == ['sdo:name', 'sdo:name'])
