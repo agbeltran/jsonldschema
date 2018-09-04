@@ -1,3 +1,6 @@
+from urllib.parse import urlparse
+
+
 class EntityCoverage:
     """
     This class compute the coverage of entities (schemas) among two networks (set of schemas) by comparing the semantic
@@ -27,7 +30,14 @@ class EntityCoverage:
             schema_context = network[schema]
             if schema_name in schema_context.keys():
                 schema_type = schema_context[schema_name]
+
+            schema_type_base_url = urlparse(schema_type).scheme
+            if schema_type is not None and schema_type_base_url not in ('http', 'https'):
+                if schema_type_base_url in schema_context.keys():
+                    schema_type.replace(schema_type_base_url, schema_context[schema_type_base_url])
+
             network_output[schema_name] = schema_type
+
         return network_output
 
     @staticmethod
