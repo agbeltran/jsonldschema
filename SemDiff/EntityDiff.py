@@ -1,3 +1,56 @@
+class EntityCoverage:
+
+    def __init__(self, networks_array):
+        network1 = self.__process_network(networks_array[0])
+        network2 = self.__process_network(networks_array[1])
+        coverage = self.__compute_coverage(network1, network2)
+        self.covered_entities = coverage[0]
+        self.total_entities = coverage[1]
+        self.matched_entities = coverage[2]
+
+    @staticmethod
+    def __process_network(network):
+        network_output = {}
+        for schema in network:
+            schema_name = schema.replace("_schema.json", "").capitalize()
+            schema_type = None
+            schema_context = network[schema]
+            if schema_name in schema_context.keys():
+                schema_type = schema_context[schema_name]
+            network_output[schema_name] = schema_type
+        return network_output
+
+    @staticmethod
+    def __compute_coverage(network_a, network_b):
+        coverage = {}
+        total_items = 0
+        matched_items = 0
+
+        for schema in network_a:
+            total_items += 1
+            context_type = network_a[schema]
+            matched = False
+
+            if context_type is not None:
+
+                for schema2 in network_b:
+                    context_type2 = network_b[schema2]
+
+                    if context_type == context_type2:
+                        matched = True
+                        if schema in coverage.keys():
+                            coverage[schema].append(schema2)
+                        else:
+                            coverage[schema] = [schema2]
+
+            if matched is False:
+                coverage[schema] = None
+            else:
+                matched_items += 1
+
+        return coverage, total_items, matched_items
+
+
 if __name__ == '__main__':
 
     DATS_data = {
@@ -24,9 +77,9 @@ if __name__ == '__main__':
     }
 
     MIACA_data = {
-        "person_schema.json": {
+        "source_schema.json": {
             "sdo": "https://schema.org/",
-            "Person": "sdo:Person",
+            "Source": "sdo:Person",
             "identifier": "sdo:identifier",
             "firstName": "sdo:givenName",
             "lastName": "sdo:familyName",
@@ -47,50 +100,6 @@ if __name__ == '__main__':
     }
 
     networks = [DATS_data, MIACA_data]
-
-    DATS_network = {}
-    MIACA_network = {}
-
-    counter = 0
-    for network in networks:
-        for schema in network:
-            schema_name = schema.replace("_schema.json", "").capitalize()
-            schema_type = None
-
-            if counter == 0:
-                schema_context = DATS_data[schema]
-            else:
-                schema_context = MIACA_data[schema]
-
-            if schema_name in schema_context.keys():
-                schema_type = schema_context[schema_name]
-
-            if counter == 0:
-                DATS_network[schema_name] = schema_type
-            elif counter == 1:
-                MIACA_network[schema_name] = schema_type
-        counter += 1
-
-    coverage = {}
-
-    item_total = 0
-    matched_item = 0
-    for item in DATS_network:
-        item_total += 1
-        context_type = DATS_network[item]
-        matched = False
-        for item2 in MIACA_network:
-            context_type2 = MIACA_network[item2]
-            if context_type == context_type2:
-                matched = True
-                if item in coverage.keys():
-                    coverage[item].append(item)
-                else:
-                    coverage[item] = [item2]
-        if matched is False:
-            coverage[item] = None
-        else:
-            matched_item += 1
-
-    print(coverage)
-    print('Coverage:' + str((matched_item/item_total)*100) + '%')
+    entity_coverage = EntityCoverage(networks)
+    print(entity_coverage.covered_entities)
+    print('Coverage: ' + str((entity_coverage.matched_entities/entity_coverage.total_entities)*100) + '%')
