@@ -1,4 +1,9 @@
 class EntityCoverage:
+    """
+    This class compute the coverage of entities (schemas) among two networks (set of schemas) by comparing the semantic
+    base type of each schema.
+    :param networks_array: an array containing the two networks to compare
+    """
 
     def __init__(self, networks_array):
         network1 = self.__process_network(networks_array[0])
@@ -10,6 +15,11 @@ class EntityCoverage:
 
     @staticmethod
     def __process_network(network):
+        """
+        Private method that retrieve the base type of each entity for later comparison
+        :param network: a dictionary of schemas and their context
+        :return network_output: a dictionary of schemas and their base type retrieved from the context
+        """
         network_output = {}
         for schema in network:
             schema_name = schema.replace("_schema.json", "").capitalize()
@@ -22,6 +32,12 @@ class EntityCoverage:
 
     @staticmethod
     def __compute_coverage(network_a, network_b):
+        """
+        Private method that compute the coverage between two networks
+        :param network_a: the output of __process_network for the first network
+        :param network_b: the output of __process_network for the second network
+        :return output: an array containing the twined entities, the number of processed entities and the number of twins
+        """
         coverage = {}
         total_items = 0
         matched_items = 0
@@ -48,7 +64,8 @@ class EntityCoverage:
             else:
                 matched_items += 1
 
-        return coverage, total_items, matched_items
+        output = [coverage, total_items, matched_items]
+        return output
 
 
 if __name__ == '__main__':
