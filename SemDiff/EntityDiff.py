@@ -16,8 +16,8 @@ class EntityCoverage:
     @staticmethod
     def __process_network(network):
         """
-        Private method that retrieve the base type of each entity for later comparison
-        :param network: a dictionary of schemas and their context
+        Private method that retrieve the base type of each entity in a given network for later comparison
+        :param network: a dictionary of schemas and their context (the network itself)
         :return network_output: a dictionary of schemas and their base type retrieved from the context
         """
         network_output = {}
@@ -36,7 +36,8 @@ class EntityCoverage:
         Private method that compute the coverage between two networks
         :param network_a: the output of __process_network for the first network
         :param network_b: the output of __process_network for the second network
-        :return output: an array containing the twined entities, the number of processed entities and the number of twins
+        :return output: an array containing the twined entities, the number of processed entities and the number of
+        twins between both networks
         """
         coverage = {}
         total_items = 0
