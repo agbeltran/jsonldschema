@@ -3,7 +3,8 @@ from urllib.parse import urlparse
 
 class EntityCoverage:
     """
-    This class compute the coverage of entities (schemas) among two networks (set of schemas) by comparing the semantic
+    This class compute the coverage of entities (schemas) among two networks (set of schemas) by
+    comparing the semantic
     base type of each schema.
     :param networks_array: an array containing the two networks to compare
     """
@@ -19,9 +20,11 @@ class EntityCoverage:
     @staticmethod
     def __process_network(network):
         """
-        Private method that retrieve the base type of each entity in a given network for later comparison
+        Private method that retrieve the base type of each entity in a given network for later
+        comparison
         :param network: a dictionary of schemas and their context (the network itself)
-        :return network_output: a dictionary of schemas and their base type retrieved from the context
+        :return network_output: a dictionary of schemas and their base type retrieved from the
+        context
         """
         network_output = {}
         for schema in network:
@@ -46,7 +49,8 @@ class EntityCoverage:
         Private method that compute the coverage between two networks
         :param network_a: the output of __process_network for the first network
         :param network_b: the output of __process_network for the second network
-        :return output: an array containing the twined entities, the number of processed entities and the number of
+        :return output: an array containing the twined entities, the number of processed entities
+        and the number of
         twins between both networks
         """
         coverage = {}
