@@ -26,7 +26,8 @@ class Schema2CedarBase:
 
     @staticmethod
     def json_pretty_dump(json_object, output_file):
-        return json.dump(json_object, output_file, sort_keys=False, indent=4, separators=(',', ': '))
+        return json.dump(json_object,
+                         output_file, sort_keys=False, indent=4, separators=(',', ': '))
 
     @staticmethod
     def set_context():
@@ -283,9 +284,11 @@ class Schema2CedarBase:
                     },
                     "schema:name": propertyKey,
                     "pav:createdOn": "2018-06-07T03:07:47-0700",
-                    "pav:createdBy": "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
+                    "pav:createdBy":
+                        "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
                     "pav:lastUpdatedOn": "2018-06-07T03:07:47-0700",
-                    "oslc:modifiedBy": "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
+                    "oslc:modifiedBy":
+                        "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
                     "schema:schemaVersion": "1.4.0",
                     "additionalProperties": False,
                     "schema:description": description,
@@ -333,7 +336,8 @@ class Schema2CedarBase:
         for propertyKey in schema['properties']:
             if propertyKey not in ignored_key:
                 if 'enum' in schema['properties'][propertyKey]:
-                    sub_context['properties'][propertyKey] = {"enum": schema['properties'][propertyKey]["enum"]}
+                    sub_context['properties'][propertyKey] = \
+                        {"enum": schema['properties'][propertyKey]["enum"]}
                 else:
                     sub_context['properties'][propertyKey] = {"enum": [""]}
 
@@ -422,7 +426,7 @@ class Schema2CedarTemplate(Schema2CedarBase):
     "@context": {{ TEMPLATE_CONTEXT | tojson }},
     "@type": "{{ TEMPLATE_TYPE }}",
     "type": "object",
-    "title": "{{ title }} element schema", 
+    "title": "{{ title }} element schema",
     "description": "{{ description }} ",
     "schema:name": "{{title}}",
     "schema:description": "{{ description }}",
@@ -433,16 +437,16 @@ class Schema2CedarTemplate(Schema2CedarBase):
     "pav:lastUpdatedOn": "{{ NOW  }}",
     "pav:createdBy": "{{ USER_URL }}",
     "oslc:modifiedBy": "{{ USER_URL }}",
-    "_ui": { 
-        "order": [ 
+    "_ui": {
+        "order": [
             {% for item in TEMP_PROP %}
-                "{{item}}" {% if not loop.last %},{% endif %}      
-            {% endfor %} 
+                "{{item}}" {% if not loop.last %},{% endif %}
+            {% endfor %}
         ],
         "propertyLabels": {
-            {% for item in TEMP_PROP %}   
-                "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %} 
-            {% endfor %} 
+            {% for item in TEMP_PROP %}
+                "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %}
+            {% endfor %}
         },
         "pages": []
     },
@@ -458,7 +462,7 @@ class Schema2CedarTemplate(Schema2CedarBase):
         "oslc:modifiedBy",
         "pav:version",
         "bibo:status"
-    ],   
+    ],
     "additionalProperties": {% if additionalProperties %} {{ additionalProperties }} {% else %} false {% endif%},
     "properties":{
         {% for itemKey, itemVal in PROP_ITEMS.items() %}
@@ -480,14 +484,14 @@ class Schema2CedarTemplate(Schema2CedarBase):
                 "pav:createdBy",
                 "pav:lastUpdatedOn",
                 "oslc:modifiedBy"
-            ]    
+            ]
         }
         {% for itemKey, itemVal in REQ.items() %}
             ,"{{itemKey}}": {{itemVal | tojson}}
         {% endfor %}
         {% for itemKey, itemVal in SUB_SPECS.items() %}
             ,"{{itemKey}}": {{itemVal | tojson}}
-        {% endfor %}             
+        {% endfor %}
     }
 }
 ''')
@@ -530,7 +534,7 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
         "@context": {{TEMPLATE_CONTEXT | tojson}},
         "@type": "{{TEMPLATE_TYPE}}",
         "type": "object",
-        "title": "{{title}} element schema", 
+        "title": "{{title}} element schema",
         "description": "{{description}} ",
         "schema:name": "{{FIELD_KEY}}",
         "schema:description": "{{description}}",
@@ -541,15 +545,15 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
         "pav:lastUpdatedOn": "{{NOW}}",
         "pav:createdBy": "{{USER_URL}}",
         "oslc:modifiedBy": "{{USER_URL}}",
-        "_ui": { 
-            "order": [ 
+        "_ui": {
+            "order": [
                 {% for item in TEMP_PROP %}
-                    "{{item}}" {% if not loop.last %},{% endif %}      
-                {% endfor %} 
+                    "{{item}}" {% if not loop.last %},{% endif %}
+                {% endfor %}
             ],
             "propertyLabels": {
-                {% for item in TEMP_PROP %}   
-                    "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %} 
+                {% for item in TEMP_PROP %}
+                    "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %}
                 {% endfor %}
             }
         },
@@ -562,30 +566,30 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
             {% endfor %}
         ],
         "properties": {
-            {% for itemKey, itemVal in PROP_CONTEXT.items() %}    
+            {% for itemKey, itemVal in PROP_CONTEXT.items() %}
                 "{{itemKey}}": {{itemVal | tojson}} {% if not loop.last %},{% endif %}
             {% endfor %},
             {% for itemKey, itemVal in TEMP_PROP.items() %}
                 {% if '$ref' in itemVal %}
-                    {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}                     
+                    {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}
                     {% endif %}
                 {% elif 'items' in itemVal and '$ref' in itemVal['items'] %}
-                    {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}                     
-                    {% endif %}    
-                {% else %}               
+                    {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}
+                    {% endif %}
+                {% else %}
                     "{{itemKey}}": {
                         "@context": {{ITEM_CONTEXT | tojson}},
                         "title": "{{itemKey}} field schema generated by {{MIRCAT}}",
-                        "schema:description": "{{itemKey}}",  
+                        "schema:description": "{{itemKey}}",
                         "additionalProperties": false,
                         "oslc:modifiedBy": "{{USER_URL}}",
                         "pav:createdOn": "{{NOW}}",
                         "_ui": {
                             "inputType": "textfield"
                         },
-                        "description": 
-                            {% if itemVal.description %} "{{itemVal.description}}" 
-                            {%else %} "{{item}} autogenerated by {{MIRCAT}}" 
+                        "description":
+                            {% if itemVal.description %} "{{itemVal.description}}"
+                            {%else %} "{{item}} autogenerated by {{MIRCAT}}"
                             {% endif %},
                         "pav:lastUpdatedOn": "{{NOW}}",
                         "required": [
@@ -597,8 +601,8 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                                 "defaultValue": "{{itemVal['_valueConstraints']['defaultValue']}}",
                             {% endif %}
                             "requiredValue":
-                                {% if (requiredList is defined) and (itemKey in requiredList) %} true 
-                                {% else %} false 
+                                {% if (requiredList is defined) and (itemKey in requiredList) %} true
+                                {% else %} false
                                 {% endif%}
                         },
                         "pav:createdBy": "{{USER_URL}}",
@@ -639,7 +643,7 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                             }
                         }
                     }
-                {% endif %}                                                               
+                {% endif %}
                 {% if not loop.last %},{% endif %}
             {% endfor %}
         },
@@ -661,8 +665,9 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
             context = self.set_context()
 
             # Set root['properties']['@context']
-            property_context = self.set_template_element_property_minimals(self.set_sub_context(input_json_schema),
-                                                                           input_json_schema['properties'])
+            property_context = self.set_template_element_property_minimals(
+                                self.set_sub_context(input_json_schema),
+                                input_json_schema['properties'])
 
             # Set root['properties']['item_name']['@context']
             item_context = dict(context)
@@ -686,7 +691,8 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                                                       MIRCAT="mircat-tools for python 3",
                                                       PROP_CONTEXT=property_context,
                                                       ITEM_CONTEXT=item_context,
-                                                      TEMP_PROP=self.set_stripped_properties(input_json_schema),
+                                                      TEMP_PROP=self.set_stripped_properties(
+                                                          input_json_schema),
                                                       SUB_SPECS=sub_spec,
                                                       FIELD_KEY=field_key)
 
@@ -695,12 +701,11 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
 
     def find_sub_specs(self, schema, sub_spec_container):
         ignored_key = ["@id", "@type", "@context"]
-        data_dir = os.path.join(os.path.dirname(__file__), "../tests/data")
         client = cedar.client.CEDARClient()
         headers = client.get_headers(self.production_api_key)
         request_url = client.selectEndpoint('production') \
-                      + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" \
-                      + self.folder_id
+            + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" \
+            + self.folder_id
 
         # For each field in the properties array
         for itemKey, itemVal in schema['properties'].items():
@@ -719,35 +724,41 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                     schema_as_json = self.load_sub_spec(itemVal['items']['$ref'], schema, itemKey)
                     multiple_items = True
 
-                elif ('items' in itemVal and ('anyOf' in itemVal['items'] or 'oneOf' in itemVal['items'])) \
+                elif ('items' in itemVal and ('anyOf' in itemVal['items']
+                                              or 'oneOf' in itemVal['items'])) \
                         or ('anyOf' in itemVal) \
                         or ('oneOf' in itemVal):
 
-                    # REFINING HERE -> DELETE ALL ITEMS FROM SERVER !! (or change algo to validate all templates first.
+                    # REFINING HERE -> DELETE ALL ITEMS FROM SERVER!!
+                    # (or change algo to validate all templates first.
                     print(schema)
-                    raise ValueError("'anyOf' and 'oneOf' are not supported by CEDAR (schema affected: )")
+                    raise ValueError("'anyOf' and 'oneOf' are not "
+                                     "supported by CEDAR (schema affected: )")
 
                 # if the schema_path is set
                 if schema_as_json is not None:
 
                     if itemKey not in loaded_specs.keys():
 
-                        temp_spec = json.loads(self.convert_template_element(schema_as_json, fieldKey=itemKey))
+                        temp_spec = json.loads(self.convert_template_element(schema_as_json,
+                                                                             fieldKey=itemKey))
 
-                        # NEED SOME REFINING HERE -> VALIDATE BEFORE POST !!!
+                        # TODO NEED SOME REFINING HERE -> VALIDATE BEFORE POST !!!
                         try:
                             response = requests.request("POST",
-                                                    request_url,
-                                                    headers=headers,
-                                                    data=json.dumps(temp_spec),
-                                                    verify=True)
+                                                        request_url,
+                                                        headers=headers,
+                                                        data=json.dumps(temp_spec),
+                                                        verify=True)
                             response.raise_for_status()
                         except requests.exceptions.HTTPError as err:
                             print("Http Error:", err)
                             if err.response.status_code == 401:
-                                print("Make sure that the API keys in the test_config.json file are correct")
+                                print("Make sure that the API keys in "
+                                      + "the test_config.json file are correct")
                             if err.response.status_code == 404:
-                                print("Make sure that the folder_id in the test_config.json file is correct")
+                                print("Make sure that the folder_id in "
+                                      + "the test_config.json file is correct")
                             sys.exit(1)
 
                         temp_spec["@id"] = json.loads(response.text)["@id"]
@@ -766,7 +777,7 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
         return sub_spec_container
 
     @staticmethod
-    def load_sub_spec( path_to_load, parent_schema, field_key):
+    def load_sub_spec(path_to_load, parent_schema, field_key):
         string_to_json = None
         url_to_load = None
 
@@ -790,4 +801,3 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                 string_to_json = json.loads(string_from_url.text)
 
         return string_to_json
-
