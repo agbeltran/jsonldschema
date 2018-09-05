@@ -15,7 +15,8 @@ def equal_dicts(d1, d2, ignore_keys):
 
 def diff_dicts(d1, d2, ignore_keys):
     """
-    Return the difference between two dictionaries d1 and d2, ignoring the list of keys given as parameter ignore_keys
+    Return the difference between two dictionaries d1 and d2, ignoring the list of keys given as
+    parameter ignore_keys
     """
     ignored = set(ignore_keys)
     diff = set()
@@ -30,7 +31,8 @@ def diff_dicts(d1, d2, ignore_keys):
 
 def compare_dicts(source_template, valid_template, lvl):
     """
-    Display the difference between a source to validate (source_template) and a valid template (valid_template)
+    Display the difference between a source to validate (source_template) and a valid template
+    (valid_template)
     """
     for key in source_template:
 
@@ -44,11 +46,12 @@ def compare_dicts(source_template, valid_template, lvl):
 
             if type(valid_template[key]) is dict:
                 print("\t" * lvl + " issue with field " + key + " (object)")
-                compare_dicts(source_template[key], valid_template[key], lvl +1)
+                compare_dicts(source_template[key], valid_template[key], lvl + 1)
 
             elif type(valid_template[key]) is str:
                 print("\t" * lvl + " difference of value in " + key)
-                print("\t" + "\t" * lvl + " --- " + source_template[key] + " VS " + valid_template[key] + " --- ")
+                print("\t" + "\t" * lvl + " --- " + source_template[key] +
+                      " VS " + valid_template[key] + " --- ")
 
             else:
                 print("\t" * lvl + " difference of value in " + key)
