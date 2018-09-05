@@ -1,10 +1,13 @@
 def create_context(schema, semantic_types, name):
     contexts = {}
 
+    jsonld_ignored_keys = ["@id", "@context", "@type"]
+
     for semantic_type in semantic_types:
         contexts[semantic_type] = {}
-        for field in schema:
-            contexts[semantic_type][field] = semantic_type+':'
+        for field in schema["properties"]:
+            if field not in jsonld_ignored_keys:
+                contexts[semantic_type][field] = ""
         contexts[semantic_type][name] = semantic_type+':'
         contexts[semantic_type][semantic_type] = semantic_types[semantic_type]
         contexts[semantic_type]["@language"] = "en"
