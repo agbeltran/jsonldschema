@@ -1,5 +1,4 @@
 import json
-import os
 import logging
 from jinja2 import Template
 from urllib.parse import quote, urlparse
