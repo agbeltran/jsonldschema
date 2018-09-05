@@ -3,7 +3,7 @@ def create_context(schema, semantic_type, name):
 
     for field in schema:
         context[field] = semantic_type+':'
-    context[name] = semantic_type+''
+    context[name] = semantic_type+':'
 
     return context
 
@@ -51,7 +51,6 @@ if __name__ == '__main__':
         },
         "additionalProperties": False
     }
-
     schema_name = process_schema_name('person_schema.json')
     base = 'sdo'
     new_context = create_context(person_schema, base, schema_name)
