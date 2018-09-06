@@ -1,4 +1,5 @@
 from urllib.parse import urlparse
+import copy
 
 
 class EntityCoverage:
@@ -57,6 +58,8 @@ class EntityCoverage:
         total_items = 0
         matched_items = 0
 
+        network__b = copy.deepcopy(network_b)
+
         for schema in network_a:
             total_items += 1
             context_type = network_a[schema]
@@ -64,11 +67,12 @@ class EntityCoverage:
 
             if context_type is not None:
 
-                for schema2 in network_b:
+                for schema2 in list(network__b.keys()):
                     context_type2 = network_b[schema2]
 
                     if context_type == context_type2:
                         matched = True
+                        del network__b[schema2]
                         if schema in coverage.keys():
                             coverage[schema].append(schema2)
                         else:
