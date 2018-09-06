@@ -35,7 +35,7 @@ class Schema2CedarBase:
     @staticmethod
     def json_pretty_dump(json_object, output_file):
         """
-        Dump a given variable as a json in the given file
+        Dump a given json in the given file
         :param json_object: the input JSON to dump
         :param output_file: the file to dump the JSON to
         :return: the dumping result
@@ -772,7 +772,7 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
         ignored_key = ["@id", "@type", "@context"]
         client = cedar.client.CEDARClient()
         headers = client.get_headers(self.production_api_key)
-        request_url = client.select_endpoint('production') \
+        request_url = client.selectEndpoint('production') \
             + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" \
             + self.folder_id
 
