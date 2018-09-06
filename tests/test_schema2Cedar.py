@@ -2,7 +2,7 @@ import os
 import unittest
 import json
 from deepdiff import DeepDiff
-from nose.tools import eq_
+from nose.tools import eq_, assert_true
 from cedar import schema2Cedar, client
 
 
@@ -86,20 +86,17 @@ class TestSchema2Cedar(unittest.TestCase):
                                                             self.template.production_api_key,
                                                             json.loads(output_schema))
 
-        print(validation_response)
+        assert_true(validation_response.status_code == 200)
 
         # save the converted file
         output_schema_file = open(os.path.join(self.cedar_schema_file), "w")
         self.template.json_pretty_dump(json.loads(output_schema), output_schema_file)
         output_schema_file.close()
-
-        print(output_schema)
-
         response = self.client.create_template("production",
                                                self.template.production_api_key,
                                                self.template.folder_id,
                                                output_schema)
-        print(response)
+        assert_true(response.status_code == 201)
 
     def convert_template_element(self):
 
@@ -112,21 +109,24 @@ class TestSchema2Cedar(unittest.TestCase):
         validation_response = self.client.validate_element("production",
                                                            self.templateElement.production_api_key,
                                                            json.loads(output_schema))
-        print(validation_response)
+        assert_true(validation_response.status_code == 200)
 
         # save the converted file
         output_schema_file = open(os.path.join(self.output_schema_file), "w")
-        self.template.json_pretty_dump(json.loads(output_schema), self.output_schema_file)
+        print(json.loads(output_schema))
+        self.template.json_pretty_dump(json.loads(output_schema), output_schema_file)
         output_schema_file.close()
 
         response = self.client.create_template_element("production",
                                                        self.templateElement.production_api_key,
                                                        self.templateElement.folder_id,
                                                        os.path.join(self.output_schema_file))
-        print(response)
+        assert_true(response.status_code == 201)
+        return response
 
     def test_convert_template(self):
         self.convert_template()
 
     def test_convert_template_element(self):
-        self.convert_template_element()
+        response = self.convert_template_element()
+        assert_true(response)
