@@ -1,16 +1,21 @@
+from collections import OrderedDict
+import json
+
 def create_context(schema, semantic_types, name):
-    contexts = {}
+    contexts = OrderedDict()
 
     jsonld_ignored_keys = ["@id", "@context", "@type"]
 
     for semantic_type in semantic_types:
-        contexts[semantic_type] = {}
+        contexts[semantic_type] = OrderedDict()
+        contexts[semantic_type]["@context"] = OrderedDict()
+        contexts[semantic_type]["@context"][semantic_type] =  semantic_types[semantic_type]
+        contexts[semantic_type]["@context"][name] = ""
+        contexts[semantic_type]["@context"]["@language"] = "en"
+
         for field in schema["properties"]:
             if field not in jsonld_ignored_keys:
-                contexts[semantic_type][field] = ""
-        contexts[semantic_type][name] = semantic_type+':'
-        contexts[semantic_type][semantic_type] = semantic_types[semantic_type]
-        contexts[semantic_type]["@language"] = "en"
+                contexts[semantic_type]['@context'][field] = ""
 
     return contexts
 
@@ -69,6 +74,6 @@ if __name__ == '__main__':
     obo_context_name = 'identifier_info_schema.json'.replace('_schema', '_obo_context')
 
     print(sdo_context_name)
-    print(new_context['sdo'])
+    print(json.dumps(new_context['sdo']))
     print(obo_context_name)
-    print(new_context['obo'])
+    print(json.dumps(new_context['obo']))
