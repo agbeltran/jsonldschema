@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import json
 
-def create_context(schema, semantic_types, name):
+def create_context_template(schema, semantic_types, name):
     contexts = OrderedDict()
 
     jsonld_ignored_keys = ["@id", "@context", "@type"]
@@ -69,7 +69,7 @@ if __name__ == '__main__':
         "obo": "http://purl.obolibrary.org/obo/"
     }
 
-    new_context = create_context(person_schema, base, schema_name)
+    new_context = create_context_template(person_schema, base, schema_name)
     sdo_context_name = 'identifier_info_schema.json'.replace('_schema', '_sdo_context')
     obo_context_name = 'identifier_info_schema.json'.replace('_schema', '_obo_context')
 
