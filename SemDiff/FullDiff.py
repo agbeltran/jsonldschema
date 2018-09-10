@@ -1,4 +1,45 @@
 from SemDiff import EntityDiff, semDiff
+from collections import namedtuple
+
+
+class FullSemDiff:
+    """
+    A class that compute the coverage at entity level and extract twins. It will then compute
+    the coverage at attribute level between twins.
+    """
+
+    def __init__(self, contexts, network_1, network_2):
+        """
+        The class constructor
+        :param contexts: an array containing the two context networks to use
+        :param network_1: a dictionary containing the first set of schemas
+        :param network_2: a dictionary containing the second set of schemas
+        """
+
+        self.total_entities = 0
+        self.half_twins = 0
+        self.twins = []
+
+        twin_tuple = namedtuple('Twins', ['first_entity', 'second_entity'])
+        twin_coverage = namedtuple('TwinCoverage', ['twins', 'overlap'])
+
+        entity_coverage = EntityDiff.EntityCoverage(contexts)
+        for entity_name in entity_coverage.covered_entities:
+            self.total_entities += 1
+            twins = entity_coverage.covered_entities[entity_name]
+            if twins is not None:
+                entity_schema = network_1[entity_name.lower() + "_schema.json"]
+                entity_context = {"@context": contexts[0][entity_name.lower() + "_schema.json"]}
+                for twin in twins:
+                    self.half_twins += 1
+                    twin_schema = network_2[twin.lower() + "_schema.json"]
+                    twin_context = {"@context": contexts[1][twin.lower() + "_schema.json"]}
+                    local_twin = twin_tuple(entity_name, twin)
+                    attribute_diff = semDiff.SemanticComparator(entity_schema, entity_context,
+                                                                twin_schema, twin_context)
+                    local_twin_coverage = twin_coverage(local_twin, attribute_diff.full_coverage['coverage'][0])
+                    self.twins.append(local_twin_coverage)
+
 
 if __name__ == '__main__':
 
@@ -24,7 +65,6 @@ if __name__ == '__main__':
             }
         }
     }
-
     MIACA_contexts = {
         "source_schema.json": {
             "sdo": "https://schema.org/",
@@ -47,7 +87,6 @@ if __name__ == '__main__':
             }
         }
     }
-
     DATS_schemas = {
         "person_schema.json": {
             "id": "https://w3id.org/dats/schema/person_schema.json",
@@ -97,7 +136,6 @@ if __name__ == '__main__':
         "identifier_info_schema": {
         }
     }
-
     MIACA_schemas = {
         "source_schema.json": {
             "id": "https://w3id.org/dats/schema/person_schema.json",
@@ -134,19 +172,7 @@ if __name__ == '__main__':
         }
     }
 
-    networks = [DATS_contexts, MIACA_contexts]
-    EntityCoverage = EntityDiff.EntityCoverage(networks)
-
-    for entity_name in EntityCoverage.covered_entities:
-        twins = EntityCoverage.covered_entities[entity_name]
-        if twins is not None:
-            entity_schema = DATS_schemas[entity_name.lower()+"_schema.json"]
-            entity_context = {"@context": DATS_contexts[entity_name.lower()+"_schema.json"]}
-            for twin in twins:
-                twin_schema = MIACA_schemas[twin.lower()+"_schema.json"]
-                twin_context = {"@context":MIACA_contexts[twin.lower()+"_schema.json"]}
-                print(entity_name + " and " + twin + " have the same semantic type")
-                SemanticDiff = semDiff.SemanticComparator(entity_schema, entity_context,
-                                                          twin_schema, twin_context)
-                print(SemanticDiff.full_coverage)
+    networks_contexts = [DATS_contexts, MIACA_contexts]
+    full_diff = FullSemDiff(networks_contexts, DATS_schemas, MIACA_schemas)
+    print(full_diff.twins)
 
