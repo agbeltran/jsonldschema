@@ -1,5 +1,5 @@
 import unittest
-from SemDiff.EntityDiff import EntityCoverage
+from SemDiff.entityDiff import EntityCoverage
 
 DATS_data = {
     "person_schema.json": {

@@ -1,5 +1,5 @@
 import unittest
-from SemDiff.FullDiff import FullSemDiff
+from SemDiff.fullDiff import FullSemDiff
 
 DATS_contexts = {
     "person_schema.json": {

@@ -1,11 +1,11 @@
-from SemDiff import EntityDiff, semDiff
+from SemDiff import entityDiff, semDiff
 from collections import namedtuple
 
 
 class FullSemDiff:
     """
-    A class that compute the coverage at entity level and extract twins. It will then compute
-    the coverage at attribute level between twins.
+    A class that computes the coverage at entity level and extracts 'semantic synonyms' (named twins in the code). It will then compute
+    the coverage at attribute level between 'semantic synonyms'.
     """
 
     def __init__(self, contexts, network_1, network_2):
@@ -23,7 +23,7 @@ class FullSemDiff:
         twin_tuple = namedtuple('Twins', ['first_entity', 'second_entity'])
         twin_coverage = namedtuple('TwinCoverage', ['twins', 'overlap'])
 
-        entity_coverage = EntityDiff.EntityCoverage(contexts)
+        entity_coverage = entityDiff.EntityCoverage(contexts)
         for entity_name in entity_coverage.covered_entities:
             self.total_entities += 1
             twins = entity_coverage.covered_entities[entity_name]
