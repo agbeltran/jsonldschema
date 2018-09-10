@@ -38,7 +38,7 @@ class FullSemDiff:
                     attribute_diff = semDiff.SemanticComparator(entity_schema, entity_context,
                                                                 twin_schema, twin_context)
                     attribute_coverage = twin_coverage(local_twin,
-                                                   attribute_diff.full_coverage['coverage'][0])
+                                                       attribute_diff.full_coverage['coverage'][0])
                     self.twins.append(attribute_coverage)
 
 
