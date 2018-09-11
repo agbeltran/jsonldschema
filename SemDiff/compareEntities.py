@@ -27,6 +27,8 @@ class EntityCoverage:
         self.comparator1 = self.__build_context_dict(self.input1)
         self.comparator2 = self.__build_context_dict(self.input2)
         self.overlaps = self.__compute_context_coverage(self.comparator1[0], self.comparator2[0])
+        self.unmatched_with_sem = self.overlaps[2]
+        self.unmatched_without_sem = self.comparator2[1]
 
         self.full_coverage = {
             "coverage": self.overlaps[0],
@@ -124,6 +126,7 @@ class EntityCoverage:
         twins in schema 2
         """
 
+        unmatched_fields = copy.deepcopy(context2)
         Overlap = namedtuple('Overlap', ['first_field', 'second_field'])
         OverlapValue = namedtuple('OverlapValue', ['relative_coverage', 'absolute_coverage'])
 
@@ -140,10 +143,124 @@ class EntityCoverage:
                     for second_field_val in context2[field]:
                         local_overlap = Overlap(first_field_val, second_field_val)
                         overlap_output.append(local_overlap)
+                        del unmatched_fields[field]
 
         absolute_coverage = namedtuple('AbsoluteCoverage', ['overlap_number', 'total_fields'])
-        AbsoluteCoverage = absolute_coverage(str(overlap_number), str(processed_field))
+        local_coverage = absolute_coverage(str(overlap_number), str(processed_field))
         local_overlap_value = OverlapValue(str(round((overlap_number * 100) / len(context1), 2)),
-                                           AbsoluteCoverage)
+                                           local_coverage)
 
-        return local_overlap_value, overlap_output
+        return local_overlap_value, overlap_output, unmatched_fields
+
+
+if __name__ == '__main__':
+    schema_1 = {
+        "id": "https://w3id.org/dats/schema/person_schema.json",
+        "$schema": "http://json-schema.org/draft-04/schema",
+        "title": "DATS person schema",
+        "description": "A human being",
+        "type": "object",
+        "properties": {
+            "@context": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "object"
+                    }
+                ]
+            },
+            "@id": {"type": "string", "format": "uri"},
+            "@type": {"type": "string", "enum": ["Person"]},
+            "identifier": {
+                "description": "Primary identifier for the person.",
+                "$ref": "identifier_info_schema.json#"
+            },
+            "alternateIdentifiers": {
+                "description": "Alternate identifiers for the person.",
+                "type": "array",
+                "items": {
+                    "$ref": "alternate_identifier_info_schema.json#"
+                }
+            },
+            "fullName": {
+                "description": "The first name, any middle names, and surname of a person.",
+                "type": "string"
+            },
+            "firstName": {
+                "description": "The given name of the person.",
+                "type": "string"
+            },
+            "lastName": {
+                "description": "The person's family name.",
+                "type": "string"
+            }
+        },
+        "additionalProperties": False
+    }
+    context_1 = {
+        "@context": {
+            "sdo": "https://schema.org/",
+            "Person": "sdo:Person",
+            "identifier": {
+                "@id": "sdo:identifier",
+                "@type": "sdo:Text"
+            },
+            "firstName": "sdo:givenName",
+            "lastName": "sdo:familyName",
+            "fullName": "sdo:name",
+            "email": "sdo:email",
+            "affiliations": "sdo:affiliation",
+            "roles": "sdo:roleName"
+        }
+    }
+
+    schema_2 = {
+        "id": "https://w3id.org/dats/schema/person_schema.json",
+        "$schema": "http://json-schema.org/draft-04/schema",
+        "title": "DATS person schema",
+        "description": "A human being",
+        "type": "object",
+        "properties": {
+            "@context": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "object"
+                    }
+                ]
+            },
+            "@id": {"type": "string", "format": "uri"},
+            "@type": {"type": "string", "format": "uri"},
+            "identifier": {
+                "description": "Primary identifier for the person.",
+                "$ref": "identifier_info_schema.json#"
+            },
+            "familyName": {
+                "description": "The person's family name.",
+                "type": "string"
+            }
+        },
+        "additionalProperties": False
+    }
+    context_2 = {
+        "@context": {
+            "sdo": "https://schema.org/",
+            "Person": "sdo:Person",
+            "identifier": {
+                "@id": "sdo:identifier",
+                "@type": "sdo:Text"
+            },
+            "firstName": "sdo:givenName",
+            "familyName": "sdo:familyName",
+            "fullName": "sdo:name",
+            "email": "sdo:email",
+            "affiliations": "sdo:affiliation",
+            "roles": "sdo:roleName"
+        }
+    }
+
+    test = EntityCoverage(schema_2, context_2, schema_1, context_1)
