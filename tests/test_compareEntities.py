@@ -1,5 +1,5 @@
 import unittest
-from SemDiff.semDiff import SemanticComparator
+from SemDiff.compareEntities import EntityCoverage
 
 schema_1 = {
     "id": "https://w3id.org/dats/schema/person_schema.json",
@@ -117,7 +117,7 @@ class SemDiffTestCase(unittest.TestCase):
         super(SemDiffTestCase, self).__init__(*args, **kwargs)
 
     def setUp(self):
-        self.semantic_comparator = SemanticComparator(schema_1, context_1, schema_2, context_2)
+        self.semantic_comparator = EntityCoverage(schema_1, context_1, schema_2, context_2)
 
     def test___build_context_dict(self):
         schema_input = {

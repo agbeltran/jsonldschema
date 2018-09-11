@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 from collections import namedtuple
 
 
-class SemanticComparator:
+class EntityCoverage:
     """
      A class that compute the overlap between two JSON schemas semantic values taken from context
      files. This operation is not commutative. Thus, to find out if the schema/context pairs are

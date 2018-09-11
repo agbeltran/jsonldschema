@@ -1,5 +1,5 @@
 import unittest
-from SemDiff.entityDiff import EntityCoverage
+from SemDiff.compareNetwork import NetworkCoverage
 
 DATS_data = {
     "person_schema.json": {
@@ -56,7 +56,7 @@ class EntityCoverageTestCase(unittest.TestCase):
         super(EntityCoverageTestCase, self).__init__(*args, **kwargs)
 
     def setUp(self):
-        self.semantic_comparator = EntityCoverage(networks)
+        self.semantic_comparator = NetworkCoverage(networks)
 
     def test___process_network(self):
         processed_network = self.semantic_comparator._EntityCoverage__process_network(DATS_data)

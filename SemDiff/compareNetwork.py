@@ -2,7 +2,7 @@ from urllib.parse import urlparse
 import copy
 
 
-class EntityCoverage:
+class NetworkCoverage:
     """
     This class compute the coverage of entities (schemas) among two networks (set of schemas) by
     comparing the semantic

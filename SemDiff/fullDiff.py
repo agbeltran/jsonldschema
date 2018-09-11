@@ -1,4 +1,4 @@
-from SemDiff import entityDiff, semDiff
+from SemDiff import compareNetwork, compareEntities
 from collections import namedtuple
 
 
@@ -23,7 +23,7 @@ class FullSemDiff:
         twin_tuple = namedtuple('Twins', ['first_entity', 'second_entity'])
         twin_coverage = namedtuple('TwinCoverage', ['twins', 'overlap'])
 
-        entity_coverage = entityDiff.EntityCoverage(contexts)
+        entity_coverage = compareNetwork.NetworkCoverage(contexts)
         for entity_name in entity_coverage.covered_entities:
             self.total_entities += 1
             twins = entity_coverage.covered_entities[entity_name]
@@ -35,8 +35,8 @@ class FullSemDiff:
                     twin_schema = network_2[twin.lower() + "_schema.json"]
                     twin_context = {"@context": contexts[1][twin.lower() + "_schema.json"]}
                     local_twin = twin_tuple(entity_name, twin)
-                    attribute_diff = semDiff.SemanticComparator(entity_schema, entity_context,
-                                                                twin_schema, twin_context)
+                    attribute_diff = compareEntities.EntityCoverage(entity_schema, entity_context,
+                                                                    twin_schema, twin_context)
                     attribute_coverage = twin_coverage(local_twin,
                                                        attribute_diff.full_coverage)
                     self.twins.append(attribute_coverage)
