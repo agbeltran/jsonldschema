@@ -126,7 +126,7 @@ class SemDiffTestCase(unittest.TestCase):
         }
 
         # This is a particular structure as we are calling a private method through its reflection
-        comparator = self.semantic_comparator._SemanticComparator__build_context_dict(schema_input)
+        comparator = self.semantic_comparator._EntityCoverage__build_context_dict(schema_input)
         self.assertTrue(comparator[1] == ['alternateIdentifiers'])
         self.assertTrue(len(comparator[0]) == 4)
         self.assertTrue('https://schema.org/identifier' in comparator[0].keys())
@@ -140,7 +140,7 @@ class SemDiffTestCase(unittest.TestCase):
 
     def test___process_field(self):
         processed_field = self.semantic_comparator.\
-            _SemanticComparator__process_field("firstName",
+            _EntityCoverage__process_field("firstName",
                                                "sdo:givenName",
                                                context_2['@context'],
                                                {})
@@ -158,12 +158,12 @@ class SemDiffTestCase(unittest.TestCase):
         }
 
         comparator1 = self.semantic_comparator.\
-            _SemanticComparator__build_context_dict(schema_input)
+            _EntityCoverage__build_context_dict(schema_input)
         comparator2 = self.semantic_comparator.\
-            _SemanticComparator__build_context_dict(schema_input2)
+            _EntityCoverage__build_context_dict(schema_input2)
 
         coverage = self.semantic_comparator.\
-            _SemanticComparator__compute_context_coverage(comparator1[0], comparator2[0])
+            _EntityCoverage__compute_context_coverage(comparator1[0], comparator2[0])
 
         self.assertTrue(coverage[0].relative_coverage == "50.0")
         self.assertTrue(coverage[0].absolute_coverage[0] == "2")

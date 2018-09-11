@@ -59,16 +59,16 @@ class EntityCoverageTestCase(unittest.TestCase):
         self.semantic_comparator = NetworkCoverage(networks)
 
     def test___process_network(self):
-        processed_network = self.semantic_comparator._EntityCoverage__process_network(DATS_data)
+        processed_network = self.semantic_comparator._NetworkCoverage__process_network(DATS_data)
         self.assertTrue('Identifier_info' in processed_network.keys())
         self.assertTrue(processed_network['Identifier_info'] is None)
         self.assertTrue('Person' in processed_network.keys())
         self.assertTrue(processed_network['Person'] == 'sdo:Person')
 
     def test___compute_coverage(self):
-        DATS_network = self.semantic_comparator._EntityCoverage__process_network(DATS_data)
-        MIACA_network = self.semantic_comparator._EntityCoverage__process_network(MIACA_data)
-        coverage = self.semantic_comparator._EntityCoverage__compute_coverage(DATS_network,
+        DATS_network = self.semantic_comparator._NetworkCoverage__process_network(DATS_data)
+        MIACA_network = self.semantic_comparator._NetworkCoverage__process_network(MIACA_data)
+        coverage = self.semantic_comparator._NetworkCoverage__compute_coverage(DATS_network,
                                                                               MIACA_network)
 
         self.assertTrue('Identifier_info' in coverage[0].keys())
