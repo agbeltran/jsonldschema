@@ -28,24 +28,45 @@ class EntityMerge:
             # Ignore some specific keys
             if field not in ignored_keys:
 
-                # if the field is in the second context
-                if field in context2['@context'].keys():
+                # if the field is already in schema1
+                if field in schema1["properties"]:
 
-                    # if it is also in the first context
-                    if field in context1['@context'].keys():
+                    # if this field has a semantic value for both schemas
+                    if (field in context2['@context'].keys() and
+                            field in context1['@context'].keys()):
 
-                        # if the field doesn't have the same semantic value in both context
-                        if context1['@context'][field] != context2['@context'][field]:
-                            self.output_schema["properties"][field] = schema2["properties"][field]
-                            self.output_context["@context"][field] = context2['@context'][field]
+                        # if those semantic values are different
+                        if context1["@context"][field] != context2["@context"][field]:
+                            print("PROCESS??")
+                        # if they are the same, schema1 has priority, so do nothing !
 
-                    # if it's not in the first context
-                    else:
-                        self.output_schema["properties"][field] = schema2["properties"][field]
-                        self.output_context["@context"][field] = context2['@context'][field]
+                    # if this field only has a semantic value for schema2
+                    if (field in context2['@context'].keys() and
+                            field not in context1['@context'].keys()):
+                        print("Process ??")
 
-                # if the field isn't in the second context, just add it to the schema
+                # the field name is not in schema1
                 else:
+
+                    # if the field has a semantic value in the second context
+                    if field in context2["@context"].keys():
+                        field_semantic_twin = False
+
+                        for sem_field in context1["@context"]:
+
+                            # there's already a field in the first context with the same semantic
+                            # value
+                            if context1["@context"][sem_field] == context2["@context"][field]:
+                                print("PROCESS?")
+                                field_semantic_twin = True
+
+                        # there is no field in the first context with the same semantic value
+                        if field_semantic_twin is not True:
+                            self.output_context = context2["@context"][field]
+                            self.output_schema["properties"][field] = schema2["properties"][
+                                field]
+
+                    # the field doesn't have a semantic value in the second context
                     self.output_schema["properties"][field] = schema2["properties"][field]
 
 
