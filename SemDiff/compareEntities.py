@@ -124,6 +124,8 @@ class EntityCoverage:
         :return local_overlap_value: a namedtuple containing relative and absolute coverage
         :return overlap_output: a dictionary that associate fields in schema 1 with their semantic
         twins in schema 2
+        :return unmatched_fields: a dictionary of all fields of the second schema that haven't
+        been matched in the first schema
         """
 
         unmatched_fields = copy.deepcopy(context2)
