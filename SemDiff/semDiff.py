@@ -6,11 +6,12 @@ from collections import namedtuple
 class SemanticComparator:
     """
      A class that compute the overlap between two JSON schemas semantic values taken from context
-     files
+     files. This operation is not commutative. Thus, to find out if the schema/context pairs are
+     equivalent, we need to run both semDiff(s_a, c_a, s_b, c_b) and semDiff(s_b, c_b, s_a, c_a)
      :param schema_a: the content of the first schema
      :param context_a: the context content bound to the first schema
      :param schema_b: the content of the second schema
-     :param context_a: the context content bound to the second schema
+     :param context_b: the context content bound to the second schema
     """
 
     def __init__(self, schema_a, context_a, schema_b, context_b):
