@@ -772,7 +772,7 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
         ignored_key = ["@id", "@type", "@context"]
         client = cedar.client.CEDARClient()
         headers = client.get_headers(self.production_api_key)
-        request_url = client.selectEndpoint('production') \
+        request_url = client.select_endpoint('production') \
             + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" \
             + self.folder_id
 
