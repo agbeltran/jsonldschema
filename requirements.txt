@@ -6,3 +6,5 @@ mock
 pyopenssl
 DeepDiff
 mock
+nose-exclude
+coverage
