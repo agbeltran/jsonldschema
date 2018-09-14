@@ -16,27 +16,12 @@
             ]
         },
         "@id": {"type": "string", "format": "uri"},
-        "@type": {"type": "string", "enum": ["Person"]},
+        "@type": {"type": "string", "format": "uri"},
         "identifier": {
             "description": "Primary identifier for the person.",
             "$ref": "identifier_info_schema.json#"
         },
-        "alternateIdentifiers": {
-            "description": "Alternate identifiers for the person.",
-            "type": "array",
-            "items": {
-                "$ref": "alternate_identifier_info_schema.json#"
-            }
-        },
-        "fullName": {
-            "description": "The first name, any middle names, and surname of a person.",
-            "type": "string"
-        },
-        "firstName": {
-            "description": "The given name of the person.",
-            "type": "string"
-        },
-        "lastName": {
+        "familyName": {
             "description": "The person's family name.",
             "type": "string"
         }
