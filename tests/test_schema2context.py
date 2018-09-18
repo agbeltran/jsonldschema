@@ -48,14 +48,14 @@ class TestSchema2Context(unittest.TestCase):
         self.assertTrue(list(new_context.keys())[0] == 'sdo')
         self.assertTrue(list(new_context.keys())[1] == 'obo')
 
-        self.assertTrue(list(new_context['sdo']["@context"].keys())[0] == 'sdo')
+        self.assertTrue('sdo' in new_context['sdo']["@context"].keys())
         self.assertTrue(new_context['sdo']["@context"]['sdo'] == "https://schema.org")
         self.assertTrue('IdentifierInfo' in new_context['sdo']["@context"].keys())
         self.assertTrue(new_context['sdo']["@context"]['@language'] == 'en')
         self.assertTrue('lastName' in new_context['sdo']["@context"].keys())
         self.assertTrue('identifier' in new_context['sdo']["@context"].keys())
 
-        self.assertTrue(list(new_context['obo']["@context"].keys())[0] == 'obo')
+        self.assertTrue('obo' in new_context['obo']["@context"].keys())
         self.assertTrue(new_context['obo']["@context"]['obo'] == "http://purl.obolibrary.org/obo/")
         self.assertTrue('IdentifierInfo' in new_context['obo']["@context"].keys())
         self.assertTrue(new_context['obo']["@context"]['@language'] == 'en')
