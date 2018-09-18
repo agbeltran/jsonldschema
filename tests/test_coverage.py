@@ -1,7 +1,7 @@
 import unittest
 import os
 import json
-from SemDiff.coverage import Coverage
+from semDiff.coverage import Coverage
 
 
 class CoverageTestCase(unittest.TestCase):

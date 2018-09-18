@@ -1,5 +1,6 @@
 
-[![Build Status](https://travis-ci.org/FAIRsharing/json-schema-tools.svg?branch=master)](https://travis-ci.org/FAIRsharing/json-schema-tools)
+[![Build Status](https://travis-ci.org/FAIRsharing/jsonldschema.svg?branch=master)](https://travis-ci.org/FAIRsharing/jsonldschema)
+[![Coverage Status](https://coveralls.io/repos/github/FAIRsharing/jsonldschema/badge.svg?branch=MASTER)](https://coveralls.io/github/FAIRsharing/jsonldschema?branch=MASTER)
 
 Utility code for the Minimum Information Requirements Catalogue.
 
@@ -19,7 +20,7 @@ pip install -r requirements.txt
 
 ### Setup
 
-To run the tests related to the [CEDAR client](https://raw.githubusercontent.com/FAIRsharing/mircat-tools/master/tests/test_client.py), you will need to:
+To run the tests related to the [CEDAR client](https://github.com/FAIRsharing/jsonldschema/tree/master/tests/integration), you will need to:
 
 - make a copy of the ```/tests/test_config.json.sample``` file:
 
