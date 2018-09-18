@@ -8,6 +8,8 @@ branches:
 - TESTS-COVERAGE
 install:
 - pip install --upgrade pip && pip install -r requirements.txt && pip install -r requirements-dev.txt
+before_script:
+- flake8 
 script:
 - nosetests --with-coverage --cover-package=semDiff --cover-package=cedar --cover-package=diff --cover-package=utils --cover-package=validate
 - coverage report -m
