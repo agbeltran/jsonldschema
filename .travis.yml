@@ -5,9 +5,14 @@ python:
 - '3.6'
 branches:
 - master
-- DOM-CEDAR-CLIENT
 install:
 - pip install --upgrade pip && pip install -r requirements.txt && pip install -r requirements-dev.txt
+before_script:
+- flake8
 script:
-- python -m nose tests/test_mock_client.py tests/test_mock_schema2Cedar.py
+- nosetests --with-coverage --cover-package=semDiff --cover-package=cedar --cover-package=diff --cover-package=utils --cover-package=validate
+- coverage report -m
 secure: xa9hcakfeMcvw7NPtDC3tQo4hM4LpeSzv1Q3xsLVnJJjyqQ79v/w4lTMff59n2x51/1DAaICy79OsHawXck/0W538KwDmSQ83ANjcW4I5sOee5yStmU8PJ+mix5CaPmG388fia6LMMKLhWhMa6gGxGhwpVyxGnickaB1OeMzkHIg/DqnfOGzddteZnGlTB9duUBrQSdijaLq9IxOxtOiCKVx3xOkOXyQdnd07Drn5gEllNaXL4Am9gijN8hAQLdsc/+xoFmxSa+fQ2ziikQrLDJBorG9ODmjl7fZwAPdMrQQ+N27EA49mqnchvRQE8lSlkM2S7FWbax2a52tcAR+sUIxPVm6OhKL2vv5H0aa/ffjE27i4RGd/CyI7Hc7sSeLdwNjLOyadEfQpbVgFFK2EePGtlw4uGjhwrxCrTU006E3VPf0NGNmna6QbCjjcZzvzo2IV7+l7gL/HQbSTkEjUc/fljSgMMPQqfo/v9ftH5zVs29XzR+FbIVTYIk2S5Lkv1jtAIrNQd0jshtJyOrJV4M5/BGGcEycgGo6aFJQKiaafRuYMeuZVN8lAITXE/bEaXVfc06fr9C8tyr2RtIfA8biLoGl0kSGTehaT3f6SfnA0XrYenI3o9zutnQ1hOmmSjVcTBfQ+xTJzJaqHpZ65D5u1XxTS8gfIMS/Q6k6eWE=
+
+after_success:
+- coveralls

@@ -1,114 +1,7 @@
 import unittest
-from SemDiff.compareEntities import EntityCoverage
-
-schema_1 = {
-    "id": "https://w3id.org/dats/schema/person_schema.json",
-    "$schema": "http://json-schema.org/draft-04/schema",
-    "title": "DATS person schema",
-    "description": "A human being",
-    "type": "object",
-    "properties": {
-        "@context": {
-            "anyOf": [
-                {
-                    "type": "string"
-                },
-                {
-                    "type": "object"
-                }
-            ]
-        },
-        "@id": {"type": "string", "format": "uri"},
-        "@type": {"type": "string", "enum": ["Person"]},
-        "identifier": {
-            "description": "Primary identifier for the person.",
-            "$ref": "identifier_info_schema.json#"
-        },
-        "alternateIdentifiers": {
-            "description": "Alternate identifiers for the person.",
-            "type": "array",
-            "items": {
-                "$ref": "alternate_identifier_info_schema.json#"
-            }
-        },
-        "fullName": {
-            "description": "The first name, any middle names, and surname of a person.",
-            "type": "string"
-        },
-        "firstName": {
-            "description": "The given name of the person.",
-            "type": "string"
-        },
-        "lastName": {
-            "description": "The person's family name.",
-            "type": "string"
-        }
-    },
-    "additionalProperties": False
-}
-context_1 = {
-    "@context": {
-        "sdo": "https://schema.org/",
-        "Person": "sdo:Person",
-        "identifier": {
-            "@id": "sdo:identifier",
-            "@type": "sdo:Text"
-        },
-        "firstName": "sdo:givenName",
-        "lastName": "sdo:familyName",
-        "fullName": "sdo:name",
-        "email": "sdo:email",
-        "affiliations": "sdo:affiliation",
-        "roles": "sdo:roleName"
-    }
-}
-
-schema_2 = {
-    "id": "https://w3id.org/dats/schema/person_schema.json",
-    "$schema": "http://json-schema.org/draft-04/schema",
-    "title": "DATS person schema",
-    "description": "A human being",
-    "type": "object",
-    "properties": {
-        "@context": {
-            "anyOf": [
-                {
-                    "type": "string"
-                },
-                {
-                    "type": "object"
-                }
-            ]
-        },
-        "@id": {"type": "string", "format": "uri"},
-        "@type": {"type": "string", "format": "uri"},
-        "identifier": {
-            "description": "Primary identifier for the person.",
-            "$ref": "identifier_info_schema.json#"
-        },
-        "familyName": {
-            "description": "The person's family name.",
-            "type": "string"
-        }
-    },
-    "additionalProperties": False
-}
-context_2 = {
-    "@context": {
-        "sdo": "https://schema.org/",
-        "Person": "sdo:Person",
-        "identifier": {
-            "@id": "sdo:identifier",
-            "@type": "sdo:Text"
-        },
-        "firstName": "sdo:givenName",
-        "familyName": "sdo:familyName",
-        "fullName": "sdo:name",
-        "email": "sdo:email",
-        "affiliations": "sdo:affiliation",
-        "roles": "sdo:roleName"
-    }
-}
+import os
+import json
+from semDiff.compareEntities import EntityCoverage
 
 
 class SemDiffTestCase(unittest.TestCase):
@@ -117,12 +10,21 @@ class SemDiffTestCase(unittest.TestCase):
         super(SemDiffTestCase, self).__init__(*args, **kwargs)
 
     def setUp(self):
-        self.semantic_comparator = EntityCoverage(schema_1, context_1, schema_2, context_2)
+        data_path = os.path.join(os.path.dirname(__file__), "./data")
+        self.schema_1 = json.load(open(os.path.join(data_path, "schema1.json")))
+        self.schema_2 = json.load(open(os.path.join(data_path, "schema2.json")))
+        self.context_1 = json.load(open(os.path.join(data_path, "context1.json")))
+        self.context_2 = json.load(open(os.path.join(data_path, "context2.json")))
+
+        self.semantic_comparator = EntityCoverage(self.schema_1,
+                                                  self.context_1,
+                                                  self.schema_2,
+                                                  self.context_2)
 
     def test___build_context_dict(self):
         schema_input = {
-            "schema": schema_1,
-            "context": context_1
+            "schema": self.schema_1,
+            "context": self.context_1
         }
 
         # This is a particular structure as we are calling a private method through its reflection
@@ -139,22 +41,40 @@ class SemDiffTestCase(unittest.TestCase):
         self.assertTrue(comparator[0]['https://schema.org/familyName'] == ['lastName'])
 
     def test___process_field(self):
+
+        # Test Case 2
         processed_field = self.semantic_comparator.\
-            _EntityCoverage__process_field("firstName",
-                                               "sdo:givenName",
-                                               context_2['@context'],
-                                               {})
+          _EntityCoverage__process_field("firstName",
+                                         "https://schema.org/givenName",
+                                         self.context_2['@context'],
+                                         {})
         self.assertTrue('https://schema.org/givenName' in processed_field.keys())
+        self.assertTrue(processed_field['https://schema.org/givenName'] == ['firstName'])
+
+        # Test Case 2
+        processed_field = self.semantic_comparator. \
+            _EntityCoverage__process_field("firstName",
+                                           "https://schema.org/givenName",
+                                           self.context_2['@context'],
+                                           {"https://schema.org/givenName": ["firstName"]})
+        self.assertTrue('firstName' in processed_field['https://schema.org/givenName'])
+
+        # Test Case 3
+        processed_field = self.semantic_comparator. \
+            _EntityCoverage__process_field("firstName",
+                                           "sdo:givenName",
+                                           self.context_2['@context'],
+                                           {"https://schema.org/givenName": []})
         self.assertTrue(processed_field['https://schema.org/givenName'] == ['firstName'])
 
     def test___compute_context_coverage(self):
         schema_input = {
-            "schema": schema_1,
-            "context": context_1
+            "schema": self.schema_1,
+            "context": self.context_1
         }
         schema_input2 = {
-            "schema": schema_2,
-            "context": context_2
+            "schema": self.schema_2,
+            "context": self.context_2
         }
 
         comparator1 = self.semantic_comparator.\

@@ -1,5 +1,5 @@
 import copy
-from SemDiff.compareEntities import EntityCoverage
+from semDiff.compareEntities import EntityCoverage
 
 
 class EntityMerge:
@@ -36,9 +36,6 @@ class EntityMerge:
             # if that field isn't already in the first schema
             if field_name not in schema1["properties"]:
                 self.output_schema["properties"][field_name] = schema2["properties"][field_name]
-
-
-
 
         """
         # Iterate over the second schema

@@ -1,3 +1,8 @@
 # .coveragerc
 [report]
 show_missing = True
+
+[run]
+source = semDiff
+omit =
+    /tests/integration/*

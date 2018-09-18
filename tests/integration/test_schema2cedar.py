@@ -3,7 +3,7 @@ import unittest
 import json
 from deepdiff import DeepDiff
 from nose.tools import eq_
-from cedar import schema2Cedar, client
+from cedar import schema2cedar, client
 
 
 # Set some required variables
@@ -30,10 +30,10 @@ class TestSchema2Cedar(unittest.TestCase):
     def setUp(self):
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
         self.client = client.CEDARClient()
-        self.templateElement = schema2Cedar.Schema2CedarTemplateElement(production_api_key,
+        self.templateElement = schema2cedar.Schema2CedarTemplateElement(production_api_key,
                                                                         folder_id,
                                                                         user_id)
-        self.template = schema2Cedar.Schema2CedarTemplate(production_api_key,
+        self.template = schema2cedar.Schema2CedarTemplate(production_api_key,
                                                           folder_id,
                                                           user_id)
 

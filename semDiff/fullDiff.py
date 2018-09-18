@@ -1,11 +1,12 @@
-from SemDiff import compareNetwork, compareEntities
+from semDiff import compareNetwork, compareEntities
 from collections import namedtuple
 
 
 class FullSemDiff:
     """
-    A class that computes the coverage at entity level and extracts 'semantic synonyms' (named twins in the code). It will then compute
-    the coverage at attribute level between 'semantic synonyms'.
+    A class that computes the coverage at entity level and extracts 'semantic synonyms'
+    (named twins in the code). It will then compute the coverage at attribute level
+    between 'semantic synonyms'.
     """
 
     def __init__(self, contexts, network_1, network_2):
