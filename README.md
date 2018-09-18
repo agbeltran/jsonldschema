@@ -1,5 +1,5 @@
 
-[![Build Status](https://travis-ci.org/FAIRsharing/mircat-tools.svg?branch=master)](https://travis-ci.org/FAIRsharing/mircat-tools)
+[![Build Status](https://travis-ci.org/FAIRsharing/json-schema-tools.svg?branch=master)](https://travis-ci.org/FAIRsharing/json-schema-tools)
 
 Utility code for the Minimum Information Requirements Catalogue.
 
