@@ -44,7 +44,9 @@ class TestSchema2Context(unittest.TestCase):
         super(TestSchema2Context, self).__init__(*args, **kwargs)
 
     def test_create_context_template(self):
-        new_context = create_context_template(person_schema, base, process_schema_name(schema_name))
+        new_context = create_context_template(person_schema,
+                                              base,
+                                              process_schema_name(schema_name))
         self.assertTrue(list(new_context.keys())[0] == 'sdo')
         self.assertTrue(list(new_context.keys())[1] == 'obo')
 

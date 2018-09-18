@@ -69,7 +69,7 @@ class EntityCoverageTestCase(unittest.TestCase):
         DATS_network = self.semantic_comparator._NetworkCoverage__process_network(DATS_data)
         MIACA_network = self.semantic_comparator._NetworkCoverage__process_network(MIACA_data)
         coverage = self.semantic_comparator._NetworkCoverage__compute_coverage(DATS_network,
-                                                                              MIACA_network)
+                                                                               MIACA_network)
 
         self.assertTrue('Identifier_info' in coverage[0].keys())
         self.assertTrue(coverage[0]['Identifier_info'] is None)
