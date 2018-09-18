@@ -1,11 +1,12 @@
 import json
 import logging
-from jinja2 import Template
+from jinja2 import FileSystemLoader, Environment
 from urllib.parse import quote, urlparse
 import datetime
 import cedar.client
 import requests
 import sys
+import os
 
 
 loaded_specs = {}
@@ -467,84 +468,11 @@ class Schema2CedarTemplate(Schema2CedarBase):
     """
     Schema 2 Template Converter, this is the one you want to use
     """
-
-    cedar_template = Template('''
-{% set props = ["@context", "@type", "@id" ] %}
-{
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "@id": null,
-    "@context": {{ TEMPLATE_CONTEXT | tojson }},
-    "@type": "{{ TEMPLATE_TYPE }}",
-    "type": "object",
-    "title": "{{ title }} element schema",
-    "description": "{{ description }} ",
-    "schema:name": "{{title}}",
-    "schema:description": "{{ description }}",
-    "schema:schemaVersion": "1.4.0",
-    "bibo:status":"bibo:draft",
-    "pav:version":"0.1",
-    "pav:createdOn": "{{ NOW  }}",
-    "pav:lastUpdatedOn": "{{ NOW  }}",
-    "pav:createdBy": "{{ USER_URL }}",
-    "oslc:modifiedBy": "{{ USER_URL }}",
-    "_ui": {
-        "order": [
-            {% for item in TEMP_PROP %}
-                "{{item}}" {% if not loop.last %},{% endif %}
-            {% endfor %}
-        ],
-        "propertyLabels": {
-            {% for item in TEMP_PROP %}
-                "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %}
-            {% endfor %}
-        },
-        "pages": []
-    },
-    "required": [
-        "@context",
-        "@id",
-        "schema:isBasedOn",
-        "schema:name",
-        "schema:description",
-        "pav:createdOn",
-        "pav:createdBy",
-        "pav:lastUpdatedOn",
-        "oslc:modifiedBy",
-        "pav:version",
-        "bibo:status"
-    ],
-    "additionalProperties": {% if additionalProperties %} {{ additionalProperties }} {% else %} false {% endif%},
-    "properties":{
-        {% for itemKey, itemVal in PROP_ITEMS.items() %}
-            "{{itemKey}}": {{itemVal | tojson}} {% if not loop.last %},{% endif %}
-        {% endfor %},
-        "@context":{
-            "additionalProperties": false,
-            "type": "object",
-            "properties": {{ PROP_CONTEXT | tojson }},
-            "required": [
-                "xsd",
-                "pav",
-                "schema",
-                "oslc",
-                "schema:isBasedOn",
-                "schema:name",
-                "schema:description",
-                "pav:createdOn",
-                "pav:createdBy",
-                "pav:lastUpdatedOn",
-                "oslc:modifiedBy"
-            ]
-        }
-        {% for itemKey, itemVal in REQ.items() %}
-            ,"{{itemKey}}": {{itemVal | tojson}}
-        {% endfor %}
-        {% for itemKey, itemVal in SUB_SPECS.items() %}
-            ,"{{itemKey}}": {{itemVal | tojson}}
-        {% endfor %}
-    }
-}
-''')
+    resources_path = os.path.join(os.path.dirname(__file__), "../resources")
+    templateLoader = FileSystemLoader(searchpath=resources_path)
+    templateEnv = Environment(loader=templateLoader)
+    TEMPLATE_FILE = "cedar_template.jinja2"
+    cedar_template = templateEnv.get_template(TEMPLATE_FILE)
 
     def convert_template(self, input_json_schema):
         """
@@ -567,146 +495,28 @@ class Schema2CedarTemplate(Schema2CedarBase):
                                                self.user_id)\
             .find_sub_specs(input_json_schema, sub_spec_container)
 
-        return self.cedar_template.render(input_json_schema,
-                                          TEMPLATE_CONTEXT=self.set_context(),
-                                          TEMPLATE_TYPE=cedar_type,
-                                          PROP_CONTEXT=self.set_prop_context(input_json_schema),
-                                          NOW=now,
-                                          REQ=self.set_required_item(input_json_schema),
-                                          PROP_ITEMS=self.set_properties_base_item(),
-                                          USER_URL=user_url,
-                                          TEMP_PROP=self.set_stripped_properties(input_json_schema),
-                                          SUB_SPECS=sub_spec)
+        return self.cedar_template.render(
+                        input_json_schema,
+                        TEMPLATE_CONTEXT=self.set_context(),
+                        TEMPLATE_TYPE=cedar_type,
+                        PROP_CONTEXT=self.set_prop_context(input_json_schema),
+                        NOW=now,
+                        REQ=self.set_required_item(input_json_schema),
+                        PROP_ITEMS=self.set_properties_base_item(),
+                        USER_URL=user_url,
+                        TEMP_PROP=self.set_stripped_properties(input_json_schema),
+                        SUB_SPECS=sub_spec)
 
 
 class Schema2CedarTemplateElement(Schema2CedarBase):
     """
     Schema to TemplateElement converter, should not be called directly
     """
-
-    cedar_template_element = Template('''
-    {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "@id": null,
-        "@context": {{TEMPLATE_CONTEXT | tojson}},
-        "@type": "{{TEMPLATE_TYPE}}",
-        "type": "object",
-        "title": "{{title}} element schema",
-        "description": "{{description}} ",
-        "schema:name": "{{FIELD_KEY}}",
-        "schema:description": "{{description}}",
-        "schema:schemaVersion": "1.4.0",
-        "bibo:status":"bibo:draft",
-        "pav:version":"0.1",
-        "pav:createdOn": "{{NOW}}",
-        "pav:lastUpdatedOn": "{{NOW}}",
-        "pav:createdBy": "{{USER_URL}}",
-        "oslc:modifiedBy": "{{USER_URL}}",
-        "_ui": {
-            "order": [
-                {% for item in TEMP_PROP %}
-                    "{{item}}" {% if not loop.last %},{% endif %}
-                {% endfor %}
-            ],
-            "propertyLabels": {
-                {% for item in TEMP_PROP %}
-                    "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %}
-                {% endfor %}
-            }
-        },
-        {% set requiredList = required %}
-        "required":[
-            "@context",
-            "@id"
-            {% for item in requiredList %}
-                ,"{{item}}"
-            {% endfor %}
-        ],
-        "properties": {
-            {% for itemKey, itemVal in PROP_CONTEXT.items() %}
-                "{{itemKey}}": {{itemVal | tojson}} {% if not loop.last %},{% endif %}
-            {% endfor %},
-            {% for itemKey, itemVal in TEMP_PROP.items() %}
-                {% if '$ref' in itemVal %}
-                    {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}
-                    {% endif %}
-                {% elif 'items' in itemVal and '$ref' in itemVal['items'] %}
-                    {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}
-                    {% endif %}
-                {% else %}
-                    "{{itemKey}}": {
-                        "@context": {{ITEM_CONTEXT | tojson}},
-                        "title": "{{itemKey}} field schema generated by {{MIRCAT}}",
-                        "schema:description": "{{itemKey}}",
-                        "additionalProperties": false,
-                        "oslc:modifiedBy": "{{USER_URL}}",
-                        "pav:createdOn": "{{NOW}}",
-                        "_ui": {
-                            "inputType": "textfield"
-                        },
-                        "description":
-                            {% if itemVal.description %} "{{itemVal.description}}"
-                            {%else %} "{{item}} autogenerated by {{MIRCAT}}"
-                            {% endif %},
-                        "pav:lastUpdatedOn": "{{NOW}}",
-                        "required": [
-                            "@value"
-                        ],
-                        "@type": "https://schema.metadatacenter.org/core/TemplateField",
-                        "_valueConstraints": {
-                            {% if itemVal['_valueConstraints'] is defined and itemVal['_valueConstraints']['defaultValue'] is defined %}
-                                "defaultValue": "{{itemVal['_valueConstraints']['defaultValue']}}",
-                            {% endif %}
-                            "requiredValue":
-                                {% if (requiredList is defined) and (itemKey in requiredList) %} true
-                                {% else %} false
-                                {% endif%}
-                        },
-                        "pav:createdBy": "{{USER_URL}}",
-                        "schema:name": "{{itemKey}}",
-                        "@id": null,
-                        "schema:schemaVersion": "1.4.0",
-                        "type": "object",
-                        "$schema": "http://json-schema.org/draft-04/schema#",
-                        "properties": {
-                            "@type": {
-                                "oneOf": [
-                                    {
-                                      "format": "uri",
-                                      "type": "string"
-                                    },
-                                    {
-                                        "uniqueItems": true,
-                                        "minItems": 1,
-                                        "type": "array",
-                                        "items": {
-                                            "format": "uri",
-                                            "type": "string"
-                                        }
-                                    }
-                                ]
-                            },
-                            "@value": {
-                                "type": [
-                                    "string",
-                                    "null"
-                                ]
-                            },
-                            "rdfs:label": {
-                                "type": [
-                                    "string",
-                                    "null"
-                                ]
-                            }
-                        }
-                    }
-                {% endif %}
-                {% if not loop.last %},{% endif %}
-            {% endfor %}
-        },
-         "additionalProperties": {% if additionalProperties %} {{additionalProperties}} {% else %} false {% endif%}
-    }
-    ''')
+    resources_path = os.path.join(os.path.dirname(__file__), "../resources")
+    templateLoader = FileSystemLoader(searchpath=resources_path)
+    templateEnv = Environment(loader=templateLoader)
+    TEMPLATE_FILE = "cedar_template_element.jinja2"
+    cedar_template_element = templateEnv.get_template(TEMPLATE_FILE)
 
     def convert_template_element(self, input_json_schema, **kwargs):
         """

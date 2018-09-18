@@ -3,6 +3,7 @@ import json
 from nose.tools import assert_true
 from cedar.schema2Cedar import Schema2CedarTemplate, Schema2CedarTemplateElement
 from random import randint
+import os
 
 production_api_key = str(randint(1, 100))
 folder_id = str(randint(1, 100))
@@ -31,8 +32,8 @@ class TestSchema2Cedar(object):
 
     def test_convert_template(self):
         self.mock_request.return_value.status_code = 200
-
-        with open("tests/data/schema.json", 'r') as orig_schema_file:
+        path = os.path.join(os.path.dirname(__file__), "./data")
+        with open(os.path.join(path, "schema.json"), 'r') as orig_schema_file:
             # Load the JSON schema and close the file
             schema_as_json = json.load(orig_schema_file)
         orig_schema_file.close()
@@ -43,7 +44,8 @@ class TestSchema2Cedar(object):
     def test_convert_template_element(self):
         self.mock_request.return_value.status_code = 200
 
-        with open("tests/data/schema.json", 'r') as orig_schema_file:
+        path = os.path.join(os.path.dirname(__file__), "./data")
+        with open(os.path.join(path, "schema.json"), 'r') as orig_schema_file:
             # Load the JSON schema and close the file
             schema_as_json = json.load(orig_schema_file)
         orig_schema_file.close()

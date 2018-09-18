@@ -37,9 +37,6 @@ class EntityMerge:
             if field_name not in schema1["properties"]:
                 self.output_schema["properties"][field_name] = schema2["properties"][field_name]
 
-
-
-
         """
         # Iterate over the second schema
         for field in schema2["properties"]:

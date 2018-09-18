@@ -1,5 +1,4 @@
 from collections import OrderedDict
-import json
 
 
 def create_context_template(schema, semantic_types, name):
@@ -10,7 +9,7 @@ def create_context_template(schema, semantic_types, name):
     for semantic_type in semantic_types:
         contexts[semantic_type] = OrderedDict()
         contexts[semantic_type]["@context"] = OrderedDict()
-        contexts[semantic_type]["@context"][semantic_type] =  semantic_types[semantic_type]
+        contexts[semantic_type]["@context"][semantic_type] = semantic_types[semantic_type]
         contexts[semantic_type]["@context"][name] = ""
         contexts[semantic_type]["@context"]["@language"] = "en"
 
