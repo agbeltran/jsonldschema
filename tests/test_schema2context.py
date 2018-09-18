@@ -47,9 +47,6 @@ class TestSchema2Context(unittest.TestCase):
         new_context = create_context_template(person_schema,
                                               base,
                                               process_schema_name(schema_name))
-        self.assertTrue(list(new_context.keys())[0] == 'sdo')
-        self.assertTrue(list(new_context.keys())[1] == 'obo')
-
         self.assertTrue('sdo' in new_context['sdo']["@context"].keys())
         self.assertTrue(new_context['sdo']["@context"]['sdo'] == "https://schema.org")
         self.assertTrue('IdentifierInfo' in new_context['sdo']["@context"].keys())
