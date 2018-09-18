@@ -101,7 +101,7 @@ context_2 = {
             "@id": "sdo:identifier",
             "@type": "sdo:Text"
         },
-        "firstName": "sdo:givenName",
+        "firstName": "https://schema.org/givenName",
         "familyName": "sdo:familyName",
         "fullName": "sdo:name",
         "email": "sdo:email",
@@ -139,13 +139,32 @@ class SemDiffTestCase(unittest.TestCase):
         self.assertTrue(comparator[0]['https://schema.org/familyName'] == ['lastName'])
 
     def test___process_field(self):
+
+        # Test Case 2
         processed_field = self.semantic_comparator.\
             _EntityCoverage__process_field("firstName",
-                                               "sdo:givenName",
+                                               "https://schema.org/givenName",
                                                context_2['@context'],
                                                {})
         self.assertTrue('https://schema.org/givenName' in processed_field.keys())
         self.assertTrue(processed_field['https://schema.org/givenName'] == ['firstName'])
+
+        # Test Case 2
+        processed_field = self.semantic_comparator. \
+            _EntityCoverage__process_field("firstName",
+                                           "https://schema.org/givenName",
+                                           context_2['@context'],
+                                           {"https://schema.org/givenName": ["firstName"]})
+        self.assertTrue('firstName' in processed_field['https://schema.org/givenName'])
+
+        # Test Case 3
+        processed_field = self.semantic_comparator. \
+            _EntityCoverage__process_field("firstName",
+                                           "sdo:givenName",
+                                           context_2['@context'],
+                                           {"https://schema.org/givenName": []})
+        self.assertTrue(processed_field['https://schema.org/givenName'] == ['firstName'])
+
 
     def test___compute_context_coverage(self):
         schema_input = {
