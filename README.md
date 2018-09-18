@@ -1,6 +1,6 @@
 
 [![Build Status](https://travis-ci.org/FAIRsharing/jsonldschema.svg?branch=master)](https://travis-ci.org/FAIRsharing/jsonldschema)
-[![Coverage Status](https://coveralls.io/repos/github/FAIRsharing/jsonldschema/badge.svg?branch=MASTER)](https://coveralls.io/github/FAIRsharing/jsonldschema?branch=MASTER)
+[![Coverage Status](https://coveralls.io/repos/github/FAIRsharing/jsonldschema/badge.svg?branch=master)](https://coveralls.io/github/FAIRsharing/jsonldschema?branch=master)
 
 Utility code for the Minimum Information Requirements Catalogue.
 
