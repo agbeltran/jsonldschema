@@ -86,6 +86,8 @@ class TestSchema2Cedar(unittest.TestCase):
                                                             self.template.production_api_key,
                                                             json.loads(output_schema))
 
+        print(validation_response)
+
         # save the converted file
         output_schema_file = open(os.path.join(self.cedar_schema_file), "w")
         self.template.json_pretty_dump(json.loads(output_schema), output_schema_file)
@@ -110,6 +112,7 @@ class TestSchema2Cedar(unittest.TestCase):
         validation_response = self.client.validate_element("production",
                                                            self.templateElement.production_api_key,
                                                            json.loads(output_schema))
+        print(validation_response)
 
         # save the converted file
         output_schema_file = open(os.path.join(self.output_schema_file), "w")
@@ -120,6 +123,7 @@ class TestSchema2Cedar(unittest.TestCase):
                                                        self.templateElement.production_api_key,
                                                        self.templateElement.folder_id,
                                                        os.path.join(self.output_schema_file))
+        print(response)
 
     def test_convert_template(self):
         self.convert_template()

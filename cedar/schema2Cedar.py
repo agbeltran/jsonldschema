@@ -1,5 +1,4 @@
 import json
-import os
 import logging
 from jinja2 import Template
 from urllib.parse import quote, urlparse
@@ -13,9 +12,18 @@ loaded_specs = {}
 
 
 class Schema2CedarBase:
-    """ The base converter class, should not be called ! """
+    """
+    The base converter class, should not be called !
+    """
 
     def __new__(cls, api_key, folder_id, user_id):
+        """
+        The base converter constructor
+        :param api_key: tke API key to your CEDAR account
+        :param folder_id: the folder ID to upload the data
+        :param user_id: the user ID that will be the author of that data
+        :return: a new instance of that class
+        """
         if cls is Schema2CedarBase:
             raise TypeError("base class may not be instantiated")
         else:
@@ -26,10 +34,21 @@ class Schema2CedarBase:
 
     @staticmethod
     def json_pretty_dump(json_object, output_file):
-        return json.dump(json_object, output_file, sort_keys=False, indent=4, separators=(',', ': '))
+        """
+        Dump a given json in the given file
+        :param json_object: the input JSON to dump
+        :param output_file: the file to dump the JSON to
+        :return: the dumping result
+        """
+        return json.dump(json_object,
+                         output_file, sort_keys=False, indent=4, separators=(',', ': '))
 
     @staticmethod
     def set_context():
+        """
+        Set the base context for a given template
+        :return: the base context
+        """
         return {
             "xsd": "http://www.w3.org/2001/XMLSchema#",
             "pav": "http://purl.org/pav/",
@@ -58,6 +77,10 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_properties_base_item():
+        """
+        Set the base properties required by CEDAR
+        :return: the base property dictionary
+        """
         return {
             "@type": {
                 "oneOf": [
@@ -123,6 +146,11 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_prop_context(schema):
+        """
+        Set the required context for the properties attribute of the given schema
+        :param schema: an input JSON schema
+        :return: the properties context required by CEDAR
+        """
 
         prop_context = {
             "pav:createdOn": {
@@ -235,6 +263,11 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_required_item(schema):
+        """
+        Set the required items that a CEDAR schema needs for a given schema
+        :param schema: the input schema
+        :return: the dictionary of required items
+        """
         ignored_key = ["@id", "@type", "@context"]
         properties = {}
 
@@ -283,9 +316,11 @@ class Schema2CedarBase:
                     },
                     "schema:name": propertyKey,
                     "pav:createdOn": "2018-06-07T03:07:47-0700",
-                    "pav:createdBy": "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
+                    "pav:createdBy":
+                        "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
                     "pav:lastUpdatedOn": "2018-06-07T03:07:47-0700",
-                    "oslc:modifiedBy": "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
+                    "oslc:modifiedBy":
+                        "https://metadatacenter.org/users/e856d779-6e24-4d72-a4e6-f7ae4b6419e2",
                     "schema:schemaVersion": "1.4.0",
                     "additionalProperties": False,
                     "schema:description": description,
@@ -327,13 +362,19 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_sub_context(schema):
+        """
+        Set the context required by CEDAR for each individual attribute/field for a given schema
+        :param schema: the input schema
+        :return: the dictionary of required context for each field
+        """
         ignored_key = ["@id", "@type", "@context"]
         sub_context = {'properties': {}}
 
         for propertyKey in schema['properties']:
             if propertyKey not in ignored_key:
                 if 'enum' in schema['properties'][propertyKey]:
-                    sub_context['properties'][propertyKey] = {"enum": schema['properties'][propertyKey]["enum"]}
+                    sub_context['properties'][propertyKey] = \
+                        {"enum": schema['properties'][propertyKey]["enum"]}
                 else:
                     sub_context['properties'][propertyKey] = {"enum": [""]}
 
@@ -349,6 +390,12 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_template_element_property_minimals(sub_context, schema):
+        """
+        Set the minimal elements of the properties attributes of a given schema and its sub-context
+        :param sub_context: the schema sub-context
+        :param schema: the input schema
+        :return:
+        """
         properties = {
             "@context": sub_context,
             "@type": {
@@ -401,6 +448,11 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_stripped_properties(schema):
+        """
+        Set the properties of a given schema
+        :param schema: the input schema
+        :return: a dictionary of properties
+        """
         ignored_key = ["@id", "@type", "@context"]
         properties = {}
 
@@ -412,7 +464,9 @@ class Schema2CedarBase:
 
 
 class Schema2CedarTemplate(Schema2CedarBase):
-    """ Schema 2 Template Converter, this is the one you want to use """
+    """
+    Schema 2 Template Converter, this is the one you want to use
+    """
 
     cedar_template = Template('''
 {% set props = ["@context", "@type", "@id" ] %}
@@ -422,7 +476,7 @@ class Schema2CedarTemplate(Schema2CedarBase):
     "@context": {{ TEMPLATE_CONTEXT | tojson }},
     "@type": "{{ TEMPLATE_TYPE }}",
     "type": "object",
-    "title": "{{ title }} element schema", 
+    "title": "{{ title }} element schema",
     "description": "{{ description }} ",
     "schema:name": "{{title}}",
     "schema:description": "{{ description }}",
@@ -433,16 +487,16 @@ class Schema2CedarTemplate(Schema2CedarBase):
     "pav:lastUpdatedOn": "{{ NOW  }}",
     "pav:createdBy": "{{ USER_URL }}",
     "oslc:modifiedBy": "{{ USER_URL }}",
-    "_ui": { 
-        "order": [ 
+    "_ui": {
+        "order": [
             {% for item in TEMP_PROP %}
-                "{{item}}" {% if not loop.last %},{% endif %}      
-            {% endfor %} 
+                "{{item}}" {% if not loop.last %},{% endif %}
+            {% endfor %}
         ],
         "propertyLabels": {
-            {% for item in TEMP_PROP %}   
-                "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %} 
-            {% endfor %} 
+            {% for item in TEMP_PROP %}
+                "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %}
+            {% endfor %}
         },
         "pages": []
     },
@@ -458,7 +512,7 @@ class Schema2CedarTemplate(Schema2CedarBase):
         "oslc:modifiedBy",
         "pav:version",
         "bibo:status"
-    ],   
+    ],
     "additionalProperties": {% if additionalProperties %} {{ additionalProperties }} {% else %} false {% endif%},
     "properties":{
         {% for itemKey, itemVal in PROP_ITEMS.items() %}
@@ -480,19 +534,24 @@ class Schema2CedarTemplate(Schema2CedarBase):
                 "pav:createdBy",
                 "pav:lastUpdatedOn",
                 "oslc:modifiedBy"
-            ]    
+            ]
         }
         {% for itemKey, itemVal in REQ.items() %}
             ,"{{itemKey}}": {{itemVal | tojson}}
         {% endfor %}
         {% for itemKey, itemVal in SUB_SPECS.items() %}
             ,"{{itemKey}}": {{itemVal | tojson}}
-        {% endfor %}             
+        {% endfor %}
     }
 }
 ''')
 
     def convert_template(self, input_json_schema):
+        """
+        Method to convert a given schema into a CEDAR template
+        :param input_json_schema: the input JSON schema
+        :return: the schema converted into a template
+        """
         cedar_type = "https://schema.metadatacenter.org/core/Template"
 
         # Set the current date
@@ -521,7 +580,9 @@ class Schema2CedarTemplate(Schema2CedarBase):
 
 
 class Schema2CedarTemplateElement(Schema2CedarBase):
-    """Schema to TemplateElement converter, should not be called directly"""
+    """
+    Schema to TemplateElement converter, should not be called directly
+    """
 
     cedar_template_element = Template('''
     {
@@ -530,7 +591,7 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
         "@context": {{TEMPLATE_CONTEXT | tojson}},
         "@type": "{{TEMPLATE_TYPE}}",
         "type": "object",
-        "title": "{{title}} element schema", 
+        "title": "{{title}} element schema",
         "description": "{{description}} ",
         "schema:name": "{{FIELD_KEY}}",
         "schema:description": "{{description}}",
@@ -541,15 +602,15 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
         "pav:lastUpdatedOn": "{{NOW}}",
         "pav:createdBy": "{{USER_URL}}",
         "oslc:modifiedBy": "{{USER_URL}}",
-        "_ui": { 
-            "order": [ 
+        "_ui": {
+            "order": [
                 {% for item in TEMP_PROP %}
-                    "{{item}}" {% if not loop.last %},{% endif %}      
-                {% endfor %} 
+                    "{{item}}" {% if not loop.last %},{% endif %}
+                {% endfor %}
             ],
             "propertyLabels": {
-                {% for item in TEMP_PROP %}   
-                    "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %} 
+                {% for item in TEMP_PROP %}
+                    "{{item}}" : "{{item}}"{% if not loop.last %},{% endif %}
                 {% endfor %}
             }
         },
@@ -562,30 +623,30 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
             {% endfor %}
         ],
         "properties": {
-            {% for itemKey, itemVal in PROP_CONTEXT.items() %}    
+            {% for itemKey, itemVal in PROP_CONTEXT.items() %}
                 "{{itemKey}}": {{itemVal | tojson}} {% if not loop.last %},{% endif %}
             {% endfor %},
             {% for itemKey, itemVal in TEMP_PROP.items() %}
                 {% if '$ref' in itemVal %}
-                    {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}                     
+                    {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}
                     {% endif %}
                 {% elif 'items' in itemVal and '$ref' in itemVal['items'] %}
-                    {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}                     
-                    {% endif %}    
-                {% else %}               
+                    {% if itemKey in SUB_SPECS %} "{{itemKey}}": {{SUB_SPECS[itemKey] | tojson}}
+                    {% endif %}
+                {% else %}
                     "{{itemKey}}": {
                         "@context": {{ITEM_CONTEXT | tojson}},
                         "title": "{{itemKey}} field schema generated by {{MIRCAT}}",
-                        "schema:description": "{{itemKey}}",  
+                        "schema:description": "{{itemKey}}",
                         "additionalProperties": false,
                         "oslc:modifiedBy": "{{USER_URL}}",
                         "pav:createdOn": "{{NOW}}",
                         "_ui": {
                             "inputType": "textfield"
                         },
-                        "description": 
-                            {% if itemVal.description %} "{{itemVal.description}}" 
-                            {%else %} "{{item}} autogenerated by {{MIRCAT}}" 
+                        "description":
+                            {% if itemVal.description %} "{{itemVal.description}}"
+                            {%else %} "{{item}} autogenerated by {{MIRCAT}}"
                             {% endif %},
                         "pav:lastUpdatedOn": "{{NOW}}",
                         "required": [
@@ -597,8 +658,8 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                                 "defaultValue": "{{itemVal['_valueConstraints']['defaultValue']}}",
                             {% endif %}
                             "requiredValue":
-                                {% if (requiredList is defined) and (itemKey in requiredList) %} true 
-                                {% else %} false 
+                                {% if (requiredList is defined) and (itemKey in requiredList) %} true
+                                {% else %} false
                                 {% endif%}
                         },
                         "pav:createdBy": "{{USER_URL}}",
@@ -639,7 +700,7 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                             }
                         }
                     }
-                {% endif %}                                                               
+                {% endif %}
                 {% if not loop.last %},{% endif %}
             {% endfor %}
         },
@@ -648,6 +709,12 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
     ''')
 
     def convert_template_element(self, input_json_schema, **kwargs):
+        """
+        Method to convert a given schema into a CEDAR template element
+        :param input_json_schema: the input schema
+        :param kwargs: optional parameter to provide the field name referencing that schema
+        :return: the schema converted to a CEDAR template element
+        """
         cedar_type = "https://schema.metadatacenter.org/core/TemplateElement"
 
         try:
@@ -661,8 +728,9 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
             context = self.set_context()
 
             # Set root['properties']['@context']
-            property_context = self.set_template_element_property_minimals(self.set_sub_context(input_json_schema),
-                                                                           input_json_schema['properties'])
+            property_context = self.set_template_element_property_minimals(
+                                self.set_sub_context(input_json_schema),
+                                input_json_schema['properties'])
 
             # Set root['properties']['item_name']['@context']
             item_context = dict(context)
@@ -686,7 +754,8 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                                                       MIRCAT="mircat-tools for python 3",
                                                       PROP_CONTEXT=property_context,
                                                       ITEM_CONTEXT=item_context,
-                                                      TEMP_PROP=self.set_stripped_properties(input_json_schema),
+                                                      TEMP_PROP=self.set_stripped_properties(
+                                                          input_json_schema),
                                                       SUB_SPECS=sub_spec,
                                                       FIELD_KEY=field_key)
 
@@ -694,13 +763,18 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
             logging.error("Error opening schema file")
 
     def find_sub_specs(self, schema, sub_spec_container):
+        """
+        Inspect a given schema to find and load its schemas dependencies
+        :param schema: the input schema
+        :param sub_spec_container: a container that will hold the dependencies
+        :return sub_spec_container: the filled container with the schema dependencies
+        """
         ignored_key = ["@id", "@type", "@context"]
-        data_dir = os.path.join(os.path.dirname(__file__), "../tests/data")
         client = cedar.client.CEDARClient()
         headers = client.get_headers(self.production_api_key)
-        request_url = client.selectEndpoint('production') \
-                      + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" \
-                      + self.folder_id
+        request_url = client.select_endpoint('production') \
+            + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" \
+            + self.folder_id
 
         # For each field in the properties array
         for itemKey, itemVal in schema['properties'].items():
@@ -719,35 +793,41 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                     schema_as_json = self.load_sub_spec(itemVal['items']['$ref'], schema, itemKey)
                     multiple_items = True
 
-                elif ('items' in itemVal and ('anyOf' in itemVal['items'] or 'oneOf' in itemVal['items'])) \
+                elif ('items' in itemVal and ('anyOf' in itemVal['items']
+                                              or 'oneOf' in itemVal['items'])) \
                         or ('anyOf' in itemVal) \
                         or ('oneOf' in itemVal):
 
-                    # REFINING HERE -> DELETE ALL ITEMS FROM SERVER !! (or change algo to validate all templates first.
+                    # REFINING HERE -> DELETE ALL ITEMS FROM SERVER!!
+                    # (or change algo to validate all templates first.
                     print(schema)
-                    raise ValueError("'anyOf' and 'oneOf' are not supported by CEDAR (schema affected: )")
+                    raise ValueError("'anyOf' and 'oneOf' are not "
+                                     "supported by CEDAR (schema affected: )")
 
                 # if the schema_path is set
                 if schema_as_json is not None:
 
                     if itemKey not in loaded_specs.keys():
 
-                        temp_spec = json.loads(self.convert_template_element(schema_as_json, fieldKey=itemKey))
+                        temp_spec = json.loads(self.convert_template_element(schema_as_json,
+                                                                             fieldKey=itemKey))
 
-                        # NEED SOME REFINING HERE -> VALIDATE BEFORE POST !!!
+                        # TODO NEED SOME REFINING HERE -> VALIDATE BEFORE POST !!!
                         try:
                             response = requests.request("POST",
-                                                    request_url,
-                                                    headers=headers,
-                                                    data=json.dumps(temp_spec),
-                                                    verify=True)
+                                                        request_url,
+                                                        headers=headers,
+                                                        data=json.dumps(temp_spec),
+                                                        verify=True)
                             response.raise_for_status()
                         except requests.exceptions.HTTPError as err:
                             print("Http Error:", err)
                             if err.response.status_code == 401:
-                                print("Make sure that the API keys in the test_config.json file are correct")
+                                print("Make sure that the API keys in "
+                                      + "the test_config.json file are correct")
                             if err.response.status_code == 404:
-                                print("Make sure that the folder_id in the test_config.json file is correct")
+                                print("Make sure that the folder_id in "
+                                      + "the test_config.json file is correct")
                             sys.exit(1)
 
                         temp_spec["@id"] = json.loads(response.text)["@id"]
@@ -765,7 +845,15 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
 
         return sub_spec_container
 
-    def load_sub_spec(self, path_to_load, parent_schema, field_key):
+    @staticmethod
+    def load_sub_spec(path_to_load, parent_schema, field_key):
+        """
+        Load the given sub schema into memory
+        :param path_to_load: path to the sub schema
+        :param parent_schema: the parent schema that this sub-schema is referenced from
+        :param field_key: the parent schema field name that this sub-schema is referenced from
+        :return: the string containing the loaded JSON schema
+        """
         string_to_json = None
         url_to_load = None
 
@@ -789,4 +877,3 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                 string_to_json = json.loads(string_from_url.text)
 
         return string_to_json
-
