@@ -3,6 +3,6 @@
 show_missing = True
 
 [run]
-source = SemDiff
+source = semDiff
 omit =
-    /tests/api_calls/*
+    /tests/integration/*
