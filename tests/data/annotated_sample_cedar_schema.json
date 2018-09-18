@@ -114,7 +114,7 @@
         "inputType": "textfield"
       },
       "_valueConstraints": {
-        "requiredValue": true,
+        "requiredValue": false,
         "defaultValue": "sample1"
       },
       "properties": {
@@ -167,8 +167,7 @@
   "schema:description": "Sample Template Element",
   "required": [
     "@context",
-    "@id",
-    "name"
+    "@id"
   ],
   "pav:createdOn": "2017-11-07T04:27:27-0800",
   "pav:createdBy": "https://metadatacenter.org/users/ae6bc5e2-8afd-4558-a9ae-ea694c3e4bea",

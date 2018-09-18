@@ -5,4 +5,4 @@ show_missing = True
 [run]
 source = SemDiff
 omit =
-    /tests/deprecated/*
+    /tests/api_calls/*
