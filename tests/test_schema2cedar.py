@@ -19,8 +19,8 @@ class TestSchema2Cedar(object):
                                                                folder_id,
                                                                user_id)
 
-        cls.mock_request_patcher = patch('cedar.schema2Cedar.requests.request')
-        cls.mock_json_patcher = patch('cedar.schema2Cedar.json.loads')
+        cls.mock_request_patcher = patch('cedar.schema2cedar.requests.request')
+        cls.mock_json_patcher = patch('cedar.schema2cedar.json.loads')
 
         cls.mock_request = cls.mock_request_patcher.start()
         cls.mock_json = cls.mock_json_patcher.start()
