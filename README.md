@@ -1,6 +1,6 @@
 
 [![Build Status](https://travis-ci.org/FAIRsharing/mircat-tools.svg?branch=master)](https://travis-ci.org/FAIRsharing/mircat-tools)
-[![Coverage Status](https://coveralls.io/repos/github/FAIRsharing/json-schema-tools/badge.svg?branch=TEST-COVERAGE)](https://coveralls.io/github/FAIRsharing/json-schema-tools?branch=TEST-COVERAGE)
+[![Coverage Status](https://coveralls.io/repos/github/FAIRsharing/json-schema-tools/badge.svg?branch=MASTER)](https://coveralls.io/github/FAIRsharing/json-schema-tools?branch=MASTER)
 
 Utility code for the Minimum Information Requirements Catalogue.
 
