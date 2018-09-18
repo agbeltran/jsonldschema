@@ -1,5 +1,5 @@
 import unittest
-from SemDiff.compareEntities import EntityCoverage
+from semDiff.compareEntities import EntityCoverage
 
 schema_1 = {
     "id": "https://w3id.org/dats/schema/person_schema.json",

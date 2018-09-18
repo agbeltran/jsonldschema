@@ -1,5 +1,5 @@
 import copy
-from SemDiff.compareEntities import EntityCoverage
+from semDiff.compareEntities import EntityCoverage
 
 
 class EntityMerge:

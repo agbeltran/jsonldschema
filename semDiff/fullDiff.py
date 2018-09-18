@@ -1,4 +1,4 @@
-from SemDiff import compareNetwork, compareEntities
+from semDiff import compareNetwork, compareEntities
 from collections import namedtuple
 
 

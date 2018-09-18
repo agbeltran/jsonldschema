@@ -1,5 +1,5 @@
 import unittest
-from SemDiff.compareNetwork import NetworkCoverage
+from semDiff.compareNetwork import NetworkCoverage
 
 DATS_data = {
     "person_schema.json": {

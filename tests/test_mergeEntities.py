@@ -1,5 +1,5 @@
 import unittest
-from SemDiff.mergeEntities import EntityMerge
+from semDiff.mergeEntities import EntityMerge
 
 schema_1 = {
     "id": "https://w3id.org/dats/schema/person_schema.json",
