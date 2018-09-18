@@ -1,7 +1,7 @@
 from mock import patch
 import json
 from nose.tools import assert_true
-from cedar.schema2Cedar import Schema2CedarTemplate, Schema2CedarTemplateElement
+from cedar.schema2cedar import Schema2CedarTemplate, Schema2CedarTemplateElement
 from random import randint
 import os
 
