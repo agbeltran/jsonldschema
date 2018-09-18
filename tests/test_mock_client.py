@@ -40,7 +40,9 @@ class TestClient(object):
 
     def test_get_template_content(self):
         self.mock_request.return_value.status_code = 200
-        response = self.client.get_template_content("production", self.production_api_key, self.template_id)
+        response = self.client.get_template_content("production",
+                                                    self.production_api_key,
+                                                    self.template_id)
         eq_(response.status_code, 200)
 
     def test_create_template(self):
@@ -57,7 +59,9 @@ class TestClient(object):
 
     def test_update_template(self):
         self.mock_request.return_value.status_code = 200
-        response = self.client.update_template("production", self.production_api_key, self.template_path_with_id)
+        response = self.client.update_template("production",
+                                               self.production_api_key,
+                                               self.template_path_with_id)
         eq_(response.status_code, 200)
 
     def test_validate_template(self):
@@ -74,7 +78,9 @@ class TestClient(object):
 
     def test_get_folder_content(self):
         self.mock_request.return_value.status_code = 200
-        response = self.client.get_folder_content('production', self.production_api_key, self.folder_id)
+        response = self.client.get_folder_content('production',
+                                                  self.production_api_key,
+                                                  self.folder_id)
         eq_(response.status_code, 200)
 
     def test_delete_folder(self):
@@ -84,5 +90,9 @@ class TestClient(object):
 
     def test_create_folder(self):
         self.mock_request.return_value.status_code = 201
-        response = self.client.create_folder("production", self.production_api_key, self.folder_id, "folderName", "folderDescription")
+        response = self.client.create_folder("production",
+                                             self.production_api_key,
+                                             self.folder_id,
+                                             "folderName",
+                                             "folderDescription")
         eq_(response.status_code, 201)

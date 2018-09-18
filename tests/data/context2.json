@@ -1,0 +1,16 @@
+{
+    "@context": {
+        "sdo": "https://schema.org/",
+        "Person": "sdo:Person",
+        "identifier": {
+            "@id": "sdo:identifier",
+            "@type": "sdo:Text"
+        },
+        "firstName": "sdo:givenName",
+        "familyName": "sdo:familyName",
+        "fullName": "sdo:name",
+        "email": "sdo:email",
+        "affiliations": "sdo:affiliation",
+        "roles": "sdo:roleName"
+    }
+}
