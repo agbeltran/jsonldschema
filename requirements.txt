@@ -6,3 +6,4 @@ mock
 pyopenssl
 DeepDiff
 mock
+xmljson
