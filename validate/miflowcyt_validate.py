@@ -58,6 +58,7 @@ def validate_instance(instance, schema, mapping):
 
     total_fields = 0
     matched_field = 0
+    matched_fields = []
 
     for field in schema['properties']:
         if field not in ignored_keys:
@@ -69,17 +70,23 @@ def validate_instance(instance, schema, mapping):
                 processing_field = field
 
             if processing_field in instance:
-                matched_field +=1
+                matched_field += 1
+                matched_fields.append((field, processing_field))
 
     print("Matched: " + str(matched_field) + " out of " + str(total_fields))
+    return matched_fields
 
 
 if __name__ == '__main__':
-    clientID = "DBasdfas89798asoj892KOS"
     itemID = "FR-FCM-ZY68"
     base_schema = "experiment_schema.json"
 
-    mapping_dict = {
+    config_file = os.path.join(os.path.dirname(__file__), ".././tests/test_config.json")
+    with open(config_file) as config:
+        clientID = load(config)['flowrepo_userID']
+    config.close()
+
+    mappingdict = {
         "qualityControlMeasures": "quality-control-measures",
         "conclusions": "conclusion",
         "organization": "organizations",
@@ -89,4 +96,7 @@ if __name__ == '__main__':
 
     data = grab_experiment_from_api(clientID, itemID)
     schemas = load_schema(base_schema, {})
-    validate_instance(data, schemas['experiment_schema.json'], mapping_dict)
+    test = validate_instance(data, schemas['experiment_schema.json'], mapping_dict)
+
+    print(test)
+
