@@ -9,7 +9,7 @@ import pprint
 def grab_user_content(client_identifier):
     full_url = "http://flowrepository.org/list?client=" + client_identifier
     response = request("GET", full_url)
-    return dumps(parker.data((fromstring(response.text))))
+    return parker.data((fromstring(response.text)))
 
 
 def grab_experiment_from_api(client_identifier, item_identifier):
@@ -100,8 +100,16 @@ if __name__ == '__main__':
         "primaryContact": "primary-researcher"
     }
 
+    all_content = grab_user_content(clientID)
+    print(all_content['public-experiment'])
+
+    """for experiment in all_content:
+        print(experiment)"""
+
+    """
     data = grab_experiment_from_api(clientID, itemID)
     schemas = load_schema(base_schema, {})
     test = transform_json(data, schemas['experiment_schema.json'], mapping_dict)
 
     print(test)
+    """
