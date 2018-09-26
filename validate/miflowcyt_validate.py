@@ -1,9 +1,10 @@
 from requests import request
 from xmljson import parker
 from xml.etree.ElementTree import fromstring
-from json import dumps, load
+from json import dump, load
 import os
 from jsonbender import bend, OptionalS, S
+from validate.jsonschema_validator import validate_instance
 
 
 def grab_user_content(client_identifier):
@@ -103,6 +104,23 @@ def transform_json(instance, schema, mapping):
     return matched_fields
 
 
+def output_instance_to_file(instance, item_id, schema_name):
+    file_name = item_id + '.json'
+    file_full_path = os.path.join(os.path.dirname(__file__),
+                                  "../tests/data/MiFlowCyt/" + file_name)
+
+    with open(file_full_path, 'w') as outfile:
+        dump(instance, outfile)
+    outfile.close()
+
+    errors = validate_instance(os.path.join(os.path.dirname(__file__), "../tests/data/MiFlowCyt/"),
+                               schema_name,
+                               os.path.join(os.path.dirname(__file__), "../tests/data/MiFlowCyt/"),
+                               file_name,
+                               1,
+                               {})
+
+
 if __name__ == '__main__':
     base_schema = "experiment_schema.json"
 
@@ -111,15 +129,6 @@ if __name__ == '__main__':
         clientID = load(config)['flowrepo_userID']
     config.close()
 
-    mapping_dict = {
-        "qualityControlMeasures": "quality-control-measures",
-        "conclusions": "conclusion",
-        "organization": "organizations",
-        "date": "experiment-dates",
-        "primaryContact": "primary-researcher"
-    }
-
-    # TODO: check attributes for purpose, keywords, experimentVariables and other
     MAPPING = {
         'date': S('experiment-dates'),
         'primaryContact': S('primary-researcher'),
@@ -136,4 +145,4 @@ if __name__ == '__main__':
     for i in range(10):
         exp_content = grab_experiment_from_api(clientID, content_ids[i])
         result = bend(MAPPING, exp_content)
-        print(dumps(result))
+        output_instance_to_file(result, content_ids[i], base_schema)
