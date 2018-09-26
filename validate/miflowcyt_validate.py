@@ -7,14 +7,25 @@ import pprint
 
 
 def grab_user_content(client_identifier):
+    """
+    Grab all content for a given user ID as an XML and outputs it as a JSON
+    :param client_identifier: the user ID
+    :return: the dictionary containing the XML
+    """
     full_url = "http://flowrepository.org/list?client=" + client_identifier
     response = request("GET", full_url)
     return parker.data((fromstring(response.text)))
 
 
 def get_user_content_id(client_identifier):
+    """
+    Return all IDs found in the user content XML
+    :param client_identifier: the user content ID
+    :return: a list of all IDs there were identified in the variable returned by the API
+    """
     ids = []
     user_data = grab_user_content(client_identifier)
+
     for experiment in user_data['public-experiments']['experiment']:
         ids.append(experiment['id'])
 
