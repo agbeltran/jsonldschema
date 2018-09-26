@@ -3,7 +3,7 @@ from xmljson import parker
 from xml.etree.ElementTree import fromstring
 from json import dumps, load
 import os
-from jsonbender import bend, K, S
+from jsonbender import bend, OptionalS, S
 
 
 def grab_user_content(client_identifier):
@@ -28,9 +28,6 @@ def get_user_content_id(client_identifier):
 
     for experiment in user_data['public-experiments']['experiment']:
         ids.append(experiment['id'])
-
-    for item in user_data:
-        print(item)
 
     return ids
 
@@ -122,12 +119,17 @@ if __name__ == '__main__':
         "primaryContact": "primary-researcher"
     }
 
+    # TODO: check attributes for purpose, keywords, experimentVariables and other
     MAPPING = {
         'date': S('experiment-dates'),
         'primaryContact': S('primary-researcher'),
         'qualityControlMeasures': S('quality-control-measures'),
         'conclusions': S('conclusion'),
-        'organization': S('organizations')
+        'organization': S('organizations'),
+        'purpose': S('purpose'),
+        'keywords': S('keywords'),
+        'experimentVariables': OptionalS('experimentVariables'),
+        'other': OptionalS('other')
     }
 
     content_ids = get_user_content_id(clientID)
@@ -135,12 +137,3 @@ if __name__ == '__main__':
         exp_content = grab_experiment_from_api(clientID, content_ids[i])
         result = bend(MAPPING, exp_content)
         print(dumps(result))
-
-
-    """
-    data = grab_experiment_from_api(clientID, itemID)
-    schemas = load_schema(base_schema, {})
-    test = transform_json(data, schemas['experiment_schema.json'], mapping_dict)
-
-    print(test)
-    """
