@@ -58,6 +58,7 @@ def validate_instance(instance, schema, mapping):
 
     total_fields = 0
     matched_field = 0
+    matched_fields = []
 
     for field in schema['properties']:
         if field not in ignored_keys:
@@ -69,9 +70,11 @@ def validate_instance(instance, schema, mapping):
                 processing_field = field
 
             if processing_field in instance:
-                matched_field +=1
+                matched_field += 1
+                matched_fields.append((field, processing_field))
 
     print("Matched: " + str(matched_field) + " out of " + str(total_fields))
+    return matched_fields
 
 
 if __name__ == '__main__':
@@ -93,4 +96,6 @@ if __name__ == '__main__':
 
     data = grab_experiment_from_api(clientID, itemID)
     schemas = load_schema(base_schema, {})
-    validate_instance(data, schemas['experiment_schema.json'], mapping_dict)
+    test = validate_instance(data, schemas['experiment_schema.json'], mapping_dict)
+
+    print(test)
