@@ -51,7 +51,13 @@ def load_schema(base_schema_name, network):
     return network
 
 
-def validate_instance(instance, schema, mapping):
+def transform_json(instance, schema, mapping):
+    """
+    :param instance: an instance JSON which doesn't necesarilly follow the JSON schema
+    :param schema: a JSON schema which will be used as base for the transformation - might not be needed
+    :param mapping: a dictionary with the mapping between the original JSON fields and fields from the JSON schema
+    :return: the transformed JSON following the JSON schema structure
+    """
     ignored_keys = ["@id", "@type", "@context"]
     #pp = pprint.PrettyPrinter(indent=2)
     #pp.pprint(instance)
@@ -86,7 +92,7 @@ if __name__ == '__main__':
         clientID = load(config)['flowrepo_userID']
     config.close()
 
-    mappingdict = {
+    mapping_dict = {
         "qualityControlMeasures": "quality-control-measures",
         "conclusions": "conclusion",
         "organization": "organizations",
@@ -96,7 +102,6 @@ if __name__ == '__main__':
 
     data = grab_experiment_from_api(clientID, itemID)
     schemas = load_schema(base_schema, {})
-    test = validate_instance(data, schemas['experiment_schema.json'], mapping_dict)
+    test = transform_json(data, schemas['experiment_schema.json'], mapping_dict)
 
     print(test)
-
