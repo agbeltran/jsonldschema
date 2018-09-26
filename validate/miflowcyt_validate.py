@@ -12,6 +12,18 @@ def grab_user_content(client_identifier):
     return parker.data((fromstring(response.text)))
 
 
+def get_user_content_id(client_identifier):
+    ids = []
+    user_data = grab_user_content(client_identifier)
+    for experiment in user_data['public-experiments']['experiment']:
+        ids.append(experiment['id'])
+
+    for item in user_data:
+        print(item)
+
+    return ids
+
+
 def grab_experiment_from_api(client_identifier, item_identifier):
     """
     Retrieve the experiment metadata and return it as a python object
@@ -100,11 +112,11 @@ if __name__ == '__main__':
         "primaryContact": "primary-researcher"
     }
 
-    all_content = grab_user_content(clientID)
-    print(all_content['public-experiment'])
+    content_ids = get_user_content_id(clientID)
+    for i in range(10):
+        exp_content = grab_experiment_from_api(clientID, content_ids[i])
+        print(exp_content)
 
-    """for experiment in all_content:
-        print(experiment)"""
 
     """
     data = grab_experiment_from_api(clientID, itemID)
