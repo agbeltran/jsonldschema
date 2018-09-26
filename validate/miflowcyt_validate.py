@@ -107,7 +107,6 @@ def transform_json(instance, schema, mapping):
 
 
 if __name__ == '__main__':
-    itemID = "FR-FCM-ZY68"
     base_schema = "experiment_schema.json"
 
     config_file = os.path.join(os.path.dirname(__file__), ".././tests/test_config.json")
@@ -126,6 +125,9 @@ if __name__ == '__main__':
     MAPPING = {
         'date': S('experiment-dates'),
         'primaryContact': S('primary-researcher'),
+        'qualityControlMeasures': S('quality-control-measures'),
+        'conclusions': S('conclusion'),
+        'organization': S('organizations')
     }
 
     content_ids = get_user_content_id(clientID)
