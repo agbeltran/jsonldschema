@@ -3,7 +3,7 @@ from xmljson import parker
 from xml.etree.ElementTree import fromstring
 from json import dumps, load
 import os
-import pprint
+from jsonbender import bend, K, S
 
 
 def grab_user_content(client_identifier):
@@ -123,10 +123,16 @@ if __name__ == '__main__':
         "primaryContact": "primary-researcher"
     }
 
+    MAPPING = {
+        'date': S('experiment-dates'),
+        'primaryContact': S('primary-researcher'),
+    }
+
     content_ids = get_user_content_id(clientID)
     for i in range(10):
         exp_content = grab_experiment_from_api(clientID, content_ids[i])
-        print(exp_content)
+        result = bend(MAPPING, exp_content)
+        print(dumps(result))
 
 
     """
