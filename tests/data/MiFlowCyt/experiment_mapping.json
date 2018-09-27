@@ -1,0 +1,11 @@
+{
+  "date": "experiment-dates",
+  "primaryContact": "primary-researcher",
+  "qualityControlMeasures": "quality-control-measures",
+  "conclusions": "conclusion",
+  "organization": "organizations",
+  "purpose": "purpose",
+  "keywords": "keywords",
+  "experimentVariables": "experimentVariables",
+  "other": "other"
+}

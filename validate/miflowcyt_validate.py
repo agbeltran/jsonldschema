@@ -165,17 +165,15 @@ def transform_json(instance, schema, mapping):
 
 if __name__ == '__main__':
 
-    MAPPING = {
-        'date': S('experiment-dates'),
-        'primaryContact': S('primary-researcher'),
-        'qualityControlMeasures': S('quality-control-measures'),
-        'conclusions': S('conclusion'),
-        'organization': OptionalS('organizations'),
-        'purpose': S('purpose'),
-        'keywords': S('keywords'),
-        'experimentVariables': OptionalS('experimentVariables'),
-        'other': OptionalS('other')
-    }
+    mapping_file = os.path.join(os.path.dirname(__file__),
+                                "../tests/data/MiFlowCyt/experiment_mapping.json")
+    with open(mapping_file) as mapping_var:
+        raw_mapping = load(mapping_var)
+    mapping_var.close()
+
+    MAPPING = {}
+    for mapped_item in raw_mapping:
+        MAPPING[mapped_item] = OptionalS(raw_mapping[mapped_item])
 
     process_instances = FlowRepoClient(MAPPING, "experiment_schema.json", 10)
     print(process_instances.errors)
