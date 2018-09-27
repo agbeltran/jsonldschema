@@ -106,6 +106,7 @@ class FlowRepoClient:
         return errors
 
 
+'''
 def load_schema(base_schema_name, network):
     """
     Load the set of schemas dependencies from the base given schema
@@ -160,7 +161,7 @@ def transform_json(instance, schema, mapping):
 
     print("Matched: " + str(matched_field) + " out of " + str(total_fields))
     return matched_fields
-
+'''
 
 if __name__ == '__main__':
 
