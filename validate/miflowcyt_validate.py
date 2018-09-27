@@ -7,43 +7,103 @@ from jsonbender import bend, OptionalS, S
 from validate.jsonschema_validator import validate_instance
 
 
-def grab_user_content(client_identifier):
+class FlowRepoClient:
     """
-    Grab all content for a given user ID as an XML and outputs it as a JSON
-    :param client_identifier: the user ID
-    :return: the dictionary containing the XML
-    """
-    full_url = "http://flowrepository.org/list?client=" + client_identifier
-    response = request("GET", full_url)
-    return parker.data((fromstring(response.text)))
-
-
-def get_user_content_id(client_identifier):
-    """
-    Return all IDs found in the user content XML
-    :param client_identifier: the user content ID
-    :return: a list of all IDs there were identified in the variable returned by the API
-    """
-    ids = []
-    user_data = grab_user_content(client_identifier)
-
-    for experiment in user_data['public-experiments']['experiment']:
-        ids.append(experiment['id'])
-
-    return ids
-
-
-def grab_experiment_from_api(client_identifier, item_identifier):
-    """
-    Retrieve the experiment metadata and return it as a python object
-    :param client_identifier: the client identifier (apiKey)
-    :param item_identifier: the item identifier that should be retrieved
-    :return: the python object obtained from the XML
+    A class that provides functionnalities to catch experiments from FlowRepository, transform
+    the XML into JSON and validate the instances against their schema
     """
 
-    full_url = "http://flowrepository.org/list/" + item_identifier + "?client=" + client_identifier
-    response = request("GET", full_url)
-    return parker.data((fromstring(response.text)))["public-experiments"]["experiment"]
+    def __init__(self, mapping, base_schema, range_limit):
+        """
+        The class constructor
+        :param mapping: the mapping dictionary containing the bend objects
+        :param base_schema: the name of the schema to check against
+        :param range_limit: the maximum number of items to check for
+        """
+        self.errors = {}
+        configuration_file = os.path.join(os.path.dirname(__file__), "../tests/test_config.json")
+        with open(configuration_file) as configuration:
+            self.clientID = load(configuration)['flowrepo_userID']
+        configuration.close()
+        self.mapping = mapping
+        self.base_schema = base_schema
+        self.content_IDs = self.get_user_content_id(self.clientID)
+
+        for i in range(range_limit):
+            experience_metadata = self.grab_experiment_from_api(self.clientID, self.content_IDs[i])
+            extracted_json = bend(MAPPING, experience_metadata)
+            if extracted_json['organization'] == "\n   ":
+                extracted_json['organization'] = {}
+            validation = self.validate_instance_from_file(extracted_json,
+                                                          self.content_IDs[i],
+                                                          self.base_schema)
+            self.errors[self.content_IDs[i]] = validation
+
+    @staticmethod
+    def grab_user_content(client_identifier):
+        """
+        Grab all content for a given user ID as an XML and outputs it as a JSON
+        :param client_identifier: the user ID
+        :return: the dictionary containing the XML
+        """
+        full_url = "http://flowrepository.org/list?client=" + client_identifier
+        response = request("GET", full_url)
+        return parker.data((fromstring(response.text)))
+
+    def get_user_content_id(self, client_identifier):
+        """
+        Return all IDs found in the user content XML
+        :param client_identifier: the user content ID
+        :return: a list of all IDs there were identified in the variable returned by the API
+        """
+        ids = []
+        user_data = self.grab_user_content(client_identifier)
+
+        for experiment in user_data['public-experiments']['experiment']:
+            ids.append(experiment['id'])
+
+        return ids
+
+    @staticmethod
+    def grab_experiment_from_api(client_identifier, item_identifier):
+        """
+        Retrieve the experiment metadata and return it as a python object
+        :param client_identifier: the client identifier (apiKey)
+        :param item_identifier: the item identifier that should be retrieved
+        :return: the python object obtained from the XML
+        """
+        full_url = "http://flowrepository.org/list/" \
+                   + item_identifier \
+                   + "?client=" \
+                   + client_identifier
+        response = request("GET", full_url)
+        return parker.data((fromstring(response.text)))["public-experiments"]["experiment"]
+
+    @staticmethod
+    def validate_instance_from_file(instance, item_id, schema_name):
+        """
+        Method to output the extracted JSON into a file and validate it against the given schema
+        :param instance: the instance to output into a file
+        :param item_id: the instance ID needed to create the file name
+        :param schema_name: the schema to check against
+        :return errors: a list of fields that have an error for this instance
+        """
+        file_name = item_id + '.json'
+        file_full_path = os.path.join(os.path.dirname(__file__),
+                                      "../tests/data/MiFlowCyt/" + file_name)
+
+        with open(file_full_path, 'w') as outfile:
+            dump(instance, outfile)
+        outfile.close()
+
+        errors = validate_instance(
+            os.path.join(os.path.dirname(__file__), "../tests/data/MiFlowCyt/"),
+            schema_name,
+            os.path.join(os.path.dirname(__file__), "../tests/data/MiFlowCyt/"),
+            file_name,
+            1,
+            {})
+        return errors
 
 
 def load_schema(base_schema_name, network):
@@ -102,30 +162,7 @@ def transform_json(instance, schema, mapping):
     return matched_fields
 
 
-def validate_instance_from_file(instance, item_id, schema_name):
-    file_name = item_id + '.json'
-    file_full_path = os.path.join(os.path.dirname(__file__),
-                                  "../tests/data/MiFlowCyt/" + file_name)
-
-    with open(file_full_path, 'w') as outfile:
-        dump(instance, outfile)
-    outfile.close()
-
-    errors = validate_instance(os.path.join(os.path.dirname(__file__), "../tests/data/MiFlowCyt/"),
-                               schema_name,
-                               os.path.join(os.path.dirname(__file__), "../tests/data/MiFlowCyt/"),
-                               file_name,
-                               1,
-                               {})
-
-
 if __name__ == '__main__':
-    base_schema = "experiment_schema.json"
-
-    config_file = os.path.join(os.path.dirname(__file__), ".././tests/test_config.json")
-    with open(config_file) as config:
-        clientID = load(config)['flowrepo_userID']
-    config.close()
 
     MAPPING = {
         'date': S('experiment-dates'),
@@ -139,11 +176,5 @@ if __name__ == '__main__':
         'other': OptionalS('other')
     }
 
-    content_ids = get_user_content_id(clientID)
-    for i in range(10):
-        exp_content = grab_experiment_from_api(clientID, content_ids[i])
-        result = bend(MAPPING, exp_content)
-        if result['organization'] == "\n   ":
-            result['organization'] = {}
-
-        validate_instance_from_file(result, content_ids[i], base_schema)
+    process_instances = FlowRepoClient(MAPPING, "experiment_schema.json", 10)
+    print(process_instances.errors)
