@@ -1,8 +1,17 @@
 {
-  "date": "experiment-dates",
-  "primaryContact": "primary-researcher",
+  "date":{
+    "value": "experiment-dates",
+    "benderOption": "default"
+  },
+  "primaryContact": {
+    "value": "primary-researcher",
+    "benderOption": "raiseErrors"
+  },
   "qualityControlMeasures": "quality-control-measures",
-  "conclusions": "conclusion",
+  "conclusions": {
+    "value": "conclusion",
+    "benderOption": "simple"
+  },
   "organization": "organizations",
   "purpose": "purpose",
   "keywords": "keywords",

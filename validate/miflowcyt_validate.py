@@ -3,7 +3,7 @@ from xmljson import parker
 from xml.etree.ElementTree import fromstring
 from json import dump, load
 import os
-from jsonbender import bend, OptionalS, S
+from jsonbender import bend, OptionalS, S, K, F
 from validate.jsonschema_validator import validate_instance
 
 
@@ -25,13 +25,13 @@ class FlowRepoClient:
         with open(configuration_file) as configuration:
             self.clientID = load(configuration)['flowrepo_userID']
         configuration.close()
-        self.mapping = mapping
+        self.MAPPING = self.get_mapping(mapping)
         self.base_schema = base_schema
         self.content_IDs = self.get_user_content_id(self.clientID)
 
         for i in range(range_limit):
             experience_metadata = self.grab_experiment_from_api(self.clientID, self.content_IDs[i])
-            extracted_json = bend(MAPPING, experience_metadata)
+            extracted_json = bend(self.MAPPING, experience_metadata)
             if extracted_json['organization'] == "\n   ":
                 extracted_json['organization'] = {}
             validation = self.validate_instance_from_file(extracted_json,
@@ -105,75 +105,49 @@ class FlowRepoClient:
             {})
         return errors
 
+    @staticmethod
+    def get_mapping(mapping_file_name):
+        """
+        Build the mapping dictionary based on the given mapping file
+        :param mapping_file_name: the name of the mapping file
+        :return mapping: the mapping of the fields
+        """
+        mapping = {}
+        with open(mapping_file_name) as mapping_var:
+            raw_mapping = load(mapping_var)
+        mapping_var.close()
 
-'''
-def load_schema(base_schema_name, network):
-    """
-    Load the set of schemas dependencies from the base given schema
-    :param base_schema_name: the name of the schema to load
-    :param network: the dictionary to add the loaded schemas
-    :return network: the dictionary that contains the loaded schemas
-    """
+        # For each mapped field in the mapping file
+        for mapped_item in raw_mapping:
 
-    base_path = ".././tests/data/MiFlowCyt/"
-    base_schema_path = os.path.join(os.path.dirname(__file__), base_path + base_schema_name)
-    with open(base_schema_path) as schema_input:
-        schema_data = load(schema_input)
-    schema_input.close()
+            # if the value of the field is a string
+            if isinstance(raw_mapping[mapped_item], str):
+                mapping[mapped_item] = OptionalS(raw_mapping[mapped_item])
 
-    network[base_schema_name] = schema_data
+            # if the value of the field is an object
+            elif isinstance(raw_mapping[mapped_item], object):
 
-    for field in schema_data["properties"]:
+                # Raise an error if a value/option is missing
+                if 'value' not in raw_mapping[mapped_item] or \
+                        ('benderOption' not in raw_mapping[mapped_item]):
+                    raise Exception("The mapping file is missing a value or the bender option "
+                                    "for " + mapped_item)
+                else:
+                    if raw_mapping[mapped_item]['benderOption'] == "default":
+                        mapping[mapped_item] = OptionalS(raw_mapping[mapped_item]['value'])
+                    elif raw_mapping[mapped_item]['benderOption'] == "raiseErrors":
+                        mapping[mapped_item] = S(raw_mapping[mapped_item]['value'])
+                    elif raw_mapping[mapped_item]['benderOption'] == "simple":
+                        mapping[mapped_item] = K(raw_mapping[mapped_item]['value'])
+                    elif raw_mapping[mapped_item]['benderOption'] == "inject":
+                        mapping[mapped_item] = F(raw_mapping[mapped_item]['value'])
 
-        # TODO: add use case for anyOf, oneOf and items
-        if '$ref' in schema_data["properties"][field]:
-            test = schema_data["properties"][field]["$ref"].rsplit('/', 1)[-1]
-            network = load_schema(test, network)
+        return mapping
 
-    return network
-
-
-def transform_json(instance, schema, mapping):
-    """
-    :param instance: an instance JSON which doesn't necesarilly follow the JSON schema
-    :param schema: a JSON schema which will be used as base for the transformation - might not be needed
-    :param mapping: a dictionary with the mapping between the original JSON fields and fields from the JSON schema
-    :return: the transformed JSON following the JSON schema structure
-    """
-    ignored_keys = ["@id", "@type", "@context"]
-
-    total_fields = 0
-    matched_field = 0
-    matched_fields = []
-
-    for field in schema['properties']:
-        if field not in ignored_keys:
-
-            total_fields += 1
-            if field in mapping:
-                processing_field = mapping[field]
-            else:
-                processing_field = field
-
-            if processing_field in instance:
-                matched_field += 1
-                matched_fields.append((field, processing_field))
-
-    print("Matched: " + str(matched_field) + " out of " + str(total_fields))
-    return matched_fields
-'''
 
 if __name__ == '__main__':
+    map_file = os.path.join(os.path.dirname(__file__),
+                            "../tests/data/MiFlowCyt/experiment_mapping.json")
 
-    mapping_file = os.path.join(os.path.dirname(__file__),
-                                "../tests/data/MiFlowCyt/experiment_mapping.json")
-    with open(mapping_file) as mapping_var:
-        raw_mapping = load(mapping_var)
-    mapping_var.close()
-
-    MAPPING = {}
-    for mapped_item in raw_mapping:
-        MAPPING[mapped_item] = OptionalS(raw_mapping[mapped_item])
-
-    process_instances = FlowRepoClient(MAPPING, "experiment_schema.json", 10)
+    process_instances = FlowRepoClient(map_file, "experiment_schema.json", 1)
     print(process_instances.errors)
