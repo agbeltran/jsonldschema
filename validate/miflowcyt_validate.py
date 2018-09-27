@@ -80,8 +80,6 @@ def transform_json(instance, schema, mapping):
     :return: the transformed JSON following the JSON schema structure
     """
     ignored_keys = ["@id", "@type", "@context"]
-    #pp = pprint.PrettyPrinter(indent=2)
-    #pp.pprint(instance)
 
     total_fields = 0
     matched_field = 0
@@ -104,7 +102,7 @@ def transform_json(instance, schema, mapping):
     return matched_fields
 
 
-def output_instance_to_file(instance, item_id, schema_name):
+def validate_instance_from_file(instance, item_id, schema_name):
     file_name = item_id + '.json'
     file_full_path = os.path.join(os.path.dirname(__file__),
                                   "../tests/data/MiFlowCyt/" + file_name)
@@ -134,7 +132,7 @@ if __name__ == '__main__':
         'primaryContact': S('primary-researcher'),
         'qualityControlMeasures': S('quality-control-measures'),
         'conclusions': S('conclusion'),
-        'organization': S('organizations'),
+        'organization': OptionalS('organizations'),
         'purpose': S('purpose'),
         'keywords': S('keywords'),
         'experimentVariables': OptionalS('experimentVariables'),
@@ -145,4 +143,7 @@ if __name__ == '__main__':
     for i in range(10):
         exp_content = grab_experiment_from_api(clientID, content_ids[i])
         result = bend(MAPPING, exp_content)
-        output_instance_to_file(result, content_ids[i], base_schema)
+        if result['organization'] == "\n   ":
+            result['organization'] = {}
+
+        validate_instance_from_file(result, content_ids[i], base_schema)
