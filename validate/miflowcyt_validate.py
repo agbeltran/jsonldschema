@@ -1,24 +1,23 @@
-from requests import request
-from xmljson import parker
-from xml.etree.ElementTree import fromstring
+import requests
+import xmljson
+import xml.etree.ElementTree as elemTree
 from json import dump, load
 import os
-from jsonbender import bend, OptionalS, S, K, F
+import jsonbender
 from validate.jsonschema_validator import validate_instance
 
 
 class FlowRepoClient:
     """
-    A class that provides functionnalities to catch experiments from FlowRepository, transform
+    A class that provides functionality to catch experiments from FlowRepository, transform
     the XML into JSON and validate the instances against their schema
     """
 
-    def __init__(self, mapping, base_schema, range_limit):
+    def __init__(self, mapping, base_schema):
         """
         The class constructor
         :param mapping: the mapping dictionary containing the bend objects
         :param base_schema: the name of the schema to check against
-        :param range_limit: the maximum number of items to check for
         """
         self.errors = {}
         configuration_file = os.path.join(os.path.dirname(__file__), "../tests/test_config.json")
@@ -27,17 +26,23 @@ class FlowRepoClient:
         configuration.close()
         self.MAPPING = self.get_mapping(mapping)
         self.base_schema = base_schema
-        self.content_IDs = self.get_user_content_id(self.clientID)
 
-        for i in range(range_limit):
-            experience_metadata = self.grab_experiment_from_api(self.clientID, self.content_IDs[i])
-            extracted_json = bend(self.MAPPING, experience_metadata)
+    def make_validation(self, number_of_items):
+        """
+        Method to run the mapping for the given number of items
+        :param number_of_items: the number of items to process
+        :return errors: a dictionary containing the list of errors for all processed items
+        """
+        content_ids = self.get_user_content_id(self.clientID)
+        for i in range(number_of_items):
+            experience_metadata = self.grab_experiment_from_api(self.clientID, content_ids[i])
+            extracted_json = jsonbender.bend(self.MAPPING, experience_metadata)
             if extracted_json['organization'] == "\n   ":
                 extracted_json['organization'] = {}
             validation = self.validate_instance_from_file(extracted_json,
-                                                          self.content_IDs[i],
+                                                          content_ids[i],
                                                           self.base_schema)
-            self.errors[self.content_IDs[i]] = validation
+            self.errors[content_ids[i]] = validation
 
     @staticmethod
     def grab_user_content(client_identifier):
@@ -47,8 +52,8 @@ class FlowRepoClient:
         :return: the dictionary containing the XML
         """
         full_url = "http://flowrepository.org/list?client=" + client_identifier
-        response = request("GET", full_url)
-        return parker.data((fromstring(response.text)))
+        response = requests.request("GET", full_url)
+        return response
 
     def get_user_content_id(self, client_identifier):
         """
@@ -57,7 +62,8 @@ class FlowRepoClient:
         :return: a list of all IDs there were identified in the variable returned by the API
         """
         ids = []
-        user_data = self.grab_user_content(client_identifier)
+        response = self.grab_user_content(client_identifier)
+        user_data = xmljson.parker.data((elemTree.fromstring(response.text)))
 
         for experiment in user_data['public-experiments']['experiment']:
             ids.append(experiment['id'])
@@ -76,8 +82,9 @@ class FlowRepoClient:
                    + item_identifier \
                    + "?client=" \
                    + client_identifier
-        response = request("GET", full_url)
-        return parker.data((fromstring(response.text)))["public-experiments"]["experiment"]
+        response = requests.request("GET", full_url)
+        return xmljson.parker.data((elemTree.fromstring(response.text)))["public-experiments"][
+            "experiment"]
 
     @staticmethod
     def validate_instance_from_file(instance, item_id, schema_name):
@@ -122,7 +129,7 @@ class FlowRepoClient:
 
             # if the value of the field is a string
             if isinstance(raw_mapping[mapped_item], str):
-                mapping[mapped_item] = OptionalS(raw_mapping[mapped_item])
+                mapping[mapped_item] = jsonbender.OptionalS(raw_mapping[mapped_item])
 
             # if the value of the field is an object
             elif isinstance(raw_mapping[mapped_item], object):
@@ -134,13 +141,13 @@ class FlowRepoClient:
                                     "for " + mapped_item)
                 else:
                     if raw_mapping[mapped_item]['benderOption'] == "default":
-                        mapping[mapped_item] = OptionalS(raw_mapping[mapped_item]['value'])
+                        mapping[mapped_item] = jsonbender.OptionalS(raw_mapping[mapped_item]['value'])
                     elif raw_mapping[mapped_item]['benderOption'] == "raiseErrors":
-                        mapping[mapped_item] = S(raw_mapping[mapped_item]['value'])
+                        mapping[mapped_item] = jsonbender.S(raw_mapping[mapped_item]['value'])
                     elif raw_mapping[mapped_item]['benderOption'] == "simple":
-                        mapping[mapped_item] = K(raw_mapping[mapped_item]['value'])
+                        mapping[mapped_item] = jsonbender.K(raw_mapping[mapped_item]['value'])
                     elif raw_mapping[mapped_item]['benderOption'] == "inject":
-                        mapping[mapped_item] = F(raw_mapping[mapped_item]['value'])
+                        mapping[mapped_item] = jsonbender.F(raw_mapping[mapped_item]['value'])
 
         return mapping
 
@@ -149,5 +156,6 @@ if __name__ == '__main__':
     map_file = os.path.join(os.path.dirname(__file__),
                             "../tests/data/MiFlowCyt/experiment_mapping.json")
 
-    process_instances = FlowRepoClient(map_file, "experiment_schema.json", 1)
+    process_instances = FlowRepoClient(map_file, "experiment_schema.json")
+    process_instances.make_validation(1)
     print(process_instances.errors)
