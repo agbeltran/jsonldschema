@@ -12,7 +12,10 @@
     "value": "conclusion",
     "benderOption": "simple"
   },
-  "organization": "organizations",
+  "organization": {
+    "value": "organizations",
+    "benderOption": "inject"
+  },
   "purpose": "purpose",
   "keywords": "keywords",
   "experimentVariables": "experimentVariables",
