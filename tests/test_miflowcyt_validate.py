@@ -36,7 +36,7 @@ class TestFlowRepoClient(object):
         assert_true(isinstance(mapping['keywords'], jsonbender.selectors.OptionalS))
         assert_true(isinstance(mapping['other'], jsonbender.selectors.OptionalS))
         assert_true(isinstance(mapping['primaryContact'], jsonbender.selectors.S))
-        assert_true(isinstance(mapping['organization'], jsonbender.selectors.OptionalS))
+        assert_true(isinstance(mapping['organization'], jsonbender.selectors.F))
         assert_true(isinstance(mapping['purpose'], jsonbender.selectors.OptionalS))
         assert_true(isinstance(mapping['qualityControlMeasures'], jsonbender.selectors.OptionalS))
         assert_true(isinstance(mapping['conclusions'], jsonbender.selectors.K))
