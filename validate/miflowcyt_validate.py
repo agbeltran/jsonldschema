@@ -9,15 +9,18 @@ from validate.jsonschema_validator import validate_instance
 
 class FlowRepoClient:
     """
-    A class that provides functionality to download experiments from the FlowRepository (https://flowrepository.org/),
-    transform the XML into JSON and validate the instances against their schema.
-    The transformation from XML to JSON relies on the JSONBender library (https://github.com/Onyo/jsonbender).
+    A class that provides functionality to download experiments from the
+    FlowRepository (https://flowrepository.org/), transform the XML into JSON
+    and validate the instances against their schema.
+    The transformation from XML to JSON relies on the
+    JSONBender library (https://github.com/Onyo/jsonbender).
     """
 
     def __init__(self, mapping, base_schema, client_id):
         """
         The class constructor
-        :param mapping: the mapping dictionary containing the jsonbender objects (see https://github.com/Onyo/jsonbender)
+        :param mapping: the mapping dictionary containing the jsonbender
+         objects (see https://github.com/Onyo/jsonbender)
         :param base_schema: the name of the schema to check against
         """
         self.errors = {}
@@ -169,7 +172,8 @@ class FlowRepoClient:
                                         "for " + mapped_item)
                     else:
                         if raw_mapping[mapped_item]['benderOption'] == "default":
-                            mapping[mapped_item] = jsonbender.OptionalS(raw_mapping[mapped_item]['value'])
+                            mapping[mapped_item] = \
+                                jsonbender.OptionalS(raw_mapping[mapped_item]['value'])
                         elif raw_mapping[mapped_item]['benderOption'] == "raiseErrors":
                             mapping[mapped_item] = jsonbender.S(raw_mapping[mapped_item]['value'])
                         elif raw_mapping[mapped_item]['benderOption'] == "simple":

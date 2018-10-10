@@ -1,0 +1,148 @@
+{
+  "name": "DATS",
+  "schemas": {
+    "person_schema.json": {
+      "id": "https://w3id.org/dats/schema/person_schema.json",
+      "$schema": "http://json-schema.org/draft-04/schema",
+      "title": "DATS person schema",
+      "description": "A human being",
+      "type": "object",
+      "properties": {
+        "@context": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "@id": {"type": "string", "format": "uri"},
+        "@type": {"type": "string", "enum": ["Person"]},
+        "identifier": {
+          "description": "Primary identifier for the person.",
+          "$ref": "identifier_info_schema.json#"
+        },
+        "alternateIdentifiers": {
+          "description": "Alternate identifiers for the person.",
+          "type": "array",
+          "items": {
+            "$ref": "alternate_identifier_info_schema.json#"
+          }
+        },
+        "relatedIdentifiers": {
+          "description": "Related identifiers for the person.",
+          "type": "array",
+          "items": {
+            "$ref": "related_identifier_info_schema.json#"
+          }
+        },
+        "fullName": {
+          "description": "The first name, any middle names, and surname of a person.",
+          "type":  "string"
+        },
+        "firstName": {
+          "description": "The given name of the person.",
+          "type":  "string"
+        },
+        "middleInitial": {
+          "description": "The first letter of the person's middle name.",
+          "type":  "string"
+        },
+        "lastName": {
+          "description": "The person's family name.",
+          "type": "string"
+        },
+        "email": {
+          "description": "An electronic mail address for the person.",
+          "type": "string",
+          "format": "email"
+        },
+        "affiliations": {
+          "description": "The organizations to which the person is associated with.",
+          "type": "array",
+          "items": {
+            "$ref": "organization_schema.json#"
+          }
+        },
+        "roles": {
+          "description": "The roles assumed by a person, ideally from a controlled vocabulary/ontology.",
+          "type": "array",
+          "items": {
+            "$ref" : "annotation_schema.json#"
+          }
+        },
+        "extraProperties": {
+          "description": "Extra properties that do not fit in the previous specified attributes. ",
+          "type": "array",
+          "items": {
+            "$ref" : "category_values_pair_schema.json#"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "identifier_info_schema": {
+      "id": "https://w3id.org/dats/schema/identifier_info_schema.json",
+      "$schema": "http://json-schema.org/draft-04/schema",
+      "title": "DATS identifier information schema",
+      "description": "Information about the primary identifier.",
+      "type": "object",
+      "properties": {
+        "@context": {
+          "description": "The JSON-LD context",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            },
+            {
+              "type": "array"
+            }
+          ]
+        },
+        "@id": {
+          "description": "The JSON-LD identifier",
+          "type": "string", "format": "uri"
+        },
+        "@type": {
+          "description": "The JSON-LD type",
+          "type": "string", "enum": [ "Identifier" ]},
+        "identifier": {
+          "description": "A code uniquely identifying an entity locally to a system or globally.",
+          "type": "string"
+        },
+        "identifierSource": {
+          "description": "The identifier source represents information about the organisation/namespace responsible for minting the identifiers. It must be provided if the identifier is provided.",
+          "type" : "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "contexts": {
+    "person_schema.json": {
+      "sdo": "https://schema.org/",
+      "Person": "sdo:Person",
+      "identifier": "sdo:identifier",
+      "firstName": "sdo:givenName",
+      "lastName": "sdo:familyName",
+      "fullName": "sdo:name",
+      "email": "sdo:email",
+      "affiliations": "sdo:affiliation",
+      "roles": "sdo:roleName"
+    },
+    "identifier_info_schema.json": {
+      "sdo": "https://schema.org/",
+      "Identifier": "sdo:Thing",
+      "identifier": "sdo:identifier",
+      "identifierSource": {
+        "@id": "sdo:Property",
+        "@type": "sdo:Text"
+      }
+    }
+  }
+}
