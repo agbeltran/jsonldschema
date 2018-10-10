@@ -80,7 +80,3 @@ class TestFlowRepoClient(object):
         self.mock_request.return_value.status_code = 401
         validation = self.client.make_validation(1)
         assert_true(isinstance(validation, Exception))
-        self.mock_request.return_value.status_code = 200
-        validation2 = self.client.make_validation(1)
-        #assert_true(isinstance(validation2, Exception))
-        #self.mock_request.return_value.status_code = 200
