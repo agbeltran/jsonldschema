@@ -9,14 +9,15 @@ from validate.jsonschema_validator import validate_instance
 
 class FlowRepoClient:
     """
-    A class that provides functionality to catch experiments from FlowRepository, transform
-    the XML into JSON and validate the instances against their schema
+    A class that provides functionality to download experiments from the FlowRepository (https://flowrepository.org/),
+    transform the XML into JSON and validate the instances against their schema.
+    The transformation from XML to JSON relies on the JSONBender library (https://github.com/Onyo/jsonbender).
     """
 
     def __init__(self, mapping, base_schema, client_id):
         """
         The class constructor
-        :param mapping: the mapping dictionary containing the bend objects
+        :param mapping: the mapping dictionary containing the jsonbender objects (see https://github.com/Onyo/jsonbender)
         :param base_schema: the name of the schema to check against
         """
         self.errors = {}
@@ -64,7 +65,8 @@ class FlowRepoClient:
     @staticmethod
     def grab_user_content(client_identifier):
         """
-        Grab all content for a given user ID as an XML and outputs it as a JSON
+        Grab all content for a given user ID as an XML and outputs it as a JSON.
+        This method will grab all public experiments plus those only accessible to the user ID.
         :param client_identifier: the user ID
         :return: the dictionary containing the XML
         """
@@ -95,7 +97,7 @@ class FlowRepoClient:
     @staticmethod
     def grab_experiment_from_api(client_identifier, item_identifier):
         """
-        Retrieve the experiment metadata and return it as a python object
+        Retrieve the experimental metadata and return it as a python object
         :param client_identifier: the client identifier (apiKey)
         :param item_identifier: the item identifier that should be retrieved
         :return: the python object obtained from the XML

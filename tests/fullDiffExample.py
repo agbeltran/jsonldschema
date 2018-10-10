@@ -1,5 +1,5 @@
 from semDiff.fullDiff import FullSemDiff
-from json import dumps, dump
+from json import dump
 import os
 
 network1 = {
@@ -44,36 +44,36 @@ network1 = {
             },
           "fullName": {
               "description": "The first name, any middle names, and surname of a person.",
-              "type" :  "string"
+              "type":  "string"
             },
           "firstName": {
               "description": "The given name of the person.",
-              "type" :  "string"
+              "type":  "string"
             },
           "middleInitial": {
               "description": "The first letter of the person's middle name.",
-              "type" :  "string"
+              "type":  "string"
             },
           "lastName": {
               "description": "The person's family name.",
-              "type" :  "string"
+              "type": "string"
             },
           "email": {
               "description": "An electronic mail address for the person.",
-              "type" :  "string",
+              "type": "string",
               "format": "email"
             },
-          "affiliations" : {
+          "affiliations": {
               "description": "The organizations to which the person is associated with.",
-              "type" : "array",
-              "items" : {
-                "$ref" : "organization_schema.json#"
+              "type": "array",
+              "items": {
+                "$ref": "organization_schema.json#"
               }
             },
-          "roles" : {
+          "roles": {
               "description": "The roles assumed by a person, ideally from a controlled vocabulary/ontology.",
-              "type" : "array",
-              "items" : {
+              "type": "array",
+              "items": {
                 "$ref" : "annotation_schema.json#"
               }
             },
