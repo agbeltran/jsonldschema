@@ -35,6 +35,7 @@
     },
     "keywords": {
       "description": "The keywords should include terms from an appropriate vocabulary (e.g. MeSH) to describe the experiment."
+      "type": "string"
     },
     "experimentVariables": {
       "description": "Variables are attribute(s) that differ between samples within an experiment due to pre-existing differences in sample states or due to experimental manipulation of the samples. If applicable, a brief description of the conditional and/or manipulated variables in the experiment shall be provided (e.g., smoker vs. nonsmoker, IL-2 treatment vs. no treatment, knockout versus wild-type, varying number of transplanted cells, varying treatment dosage, etc.). The number of instances per experimental group should also be stated."
@@ -58,5 +59,4 @@
       "description": "Additional information about the experiment should be provided if relevant. This may include funding announcements, related publications (which should be referenced by PMID), URIs, databases, etc."
     }
   }
-
 }
