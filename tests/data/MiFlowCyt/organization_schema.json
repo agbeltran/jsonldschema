@@ -6,15 +6,23 @@
   "type": "object",
   "properties": {
     "@context": {
-      "description": "The  JSON-LD context.",
+      "description": "The JSON-LD context",
       "anyOf": [
         {
           "type": "string"
         },
         {
           "type": "object"
+        },
+        {
+          "type": "array"
         }
       ]
+    },
+     "@id": {
+      "description": "The JSON-LD identifier",
+      "type": "string",
+      "format": "uri"
     },
     "@type": {
       "description": "The JSON-LD type",

@@ -5,16 +5,24 @@
   "description": "The description may include information for additional individuals involved in the experiment, including their contact details and their role.",
   "type": "object",
   "properties": {
-    "@context": {
-      "description": "The  JSON-LD context.",
+     "@context": {
+      "description": "The JSON-LD context",
       "anyOf": [
         {
           "type": "string"
         },
         {
           "type": "object"
+        },
+        {
+          "type": "array"
         }
       ]
+    },
+     "@id": {
+      "description": "The JSON-LD identifier",
+      "type": "string",
+      "format": "uri"
     },
     "@type": {
       "description": "The JSON-LD type",
