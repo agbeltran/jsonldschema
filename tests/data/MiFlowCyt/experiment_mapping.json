@@ -1,0 +1,23 @@
+{
+  "date":{
+    "value": "experiment-dates",
+    "benderOption": "default"
+  },
+  "primaryContact": {
+    "value": "primary-researcher",
+    "benderOption": "raiseErrors"
+  },
+  "qualityControlMeasures": "quality-control-measures",
+  "conclusions": {
+    "value": "conclusion",
+    "benderOption": "simple"
+  },
+  "organization": {
+    "value": "organizations",
+    "benderOption": "inject"
+  },
+  "purpose": "purpose",
+  "keywords": "keywords",
+  "experimentVariables": "experimentVariables",
+  "other": "other"
+}

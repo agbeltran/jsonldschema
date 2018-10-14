@@ -24,20 +24,32 @@ class FullSemDiff:
         twin_tuple = namedtuple('Twins', ['first_entity', 'second_entity'])
         twin_coverage = namedtuple('TwinCoverage', ['twins', 'overlap'])
 
+        # Compute the comparison of entities based on their semantic type
         entity_coverage = compareNetwork.NetworkCoverage(contexts)
+
+        # for each mapped entity
         for entity_name in entity_coverage.covered_entities:
             self.total_entities += 1
             twins = entity_coverage.covered_entities[entity_name]
+
+            # if the entity has twins
             if twins is not None:
                 entity_schema = network_1[entity_name.lower() + "_schema.json"]
                 entity_context = {"@context": contexts[0][entity_name.lower() + "_schema.json"]}
+
+                # For each twin
                 for twin in twins:
                     self.half_twins += 1
                     twin_schema = network_2[twin.lower() + "_schema.json"]
                     twin_context = {"@context": contexts[1][twin.lower() + "_schema.json"]}
                     local_twin = twin_tuple(entity_name, twin)
+
+                    # compare the entities
                     attribute_diff = compareEntities.EntityCoverage(entity_schema, entity_context,
                                                                     twin_schema, twin_context)
+                    # create the tuple
                     attribute_coverage = twin_coverage(local_twin,
                                                        attribute_diff.full_coverage)
+
+                    # adds it to output
                     self.twins.append(attribute_coverage)

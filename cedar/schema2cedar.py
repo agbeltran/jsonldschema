@@ -468,7 +468,7 @@ class Schema2CedarTemplate(Schema2CedarBase):
     """
     Schema 2 Template Converter, this is the one you want to use
     """
-    resources_path = os.path.join(os.path.dirname(__file__), "../resources")
+    resources_path = os.path.join(os.path.dirname(__file__), "../resources/cedar")
     templateLoader = FileSystemLoader(searchpath=resources_path)
     templateEnv = Environment(loader=templateLoader)
     TEMPLATE_FILE = "cedar_template.jinja2"
@@ -512,7 +512,7 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
     """
     Schema to TemplateElement converter, should not be called directly
     """
-    resources_path = os.path.join(os.path.dirname(__file__), "../resources")
+    resources_path = os.path.join(os.path.dirname(__file__), "../resources/cedar")
     templateLoader = FileSystemLoader(searchpath=resources_path)
     templateEnv = Environment(loader=templateLoader)
     TEMPLATE_FILE = "cedar_template_element.jinja2"
