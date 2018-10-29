@@ -10,18 +10,7 @@ Welcome to jsonldschema's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule::semDiff
-   :members:
-
-
-.. automodule::lol
-   :members:
-
-.. automodule::jsonldschema
-   :members:
-
-
-.. automodule:: io
+.. automodule:: compareEntities
    :members:
 
 Indices and tables
