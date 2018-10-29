@@ -7,6 +7,11 @@ iterables = ['anyOf', 'oneOf', 'allOf']
 
 
 def get_name(schema_url):
+    """
+    Extract the item name from it's URL
+    :param schema_url: the URL of the schema
+    :return name: the name of the schema (eg: 'item_schema.json')
+    """
     name = schema_url.split("/")[-1].replace("#", '')
     return name
 
@@ -50,12 +55,14 @@ def resolve_schema_references(schema, loaded_schemas, schema_url=None, refs=None
 
 def _resolve_schema_references(schema, resolver, loaded_schemas, object_path):
     """
-
-    :param schema:
-    :param resolver:
-    :param loaded_schemas:
+    Iterate over the json until it find a $ref and replace it with the loaded object or a
+    reference to an already loaded object
+    :param schema: the schema or portion of schema to process
+    :param resolver: the RefResolver object that will realize the task of loading/updating the
+    object
+    :param loaded_schemas: a dictionary of a already loaded schemas (prevent recursion issues)
     :param object_path: a string containing the path of the current level inside the document
-    :return:
+    :return schema: the updated schema
     """
 
     if SchemaKey.ref in schema:
