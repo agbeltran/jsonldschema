@@ -1,9 +1,26 @@
 import json
+import requests
 from copy import deepcopy as copy
 from jsonschema.validators import RefResolver
 
 ignored_keys = ["@id", "@type", "@context"]
 iterables = ['anyOf', 'oneOf', 'allOf']
+
+
+def resolve_reference(schema_url):
+    """
+    Load and decode the schema from a given URL
+    :param schema_url: the URL to the schema
+    :return: an exception or a decoded json schema as a dictionary
+    """
+    response = requests.request('GET', schema_url)
+    if response.status_code != 200:
+        return Exception(schema_url + ' could not be loaded')
+    else:
+        try:
+            return json.loads(response.text)
+        except Exception:
+            return Exception
 
 
 def get_name(schema_url):
