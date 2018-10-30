@@ -2,6 +2,7 @@ import json
 import requests
 from copy import deepcopy as copy
 from jsonschema.validators import RefResolver
+from collections import OrderedDict
 
 ignored_keys = ["@id", "@type", "@context"]
 iterables = ['anyOf', 'oneOf', 'allOf']
@@ -13,6 +14,7 @@ def resolve_reference(schema_url):
     :param schema_url: the URL to the schema
     :return: an exception or a decoded json schema as a dictionary
     """
+    """
     response = requests.request('GET', schema_url)
     if response.status_code != 200:
         return Exception(schema_url + ' could not be loaded')
@@ -21,6 +23,11 @@ def resolve_reference(schema_url):
             return json.loads(response.text)
         except Exception:
             return Exception
+    """
+    try:
+        return json.loads(requests.request('GET', schema_url).text, object_pairs_hook=OrderedDict)
+    except Exception:
+        return Exception
 
 
 def get_name(schema_url):
@@ -82,14 +89,15 @@ def _resolve_schema_references(schema, resolver, loaded_schemas, object_path):
     :return schema: the updated schema
     """
 
+    schema = OrderedDict(schema)
+
     if SchemaKey.ref in schema:
 
         if schema['$ref'][0] != '#':
             reference_path = schema.pop(SchemaKey.ref, None)
-            resolved = resolver.resolve(reference_path)[1]
+            resolved = OrderedDict(resolver.resolve(reference_path)[1])
 
             if get_name(resolved['id']) not in loaded_schemas:
-                print(get_name(resolved['id']))
                 loaded_schemas[get_name(resolved['id'])] = object_path
                 schema.update(resolved)
                 return _resolve_schema_references(schema, resolver, loaded_schemas, object_path)
@@ -148,14 +156,14 @@ class SchemaKey:
 if __name__ == '__main__':
     processed_schemas = {}
     schemaURL = 'https://w3id.org/dats/schema/study_schema.json#'
-    schema_name = get_name(schemaURL)
 
     processed_schemas[get_name(schemaURL)] = '#'
 
     data = resolve_schema_references(resolve_reference(schemaURL), processed_schemas, schemaURL)
 
     with open('../tests/data/compile_test.json', 'w') as output_file:
-        json.dump(data, output_file, indent=4)
+        json.dump(OrderedDict(data), output_file, indent=4)
+        output_file.close()
 
 
 
