@@ -2,6 +2,7 @@ import unittest
 from utils import compile_schema
 import json
 from collections import OrderedDict
+from deepdiff import DeepDiff
 
 
 class CompileSchemaTestCase(unittest.TestCase):
@@ -60,16 +61,15 @@ class CompileSchemaTestCase(unittest.TestCase):
 
     def test_resolve_schema_references(self):
 
-        expected_output = json.load(open('data/compile_test.json'), object_pairs_hook=OrderedDict)
+        expected_output = json.load(open('data/compile_test.json'))
 
         processed_schemas = {}
-        schema_url = 'https://w3id.org/dats/schema/study_schema.json#'
+        schema_url = 'https://w3id.org/dats/schema/person_schema.json#'
         processed_schemas[compile_schema.get_name(schema_url)] = '#'
         data = compile_schema.resolve_schema_references(compile_schema.resolve_reference(schema_url),
                                                         processed_schemas,
                                                         schema_url)
 
-        print(json.dumps(OrderedDict(data)))
-        print(json.dumps(OrderedDict(expected_output)))
-        self.assertTrue(data == expected_output)
-
+        output_value = json.loads(json.dumps(data))
+        output_expected = json.loads(json.dumps(expected_output))
+        self.assertTrue(DeepDiff(output_value, output_expected) == {})

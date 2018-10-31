@@ -14,16 +14,6 @@ def resolve_reference(schema_url):
     :param schema_url: the URL to the schema
     :return: an exception or a decoded json schema as a dictionary
     """
-    """
-    response = requests.request('GET', schema_url)
-    if response.status_code != 200:
-        return Exception(schema_url + ' could not be loaded')
-    else:
-        try:
-            return json.loads(response.text)
-        except Exception:
-            return Exception
-    """
     try:
         return json.loads(requests.request('GET', schema_url).text, object_pairs_hook=OrderedDict)
     except Exception:
@@ -64,6 +54,7 @@ def resolve_schema_references(schema, loaded_schemas, schema_url=None, refs=None
         schema
     """
 
+    schema = OrderedDict(schema)
     refs = refs or {}
     if schema_url:
         return _resolve_schema_references(schema,
@@ -100,48 +91,50 @@ def _resolve_schema_references(schema, resolver, loaded_schemas, object_path):
             if get_name(resolved['id']) not in loaded_schemas:
                 loaded_schemas[get_name(resolved['id'])] = object_path
                 schema.update(resolved)
-                return _resolve_schema_references(schema, resolver, loaded_schemas, object_path)
+                schema = OrderedDict(schema)
+                return OrderedDict(_resolve_schema_references(schema, resolver, loaded_schemas,
+                                                              object_path))
 
             else:
                 res = {"$ref": loaded_schemas[get_name(resolved['id'])]}
                 schema.update(res)
 
     if SchemaKey.properties in schema:
-        for k, val in schema[SchemaKey.properties].items():
+        for k, val in OrderedDict(schema)[SchemaKey.properties].items():
             current_path = object_path + '/properties/'+k
-            schema[SchemaKey.properties][k] = _resolve_schema_references(val,
+            schema[SchemaKey.properties][k] = OrderedDict(_resolve_schema_references(val,
                                                                          resolver,
                                                                          loaded_schemas,
-                                                                         current_path)
+                                                                         current_path))
 
     if SchemaKey.definitions in schema:
-        for k, val in schema[SchemaKey.definitions].items():
+        for k, val in OrderedDict(schema)[SchemaKey.definitions].items():
             current_path = object_path + '/definitions/' + k
-            schema[SchemaKey.definitions][k] = _resolve_schema_references(val,
+            schema[SchemaKey.definitions][k] = OrderedDict(_resolve_schema_references(val,
                                                                           resolver,
                                                                           loaded_schemas,
-                                                                          current_path)
+                                                                          current_path))
 
     for pattern in SchemaKey.sub_patterns:
         i = 0
         if pattern in schema:
-            for val in schema[pattern]:
+            for val in OrderedDict(schema)[pattern]:
                 iterator = str(copy(i))
                 current_path = object_path + '/' + pattern + '/' + iterator
-                schema[pattern][i] = _resolve_schema_references(val,
+                schema[pattern][i] = OrderedDict(_resolve_schema_references(val,
                                                                 resolver,
                                                                 loaded_schemas,
-                                                                current_path)
+                                                                current_path))
                 i += 1
 
-    if SchemaKey.items in schema:
+    if SchemaKey.items in OrderedDict(schema):
         current_path = object_path + '/items'
-        schema[SchemaKey.items] = _resolve_schema_references(schema[SchemaKey.items],
+        schema[SchemaKey.items] = OrderedDict(_resolve_schema_references(schema[SchemaKey.items],
                                                              resolver,
                                                              loaded_schemas,
-                                                             current_path)
+                                                             current_path))
 
-    return schema
+    return OrderedDict(schema)
 
 
 class SchemaKey:
@@ -155,7 +148,7 @@ class SchemaKey:
 
 if __name__ == '__main__':
     processed_schemas = {}
-    schemaURL = 'https://w3id.org/dats/schema/study_schema.json#'
+    schemaURL = 'https://w3id.org/dats/schema/person_schema.json#'
 
     processed_schemas[get_name(schemaURL)] = '#'
 
