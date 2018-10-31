@@ -154,6 +154,24 @@ class Schema2CedarBase:
         """
 
         prop_context = {
+            "skos": {
+                "type": "string",
+                "format": "uri",
+                "enum": [
+                    "http://www.w3.org/2004/02/skos/core#"
+                ]
+            },
+            "skos:notation": {
+                "type": "object",
+                "properties": {
+                    "@type": {
+                        "type": "string",
+                        "enum": [
+                            "xsd:string"
+                        ]
+                    }
+                }
+            },
             "pav:createdOn": {
                 "properties": {
                     "@type": {
