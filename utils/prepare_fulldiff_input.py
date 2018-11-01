@@ -70,8 +70,8 @@ if __name__ == '__main__':
     mapping_1 = json.load(open(os.path.join(mapping_dir, "dats_mapping.json")))
     mapping_2 = json.load(open(os.path.join(mapping_dir, "miaca_mapping.json")))
 
-    network_1_schema_url = "https://w3id.org/dats/schema/dataset_schema.json"
-    network_2_schema_url = "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
+    network_1_schema_url = "https://w3id.org/dats/schema/person_schema.json"
+    network_2_schema_url = "https://w3id.org/mircat/miaca/schema/source_schema.json"
 
     output = prepare_input(network_1_schema_url, network_2_schema_url, mapping_1, mapping_2)
     print(output)

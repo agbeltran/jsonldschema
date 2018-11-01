@@ -52,9 +52,9 @@ class CompileSchemaTestCase(unittest.TestCase):
         schema = compile_schema.resolve_reference(schema_url)
         resolver = RefResolver(schema_url, schema, store={})
         data = compile_schema._resolve_schema_references(schema,
-                                                           resolver,
-                                                           processed_schemas,
-                                                           '#')
+                                                         resolver,
+                                                         processed_schemas,
+                                                         '#')
 
         output_value = json.loads(json.dumps(data))
         expected_output = json.loads(json.dumps(json.load(open('data/compile_test.json'))))
