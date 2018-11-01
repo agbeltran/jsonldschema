@@ -146,17 +146,3 @@ class SchemaKey:
     sub_patterns = ['anyOf', 'oneOf', 'allOf']
 
 
-if __name__ == '__main__':
-    processed_schemas = {}
-    schemaURL = 'https://w3id.org/dats/schema/person_schema.json#'
-
-    processed_schemas[get_name(schemaURL)] = '#'
-
-    data = resolve_schema_references(resolve_reference(schemaURL), processed_schemas, schemaURL)
-
-    with open('../tests/data/compile_test.json', 'w') as output_file:
-        json.dump(OrderedDict(data), output_file, indent=4)
-        output_file.close()
-
-
-
