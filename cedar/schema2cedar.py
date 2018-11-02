@@ -39,8 +39,11 @@ class Schema2CedarBase:
         """ Dump a given json in the given file
 
         :param json_object: the input JSON to dump
+        :type json_object: dict
         :param output_file: the file to dump the JSON to
+        :type output_file: str
         :return: the dumping result
+        :rtype: string
         """
         return json.dump(json_object,
                          output_file, sort_keys=False, indent=4, separators=(',', ': '))
