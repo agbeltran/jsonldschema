@@ -19,7 +19,8 @@ class FlowRepoClient:
     def __init__(self, mapping, base_schema, client_id):
         """ The class constructor
 
-        :param mapping: the mapping dictionary containing the jsonbender objects (see https://github.com/Onyo/jsonbender)
+        :param mapping: the mapping dictionary containing the jsonbender objects
+              (see https://github.com/Onyo/jsonbender)
         :param base_schema: the name of the schema to check against
         """
         self.errors = {}

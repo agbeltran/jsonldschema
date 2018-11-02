@@ -19,7 +19,8 @@ class NetworkCoverage:
 
     @staticmethod
     def __process_network(network):
-        """ Private method that retrieve the base type of each entity in a given network for later comparison
+        """ Private method that retrieve the base type of each entity in a given network
+        for later comparison
 
         :param network: a dictionary of schemas and their context (the network itself)
         :return network_output: a dictionary of schemas and their base type retrieved from the
