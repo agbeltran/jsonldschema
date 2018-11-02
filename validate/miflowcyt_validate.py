@@ -21,7 +21,7 @@ class FlowRepoClient:
 
         :param mapping: the mapping dictionary containing the jsonbender objects
             (see https://github.com/Onyo/jsonbender)
-        :param base_schema: the name of the schema to check against
+
         """
         self.errors = {}
         self.clientID = client_id
