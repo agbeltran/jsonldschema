@@ -8,3 +8,5 @@ UTILITIES TO VALIDATE SCHEMA AND INSTANCES
 .. automodule:: miflowcyt_validate
     :members:
 
+.. autoclass:: FlowRepoClient
+    :members:

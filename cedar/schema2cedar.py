@@ -13,13 +13,14 @@ loaded_specs = {}
 
 
 class Schema2CedarBase:
-    """
-    The base converter class, should not be called !
+    """ The base converter class
+
+    .. warning:: This class should not be used! Use its children for converting to cedar template and template elements
     """
 
     def __new__(cls, api_key, folder_id, user_id):
-        """
-        The base converter constructor
+        """ The base converter constructor
+
         :param api_key: tke API key to your CEDAR account
         :param folder_id: the folder ID to upload the data
         :param user_id: the user ID that will be the author of that data
@@ -35,8 +36,8 @@ class Schema2CedarBase:
 
     @staticmethod
     def json_pretty_dump(json_object, output_file):
-        """
-        Dump a given json in the given file
+        """ Dump a given json in the given file
+
         :param json_object: the input JSON to dump
         :param output_file: the file to dump the JSON to
         :return: the dumping result
@@ -46,8 +47,8 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_context():
-        """
-        Set the base context for a given template
+        """ Set the base context for a given template
+
         :return: the base context
         """
         return {
@@ -78,8 +79,8 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_properties_base_item():
-        """
-        Set the base properties required by CEDAR
+        """ Set the base properties required by CEDAR
+
         :return: the base property dictionary
         """
         return {
@@ -147,8 +148,8 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_prop_context(schema):
-        """
-        Set the required context for the properties attribute of the given schema
+        """ Set the required context for the properties attribute of the given schema
+
         :param schema: an input JSON schema
         :return: the properties context required by CEDAR
         """
@@ -264,8 +265,8 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_required_item(schema):
-        """
-        Set the required items that a CEDAR schema needs for a given schema
+        """ Set the required items that a CEDAR schema needs for a given schema
+
         :param schema: the input schema
         :return: the dictionary of required items
         """
@@ -363,8 +364,8 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_sub_context(schema):
-        """
-        Set the context required by CEDAR for each individual attribute/field for a given schema
+        """ Set the context required by CEDAR for each individual attribute/field for a given schema
+
         :param schema: the input schema
         :return: the dictionary of required context for each field
         """
@@ -391,11 +392,11 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_template_element_property_minimals(sub_context, schema):
-        """
-        Set the minimal elements of the properties attributes of a given schema and its sub-context
+        """ Set the minimal elements of the properties attributes of a given schema and its sub-context
+
         :param sub_context: the schema sub-context
         :param schema: the input schema
-        :return:
+        :return: (dict) a dictionary of the required properties for CEDAR conversion
         """
         properties = {
             "@context": sub_context,
@@ -449,8 +450,8 @@ class Schema2CedarBase:
 
     @staticmethod
     def set_stripped_properties(schema):
-        """
-        Set the properties of a given schema
+        """ Set the properties of a given schema
+
         :param schema: the input schema
         :return: a dictionary of properties
         """
@@ -465,9 +466,9 @@ class Schema2CedarBase:
 
 
 class Schema2CedarTemplate(Schema2CedarBase):
+    """ Schema 2 Template Converter, this is the one you want to use if you want to convert a schema into a template
     """
-    Schema 2 Template Converter, this is the one you want to use
-    """
+
     resources_path = os.path.join(os.path.dirname(__file__), "../resources/cedar")
     templateLoader = FileSystemLoader(searchpath=resources_path)
     templateEnv = Environment(loader=templateLoader)
@@ -475,8 +476,8 @@ class Schema2CedarTemplate(Schema2CedarBase):
     cedar_template = templateEnv.get_template(TEMPLATE_FILE)
 
     def convert_template(self, input_json_schema):
-        """
-        Method to convert a given schema into a CEDAR template
+        """ Method to convert a given schema into a CEDAR template
+
         :param input_json_schema: the input JSON schema
         :return: the schema converted into a template
         """
@@ -509,8 +510,11 @@ class Schema2CedarTemplate(Schema2CedarBase):
 
 
 class Schema2CedarTemplateElement(Schema2CedarBase):
-    """
-    Schema to TemplateElement converter, should not be called directly
+    """ Schema to TemplateElement converter.
+
+    .. warning:: Should only be used to convert schemas to template element. If you want to
+        convert a schema to a template, use Schema2CedarTemplate (it will automatically create nested template elements
+        for you)
     """
     resources_path = os.path.join(os.path.dirname(__file__), "../resources/cedar")
     templateLoader = FileSystemLoader(searchpath=resources_path)
@@ -519,8 +523,8 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
     cedar_template_element = templateEnv.get_template(TEMPLATE_FILE)
 
     def convert_template_element(self, input_json_schema, **kwargs):
-        """
-        Method to convert a given schema into a CEDAR template element
+        """ Method to convert a given schema into a CEDAR template element
+
         :param input_json_schema: the input schema
         :param kwargs: optional parameter to provide the field name referencing that schema
         :return: the schema converted to a CEDAR template element
@@ -573,8 +577,8 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
             logging.error("Error opening schema file")
 
     def find_sub_specs(self, schema, sub_spec_container):
-        """
-        Inspect a given schema to find and load its schemas dependencies
+        """ Inspect a given schema to find and load its schemas dependencies
+
         :param schema: the input schema
         :param sub_spec_container: a container that will hold the dependencies
         :return sub_spec_container: the filled container with the schema dependencies
@@ -657,8 +661,8 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
 
     @staticmethod
     def load_sub_spec(path_to_load, parent_schema, field_key):
-        """
-        Load the given sub schema into memory
+        """ Load the given sub schema into memory
+
         :param path_to_load: path to the sub schema
         :param parent_schema: the parent schema that this sub-schema is referenced from
         :param field_key: the parent schema field name that this sub-schema is referenced from
