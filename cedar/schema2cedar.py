@@ -15,7 +15,8 @@ loaded_specs = {}
 class Schema2CedarBase:
     """ The base converter class
 
-    .. warning:: This class should not be used! Use its children for converting to cedar template and template elements
+    .. warning:: This class should not be used! Use its children for converting to cedar template
+    and template elements
     """
 
     def __new__(cls, api_key, folder_id, user_id):
@@ -469,7 +470,8 @@ class Schema2CedarBase:
 
 
 class Schema2CedarTemplate(Schema2CedarBase):
-    """ Schema 2 Template Converter, this is the one you want to use if you want to convert a schema into a template
+    """ Schema 2 Template Converter, this is the one you want to use if you want
+    to convert a schema into a template
     """
 
     resources_path = os.path.join(os.path.dirname(__file__), "../resources/cedar")
@@ -516,8 +518,8 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
     """ Schema to TemplateElement converter.
 
     .. warning:: Should only be used to convert schemas to template element. If you want to
-        convert a schema to a template, use Schema2CedarTemplate (it will automatically create nested template elements
-        for you)
+        convert a schema to a template, use Schema2CedarTemplate (it will automatically
+        create nested template elements for you)
     """
     resources_path = os.path.join(os.path.dirname(__file__), "../resources/cedar")
     templateLoader = FileSystemLoader(searchpath=resources_path)
