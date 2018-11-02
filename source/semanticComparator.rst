@@ -1,5 +1,5 @@
-UTILITIES FOR SEMANTIC COMPARISON
-=================================
+Utilities for semantic comparison of JSON-LD-schemas
+====================================================
 
 .. automodule:: compareEntities
     :members:

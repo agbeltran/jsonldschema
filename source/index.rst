@@ -10,10 +10,10 @@ Welcome to jsonldschema's documentation!
    :maxdepth: 2
    :numbered:
 
-   cedarUtilities
    semanticComparator
    schemaUtilities
    validationUtilities
+   cedarUtilities
 
 
 Indices and tables

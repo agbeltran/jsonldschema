@@ -1,5 +1,5 @@
-UTILITIES TO VALIDATE SCHEMA AND INSTANCES
-==========================================
+Utilities to validate JSON-schemas and instances
+================================================
 
 .. automodule:: jsonschema_validator
     :members:
