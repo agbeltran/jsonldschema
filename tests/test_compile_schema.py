@@ -37,9 +37,10 @@ class CompileSchemaTestCase(unittest.TestCase):
         processed_schemas = {}
         schema_url = 'https://w3id.org/dats/schema/person_schema.json#'
         processed_schemas[compile_schema.get_name(schema_url)] = '#'
-        data = compile_schema.resolve_schema_references(compile_schema.resolve_reference(schema_url),
-                                                        processed_schemas,
-                                                        schema_url)
+        data = compile_schema.resolve_schema_references(
+                               compile_schema.resolve_reference(schema_url),
+                               processed_schemas,
+                               schema_url)
 
         output_value = json.loads(json.dumps(data))
         output_expected = json.loads(json.dumps(expected_output))

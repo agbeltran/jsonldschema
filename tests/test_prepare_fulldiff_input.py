@@ -21,10 +21,11 @@ class CompileSchemaTestCase(unittest.TestCase):
 
     def test_prepare_input(self):
         expected_output = json.loads(json.dumps(json.load(open('data/full_dats_miaca.json'))))
-        data = json.loads(json.dumps(prepare_fulldiff_input.prepare_input(self.network_1_schema_url,
-                                                                          self.network_2_schema_url,
-                                                                          self.mapping_1,
-                                                                          self.mapping_2)))
+        data = json.loads(json.dumps(
+                              prepare_fulldiff_input.prepare_input(self.network_1_schema_url,
+                                                                   self.network_2_schema_url,
+                                                                   self.mapping_1,
+                                                                   self.mapping_2)))
         self.assertTrue(DeepDiff(data, expected_output) == {})
 
     def test_load_context(self):

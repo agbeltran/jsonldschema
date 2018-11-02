@@ -48,19 +48,19 @@ def resolve_schema_ref(schema, resolver, network):
 
     if SchemaKey.properties in schema:
         for k, val in schema[SchemaKey.properties].items():
-            sub_schema = resolve_schema_ref(val, resolver, network)
+            resolve_schema_ref(val, resolver, network)
 
     if SchemaKey.definitions in schema:
         for k, val in schema[SchemaKey.definitions].items():
-            sub_schema = resolve_schema_ref(val, resolver, network)
+            resolve_schema_ref(val, resolver, network)
 
     for pattern in SchemaKey.sub_patterns:
         if pattern in schema:
             for val in schema[pattern]:
-                sub_schema = resolve_schema_ref(val, resolver, network)
+                resolve_schema_ref(val, resolver, network)
 
     if SchemaKey.items in schema:
-        sub_schema = resolve_schema_ref(schema[SchemaKey.items], resolver, network)
+        resolve_schema_ref(schema[SchemaKey.items], resolver, network)
 
     return network
 
