@@ -21,8 +21,9 @@ class FlowRepoClient:
         The class constructor
 
         Args:
-            mapping (dict): the mapping dictionary containing the jsonbender objects (see https://github.com/Onyo/jsonbender)
-            base_schema: the name of the schema to check against
+            - mapping (dict): the mapping dictionary containing the jsonbender objects (see
+                https://github.com/Onyo/jsonbender)
+            - base_schema: the name of the schema to check against
         """
         self.errors = {}
         self.clientID = client_id
@@ -94,7 +95,8 @@ class FlowRepoClient:
             - client_identifier (str): the user content ID
 
         Returns
-            - ids (list): a list of all IDs there were identified in the variable returned by the API
+            - ids (list): a list of all IDs there were identified in the variable returned by
+                the API
         """
         ids = []
         response = self.grab_user_content(client_identifier)
