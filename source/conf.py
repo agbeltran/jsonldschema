@@ -20,13 +20,10 @@ sys.path.insert(0, os.path.abspath('./../semDiff'))
 sys.path.insert(0, os.path.abspath('./../utils'))
 sys.path.insert(0, os.path.abspath('./../validate'))
 
-
-print(os.path.abspath('./../semDiff'))
-
 # -- Project information -----------------------------------------------------
 
 project = u'jsonldschema'
-copyright = u'2018, Dominique Batista'
+copyright = u'2018, Dominique Batista, OERC'
 author = u'Dominique Batista'
 
 # The short X.Y version
@@ -89,7 +86,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

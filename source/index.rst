@@ -8,35 +8,12 @@ Welcome to jsonldschema's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :numbered:
 
-.. automodule:: schema2cedar
-   :members:
-
-.. automodule:: compareEntities
-   :members:
-
-.. automodule:: compareNetwork
-   :members:
-
-.. automodule:: coverage
-   :members:
-
-.. automodule:: fullDiff
-   :members:
-
-.. automodule:: mergeEntities
-   :members:
-
-.. automodule:: schema2context
-   :members:
-
-.. automodule:: jsonschema_validator
-   :members:
-
-.. automodule:: miflowcyt_validate
-   :members:
-
+   cedarUtilities
+   semanticComparator
+   schemaUtilities
+   validationUtilities
 
 
 Indices and tables

@@ -19,9 +19,10 @@ class FlowRepoClient:
     def __init__(self, mapping, base_schema, client_id):
         """
         The class constructor
-        :param mapping: the mapping dictionary containing the jsonbender
-         objects (see https://github.com/Onyo/jsonbender)
-        :param base_schema: the name of the schema to check against
+
+        Args:
+            mapping (dict): the mapping dictionary containing the jsonbender objects (see https://github.com/Onyo/jsonbender)
+            base_schema: the name of the schema to check against
         """
         self.errors = {}
         self.clientID = client_id
@@ -31,8 +32,12 @@ class FlowRepoClient:
     def make_validation(self, number_of_items):
         """
         Method to run the mapping for the given number of items
-        :param number_of_items: the number of items to process
-        :return errors: a dictionary containing the list of errors for all processed items
+
+        Args
+            - number_of_items (int): the number of items to process
+
+        Returns
+            - errors (dict): a dictionary containing the list of errors for all processed items
         """
         content_ids = self.get_user_content_id(self.clientID)
 
@@ -70,8 +75,12 @@ class FlowRepoClient:
         """
         Grab all content for a given user ID as an XML and outputs it as a JSON.
         This method will grab all public experiments plus those only accessible to the user ID.
-        :param client_identifier: the user ID
-        :return: the dictionary containing the XML
+
+        Args:
+            - client_identifier (str): the user ID
+
+        Returns
+            - response (dict): the dictionary containing the XML
         """
         full_url = "http://flowrepository.org/list?client=" + client_identifier
         response = requests.request("GET", full_url)
@@ -80,8 +89,12 @@ class FlowRepoClient:
     def get_user_content_id(self, client_identifier):
         """
         Return all IDs found in the user content XML
-        :param client_identifier: the user content ID
-        :return: a list of all IDs there were identified in the variable returned by the API
+
+        Args:
+            - client_identifier (str): the user content ID
+
+        Returns
+            - ids (list): a list of all IDs there were identified in the variable returned by the API
         """
         ids = []
         response = self.grab_user_content(client_identifier)
@@ -101,9 +114,13 @@ class FlowRepoClient:
     def grab_experiment_from_api(client_identifier, item_identifier):
         """
         Retrieve the experimental metadata and return it as a python object
-        :param client_identifier: the client identifier (apiKey)
-        :param item_identifier: the item identifier that should be retrieved
-        :return: the python object obtained from the XML
+
+        Args:
+            - client_identifier (str): the client identifier (apiKey)
+            - item_identifier (str): the item identifier that should be retrieved
+
+        Returns:
+             - response (dict): the python dict obtained from the XML
         """
         full_url = "http://flowrepository.org/list/" \
                    + item_identifier \
@@ -116,10 +133,14 @@ class FlowRepoClient:
     def validate_instance_from_file(instance, item_id, schema_name):
         """
         Method to output the extracted JSON into a file and validate it against the given schema
-        :param instance: the instance to output into a file
-        :param item_id: the instance ID needed to create the file name
-        :param schema_name: the schema to check against
-        :return errors: a list of fields that have an error for this instance
+
+        Args:
+            - instance (dict): the instance to output into a file
+            - item_id (str): the instance ID needed to create the file name
+            - schema_name (str): the schema to check against
+
+        Returns
+            - errors: a list of fields that have an error for this instance
         """
 
         try:
@@ -146,8 +167,12 @@ class FlowRepoClient:
     def get_mapping(mapping_file_name):
         """
         Build the mapping dictionary based on the given mapping file
-        :param mapping_file_name: the name of the mapping file
-        :return mapping: the mapping of the fields
+
+        Args:
+            -  mapping_file_name: the name of the mapping file
+
+        Returns
+            - mapping: the mapping of the fields
         """
         try:
             mapping = {}
