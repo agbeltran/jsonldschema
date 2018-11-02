@@ -71,6 +71,10 @@ class TestFlowRepoClient(object):
         item_metadata = self.client.grab_experiment_from_api(self.client.clientID, "123")
         assert_true(item_metadata.status_code == 200)
 
+        self.mock_request.return_value.status_code = 404
+        item_metadata = self.client.grab_experiment_from_api(self.client.clientID, "123")
+        assert_true(item_metadata.status_code == 404)
+
     def test_validate_instance_from_file(self):
         validation = self.client.validate_instance_from_file({"test": "test"}, "test",
                                                              "test.test")
