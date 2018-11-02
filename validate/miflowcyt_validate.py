@@ -118,11 +118,8 @@ class FlowRepoClient:
                    + item_identifier \
                    + "?client=" \
                    + client_identifier
-        try:
-            response = requests.request("GET", full_url)
-            return response
-        except Exception:
-            return Exception(item_identifier + 'could not be found on the server')
+        response = requests.request("GET", full_url)
+        return response
 
     @staticmethod
     def validate_instance_from_file(instance, item_id, schema_name):

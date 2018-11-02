@@ -46,11 +46,11 @@ def validate_instance(schemapath, schemafile, instancepath, instancefile, error_
     validator = Draft4Validator(schema, resolver=resolver)
     logger.info("Validating instance %s against schema %s",
                 instancefile_fullpath, schemafile_fullpath)
-    if error_printing == 0:
+    if (error_printing == 0):
         errors = sorted(validator.iter_errors(instance), key=lambda e: e.path)
         for error in errors:
             print(error.message)
-    elif error_printing == 1:
+    elif (error_printing == 1):
         errors = sorted(validator.iter_errors(instance), key=lambda e: e.path)
 
     for error in errors:
