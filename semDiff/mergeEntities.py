@@ -8,8 +8,8 @@ class EntityMerge:
     """
 
     def __init__(self, schema1, context1, schema2, context2):
-        """
-        Constructor
+        """ Constructor
+
         :param schema1: dictionary of the first schema
         :param context1: dictionary of the first context as {"@context":{}}
         :param schema2: dictionary of the second schema
@@ -36,53 +36,3 @@ class EntityMerge:
             # if that field isn't already in the first schema
             if field_name not in schema1["properties"]:
                 self.output_schema["properties"][field_name] = schema2["properties"][field_name]
-
-        """
-        # Iterate over the second schema
-        for field in schema2["properties"]:
-
-            # Ignore some specific keys
-            if field not in ignored_keys:
-
-                # if the field is already in schema1 - syntactic equivalence
-                #if field in schema1["properties"]:
-
-                    # if this field has a semantic value for both schemas - semantic equivalence
-                    #if (field in context2['@context'].keys() and
-                    #        field in context1['@context'].keys()):
-
-                        #if those semantic values are different
-                        #if context1["@context"][field] != context2["@context"][field]:
-                        #    pass
-                        # else they are the same, schema1 has priority, so do nothing !
-
-                    # if this field only has a semantic value for schema2
-                    #if (field in context2['@context'].keys() and
-                    #        field not in context1['@context'].keys()):
-                    #    print("Process ??")
-
-                # the field name is not in schema1
-                #else:
-
-                    # if the field has a semantic value in the second context
-                    if field in context2["@context"].keys():
-                        field_semantic_twin = False
-
-                        for sem_field in context1["@context"]:
-
-                            # there's already a field in the first context with the same semantic
-                            # value
-                            if context1["@context"][sem_field] == context2["@context"][field]:
-                                print("PROCESS?")
-                                ### make sure that the merged schema/context include this field
-                                field_semantic_twin = True
-
-                        # there is no field in the first context with the same semantic value
-                        if field_semantic_twin is not True:
-                            self.output_context = context2["@context"][field]
-                            self.output_schema["properties"][field] = schema2["properties"][
-                                field]
-
-                    # the field doesn't have a semantic value in the second context
-                    self.output_schema["properties"][field] = schema2["properties"][field]
-        """

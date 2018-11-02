@@ -1,4 +1,4 @@
-Utilities  FOR PREPARING FUNCTIONS INPUT
+Utilities for preparing functions input
 =======================================
 
 .. automodule:: schema2context
