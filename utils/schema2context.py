@@ -2,6 +2,13 @@ from collections import OrderedDict
 
 
 def create_context_template(schema, semantic_types, name):
+    """ Create the context template
+
+    :param schema: the schema for which to build the context
+    :param semantic_types: the schema base type
+    :param name: the schema name
+    :return: a dictionary representing the schema context
+    """
     contexts = OrderedDict()
 
     jsonld_ignored_keys = ["@id", "@context", "@type"]
@@ -21,6 +28,11 @@ def create_context_template(schema, semantic_types, name):
 
 
 def process_schema_name(name):
+    """ Extract the name out of a schema composite name by remove unnecessary strings
+
+    :param name: a schema name
+    :return: a string representing the processed schema
+    """
     new_raw_name = name.replace("_schema.json", '').replace('.json', '')
     name_array = new_raw_name.split('_')
     output_name = ""

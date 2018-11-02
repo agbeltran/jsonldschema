@@ -4,10 +4,10 @@ from collections import namedtuple
 
 
 class EntityCoverage:
-    """
-     A class that compute the overlap between two JSON schemas semantic values taken from context
+    """ A class that compute the overlap between two JSON schemas semantic values taken from context
      files. This operation is not commutative. Thus, to find out if the schema/context pairs are
      equivalent, we need to run both semDiff(s_a, c_a, s_b, c_b) and semDiff(s_b, c_b, s_a, c_a)
+
      :param schema_a: the content of the first schema
      :param context_a: the context content bound to the first schema
      :param schema_b: the content of the second schema
@@ -37,13 +37,13 @@ class EntityCoverage:
         }
 
     def __build_context_dict(self, schema_input):
-        """
-        A private method that associate each field in a schema to it's semantic value in the
+        """ A private method that associate each field in a schema to it's semantic value in the
         context and reverse the result
+
         :param schema_input:
         :return sorted_values: a dictionary of semantic values and their corresponding field
         :return ignored_fields: a list of fields that were ignored due to having no semantic value
-        in the context file
+            in the context file
         """
         sorted_values = {}
         ignored_keys = ["@id", "@context", "@type"]
@@ -85,15 +85,15 @@ class EntityCoverage:
 
     @staticmethod
     def __process_field(field_name, field_value, context, comparator):
-        """
-        Private method that catches a given field semantic value from the given context and adds it
+        """ Private method that catches a given field semantic value from the given context and adds it
         to the output
+
         :param field_name: the name of the given field
         :param field_value: the value of the given field
         :param context: the context from which to retrieve the semantic value
         :param comparator: the output of __build_context_dict()
         :return comparator: a dictionary of semantic values and corresponding fields from the given
-        schema and context
+            schema and context
         """
 
         base_url = urlparse(field_value).scheme
@@ -117,15 +117,15 @@ class EntityCoverage:
 
     @staticmethod
     def __compute_context_coverage(context1, context2):
-        """
-        Private method that compares the fields from the two schemas based on their semantic values
+        """ Private method that compares the fields from the two schemas based on their semantic values
+
         :param context1: the final output of __build_context_dict() for the first schema
         :param context2: the final output of __build_context_dict() for the second schema
         :return local_overlap_value: a namedtuple containing relative and absolute coverage
         :return overlap_output: a dictionary that associate fields in schema 1 with their semantic
-        twins in schema 2
+            twins in schema 2
         :return unmatched_fields: a dictionary of all fields of the second schema that haven't
-        been matched in the first schema
+            been matched in the first schema
         """
 
         unmatched_fields = copy.deepcopy(context2)

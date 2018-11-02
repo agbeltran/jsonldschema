@@ -13,17 +13,17 @@ VALUE_RECOMMENDER_ENDPOINT = " http://valuerecommender.metadatacenter.org"
 
 
 class CEDARClient:
-    """A client for the CEDAR API"""
+    """ A client for the CEDAR API """
 
     def __init__(self):
         pass
 
     @staticmethod
     def get_headers(api_key):
-        """
-        Method to build the HTTP request header
+        """ Method to build the HTTP request header
+
         :param api_key: the API Key to your CEDAR account
-        :return headers: the HTTP headers
+        :return: the HTTP headers
         """
         headers = {
             "Content-Type": "application/json",
@@ -34,8 +34,8 @@ class CEDARClient:
 
     @staticmethod
     def select_endpoint(server_type):
-        """
-        Method to select the server (prod or dev)
+        """ Method to select the server (prod or dev)
+
         :param server_type: the type of server to select
         :return: the URL corresponding to the selected server
         """
@@ -46,13 +46,12 @@ class CEDARClient:
 
     @staticmethod
     def post(url, parameter, headers, directory):
-        """
-        Method to post data to the CEDAR selected server and log the process
+        """ Method to post data to the CEDAR selected server and log the process
+
         :param url: the URL to the selected server
-        :param parameter: ??
+        :param parameter: parameters of the HTTP request
         :param headers: the header required by the HTTP request
         :param directory: the directory where to saved the log file
-        :return: ??
         """
         log_file = os.path.join(directory, "log.txt")
         with open(log_file, 'a') as log:
@@ -91,8 +90,8 @@ class CEDARClient:
             print(elapsed_message)
 
     def get_users(self, endpoint_type, api_key):
-        """
-        Method to get all users from the server
+        """ Method to get all users from the server
+
         :param endpoint_type: url to the CEDAR selected server
         :param api_key: your CEDAR user API key
         :return: a request response
@@ -103,8 +102,8 @@ class CEDARClient:
         return response
 
     def validate_resource(self, api_key, request_url, resource):
-        """
-        Method to validate a resource against the server
+        """ Method to validate a resource against the server
+
         :param api_key: your CEDAR user API key
         :param request_url: the URL to run the validation from
         :param resource: the resource to validate
@@ -116,8 +115,8 @@ class CEDARClient:
         return response
 
     def validate_template(self, server_alias, api_key, template):
-        """
-        Method to validate a CEDAR template
+        """ Method to validate a CEDAR template
+
         :param server_alias: the URL to run the validation from
         :param api_key: your CEDAR user API key
         :param template: the resource to validate as a template
@@ -127,8 +126,8 @@ class CEDARClient:
         return self.validate_resource(api_key, request_url, template)
 
     def validate_element(self, server_alias, api_key, element):
-        """
-        Method to validate a CEDAR template element
+        """ Method to validate a CEDAR template element
+
         :param server_alias: the URL to run the validation from
         :param api_key: your CEDAR user API key
         :param element: the resource to validate as a template
@@ -138,36 +137,35 @@ class CEDARClient:
         return self.validate_resource(api_key, request_url, element)
 
     def validate_instance(self, server_address, api_key, instance):
-        """
-        Method to validate a JSON instance against the corresponding resource on CEDAR
+        """ Method to validate a JSON instance against the corresponding resource on CEDAR
+
         :param server_address: the CEDAR server URL
         :param api_key: your CEDAR user API key
         :param instance: the resource to validate as an instance
-        :return: a request response
+        :return:  a request response
         """
         request_url = server_address + "/command/validate?resource_type=instance"
         return self.validate_resource(api_key, request_url, instance)
 
     def upload_resource(self, api_key, request_url, resource):
-        """
-        Upload the given resource to the CEDAR server
+        """ Upload the given resource to the CEDAR server
+
         :param api_key: your CEDAR user API key
         :param request_url: the CEDAR server URL to post to
         :param resource: the resource to upload
-        :return:
+        :return: a response text loaded as a dictionary
         """
         headers = self.get_headers(api_key)
         response = requests.request("POST", request_url, headers=headers,
                                     data=json.dumps(resource), verify=True)
         if response.status_code == requests.codes.ok:
-            message = json.loads(response.text)
-            return message
+            return json.loads(response.text)
         else:
             response.raise_for_status()
 
     def get_template_content(self, endpoint_type, api_key, template_id):
-        """
-        Get the content of a CEDAR template
+        """ Get the content of a CEDAR template
+
         :param endpoint_type: the type of server to prompt
         :param api_key: your CEDAR user API key
         :param template_id: the CEDAR target template's ID
@@ -181,8 +179,8 @@ class CEDARClient:
         return response
 
     def get_folder_content(self, endpoint_type, api_key, folder_id):
-        """
-        Get the content of a folder from CEDAR
+        """ Get the content of a folder from CEDAR
+
         :param endpoint_type: the type of server to prompt
         :param api_key: your CEDAR user API key
         :param folder_id: the CEDAR target folder's ID
@@ -195,8 +193,8 @@ class CEDARClient:
         return response
 
     def create_template(self, endpoint_type, api_key, folder_id, template_file):
-        """
-        Post a new schema to the selected folder id
+        """ Post a new schema to the selected folder id
+
         :param endpoint_type: the type of server to prompt
         :param api_key: your CEDAR user API key
         :param folder_id: the CEDAR target folder's ID
@@ -217,11 +215,11 @@ class CEDARClient:
                       target_folder_id,
                       new_folder_name,
                       new_folder_description):
-        """
-        Create a folder with new_folder_name in the target_folder_id location
+        """ Create a folder with new_folder_name in the target_folder_id location
+
         :param endpoint_type: the type of server to prompt
         :param api_key: your CEDAR user API key
-        :param target_folder_id: the CEDAR target folder's ID where the new folder will be created
+        :param target_folder_id: he CEDAR target folder's ID where the new folder will be created
         :param new_folder_name: the new folder name to create
         :param new_folder_description: the new folder description to create
         :return: a request response
@@ -238,35 +236,33 @@ class CEDARClient:
         return response
 
     def delete_folder(self, endpoint_type, api_key, folder_id):
-        """
-        Delete a given folder from the server
+        """ Delete a given folder from the server
+
         :param endpoint_type: the type of server to prompt
         :param api_key: your CEDAR user API key
         :param folder_id: the CEDAR target folder's ID
         :return: a request response
         """
-        """ Delete the selected folder """
         headers = self.get_headers(api_key)
         requests_url = self.select_endpoint(endpoint_type) \
             + "/folders/" + urllib.parse.quote_plus(folder_id)
         response = requests.request("DELETE", requests_url, headers=headers)
         return response
 
-    def create_template_element(self, endpoint_type, api_key, folder_id, template_file):
-        """
-        Create a new template element on the given server
+    def create_template_element(self, endpoint_type, api_key, folder_id, template_resource):
+        """ Create a new template element on the given server
+
         :param endpoint_type: the type of server to prompt
         :param api_key: your CEDAR user API key
         :param folder_id: the CEDAR target folder's ID
-        :param template_file: the resource to post
+        :param template_resource: the resource to post
         :return: a request response
         """
-        """ Upload the schema to the selected folder id """
         headers = self.get_headers(api_key)
         request_url = self.select_endpoint(endpoint_type) \
             + "/template-elements?folder_id=https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" \
             + folder_id
-        with open(template_file, 'r') as template:
+        with open(template_resource, 'r') as template:
             upload_schema = json.load(template)
         response = requests.request("POST", request_url,
                                     headers=headers, data=json.dumps(upload_schema), verify=True)
@@ -278,6 +274,7 @@ class CEDARClient:
         :param endpoint_type: "staging" or "production"
         :param api_key: your CEDAR user API key
         :param template_file: the full path to a local template JSON file
+        :return: a request response
         """
         headers = self.get_headers(api_key)
         with open(template_file, 'r') as template:
@@ -291,13 +288,13 @@ class CEDARClient:
         return response
 
     def upload_element(self, server_alias, api_key, schema_file, remote_folder_id):
-        """
-        Upload a template element to the server
+        """ Upload a template element to the server
+
         :param server_alias: the type of server to prompt
         :param api_key: your CEDAR user API key
         :param schema_file: the full path to a local template element JSON file
         :param remote_folder_id: the CEDAR target folder's ID
-        :return:
+        :return: a request response
         """
         request_url = self.select_endpoint(server_alias) \
             + "/template-elements?folder_id=" + remote_folder_id

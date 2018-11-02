@@ -10,8 +10,8 @@ class FullSemDiff:
     """
 
     def __init__(self, contexts, network_1, network_2):
-        """
-        The class constructor
+        """ The class constructor
+
         :param contexts: an array containing the two context networks to use
         :param network_1: a dictionary containing the first set of schemas
         :param network_2: a dictionary containing the second set of schemas
