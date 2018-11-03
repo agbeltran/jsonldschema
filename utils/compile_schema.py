@@ -9,8 +9,8 @@ iterables = ['anyOf', 'oneOf', 'allOf']
 
 
 def resolve_reference(schema_url):
-    """
-    Load and decode the schema from a given URL
+    """ Load and decode the schema from a given URL
+
     :param schema_url: the URL to the schema
     :return: an exception or a decoded json schema as a dictionary
     """
@@ -21,8 +21,8 @@ def resolve_reference(schema_url):
 
 
 def get_name(schema_url):
-    """
-    Extract the item name from it's URL
+    """ Extract the item name from it's URL
+
     :param schema_url: the URL of the schema
     :return name: the name of the schema (eg: 'item_schema.json')
     """
@@ -31,7 +31,7 @@ def get_name(schema_url):
 
 
 def resolve_schema_references(schema, loaded_schemas, schema_url=None, refs=None):
-    """Resolves and replaces json-schema $refs with the appropriate dict.
+    """ Resolves and replaces json-schema $refs with the appropriate dict.
     Recursively walks the given schema dict, converting every instance
     of $ref in a 'properties' structure with a resolved dict.
     This modifies the input schema and also returns it.
@@ -59,9 +59,9 @@ def resolve_schema_references(schema, loaded_schemas, schema_url=None, refs=None
 
 
 def _resolve_schema_references(schema, resolver, loaded_schemas, object_path):
-    """
-    Iterate over the json until it find a $ref and replace it with the loaded object or a
+    """ Iterate over the json until it find a $ref and replace it with the loaded object or a
     reference to an already loaded object
+
     :param schema: the schema or portion of schema to process
     :param resolver: the RefResolver object that will realize the task of loading/updating the
     object
