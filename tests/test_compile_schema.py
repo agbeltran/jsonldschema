@@ -13,8 +13,6 @@ class TestCaseSchemaCompiler(object):
     def setup_class(cls):
         cls.mock_resolver_patcher = patch('utils.compile_schema.RefResolver.resolve')
         cls.mock_resolver = cls.mock_resolver_patcher.start()
-        cls.mock_request_patcher = patch('utils.compile_schema.requests.request')
-        cls.mock_request = cls.mock_request_patcher.start()
         cls.mock_json_patcher = patch('utils.compile_schema.json.loads')
         cls.mock_json = cls.mock_json_patcher.start()
         cls.compiler = compile_schema
@@ -22,7 +20,6 @@ class TestCaseSchemaCompiler(object):
     @classmethod
     def teardown_class(cls):
         cls.mock_resolver_patcher.stop()
-        cls.mock_request_patcher.stop()
         cls.mock_json_patcher.stop()
 
     def test_get_name(self):
@@ -37,7 +34,6 @@ class TestCaseSchemaCompiler(object):
 
     def test_resolve_reference_exception(self):
         tested_output = self.compiler.resolve_reference("123")
-        print(tested_output)
         eq_(type(tested_output), type)
 
     def test_schema_key_class(self):

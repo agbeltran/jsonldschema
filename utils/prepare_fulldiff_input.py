@@ -13,7 +13,6 @@ def prepare_input(schema_1_url, schema_2_url, mapping_1, mapping_2):
     :param mapping_2: a mapping to contexts
     :return: a fully prepared variable with all resolved references ready to be used by full_diff
     """
-
     network_1_schemas = {
         'schemas': resolve_network(schema_1_url),
         'name': mapping_1['networkName'],
@@ -51,12 +50,13 @@ def resolve_network(schema_url):
     """
     network_schemas = {}
     schema_content = json.loads(requests.get(schema_url).text)
+    print(schema_content)
     resolver = RefResolver(schema_url, schema_content, store={})
     return resolve_schema_ref(schema_content, resolver, network_schemas)
 
 
 def resolve_schema_ref(schema, resolver, network):
-    """ Recursively resolves the references in the schemas and add them to the networt
+    """ Recursively resolves the references in the schemas and add them to the network
 
     .. warning:: use resolve network instead
 
