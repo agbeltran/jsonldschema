@@ -1,69 +1,118 @@
-import unittest
-import os
-import json
-from deepdiff import DeepDiff
-from jsonschema.validators import RefResolver
+from collections import OrderedDict
+from nose.tools import eq_
+from mock import patch
 from utils import compile_schema
 
 
-class CompileSchemaTestCase(unittest.TestCase):
+class TestCaseSchemaCompiler(object):
 
     def __init__(self, *args, **kwargs):
-        super(CompileSchemaTestCase, self).__init__(*args, **kwargs)
+        super(TestCaseSchemaCompiler, self).__init__(*args, **kwargs)
 
-    def setUp(self):
-        self.schema_URL = "https://w3id.org/dats/schema/study_schema.json#"
-        mapping_dir = os.path.join(os.path.dirname(__file__), "data")
+    @classmethod
+    def setup_class(cls):
+        cls.mock_resolver_patcher = patch('utils.compile_schema.RefResolver.resolve')
+        cls.mock_resolver = cls.mock_resolver_patcher.start()
+        cls.mock_request_patcher = patch('utils.compile_schema.requests.request')
+        cls.mock_request = cls.mock_request_patcher.start()
+        cls.mock_json_patcher = patch('utils.compile_schema.json.loads')
+        cls.mock_json = cls.mock_json_patcher.start()
+        cls.compiler = compile_schema
 
-        with open(os.path.join(mapping_dir, "study_schema.json")) as file_opened:
-            self.study_schema = json.load(file_opened)
-            file_opened.close()
-        with open(os.path.join(mapping_dir, "compile_test.json")) as file_opened:
-            self.expected_output = json.load(file_opened)
-            file_opened.close()
-
-    def test_resolve_reference(self):
-        ref_resolved = compile_schema.resolve_reference(self.schema_URL)
-        output_value = json.loads(json.dumps(ref_resolved))
-        output_expected = json.loads(json.dumps(self.study_schema))
-        self.assertTrue(DeepDiff(output_value, output_expected) == {})
-
-        ref_2_resolved = compile_schema.resolve_reference("fakeURL")
-        self.assertTrue(isinstance(ref_2_resolved, type))
-        # TODO: test for exception, not type
+    @classmethod
+    def teardown_class(cls):
+        cls.mock_resolver_patcher.stop()
+        cls.mock_request_patcher.stop()
+        cls.mock_json_patcher.stop()
 
     def test_get_name(self):
-        expected_output = "study_schema.json"
-        schema_name = compile_schema.get_name(self.schema_URL)
-        self.assertTrue(schema_name == expected_output)
+        expected_name = self.compiler.get_name("https://w3id.org/dats/schema/study_schema.json#")
+        eq_(expected_name, 'study_schema.json')
+
+    def test_resolve_reference(self):
+        self.mock_json.return_value = "{'test':'test'}"
+        tested_output = self.compiler.resolve_reference("https://w3id.org/dats/schema/person_schema.json#")
+        eq_(tested_output, self.mock_json.return_value)
+        self.mock_json_patcher.stop()
+
+    def test_resolve_reference_exception(self):
+        tested_output = self.compiler.resolve_reference("123")
+        print(tested_output)
+        eq_(type(tested_output), type)
+
+    def test_schema_key_class(self):
+        tested_output = self.compiler.SchemaKey
+        eq_(tested_output.ref, "$ref")
+        eq_(tested_output.items, "items")
+        eq_(tested_output.properties, "properties")
+        eq_(tested_output.definitions, "definitions")
+        eq_(tested_output.pattern_properties, "patternProperties")
+        eq_(tested_output.sub_patterns, ['anyOf', 'oneOf', 'allOf'])
 
     def test_resolve_schema_references(self):
 
-        expected_output = self.expected_output
-        processed_schemas = {}
-        schema_url = 'https://w3id.org/dats/schema/person_schema.json#'
-        processed_schemas[compile_schema.get_name(schema_url)] = '#'
-        data = compile_schema.resolve_schema_references(
-                               compile_schema.resolve_reference(schema_url),
-                               processed_schemas,
-                               schema_url)
+        schema = {
+            "id": "schemas/test.json#",
+            "definitions": {
+                "field_1": {"$ref": "second_test.json#"}
+            },
+            "properties": {
+                "field_1": {"$ref": "second_test.json#"},
+                "field_2": {
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "second_test.json"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+        loaded_schemas = {
+            "test.json": schema,
+        }
+        self.mock_json_patcher.start()
+        self.mock_resolver.return_value = ["", {
+            "id": "schemas/second_test.json",
+            "properties": {
+                "name": {
+                    "description": "test description",
+                    "type": "string"
+                }
+            }
+        }]
 
-        output_value = json.loads(json.dumps(data))
-        output_expected = json.loads(json.dumps(expected_output))
-        self.assertTrue(DeepDiff(output_value, output_expected) == {})
+        expected_output = OrderedDict({
+            "id": "schemas/test.json#",
+            "definitions": {
+                "field_1": OrderedDict({"$ref": "#/properties/field_1"})
+            },
+            "properties": {
+                "field_1": OrderedDict({
+                    "id": "schemas/second_test.json",
+                    "properties": {
+                        "name": OrderedDict({
+                            "description": "test description",
+                            "type": "string"
+                        })
+                    }
+                }),
+                "field_2": OrderedDict({
+                    "type": "array",
+                    "items": OrderedDict({
+                        "anyOf": [{
+                            "$ref": "#/properties/field_1"
+                        }]
+                    })
+                })
+            }
+        })
 
-    def test__resolve_schema_references(self):
-        schema_url = 'https://w3id.org/dats/schema/person_schema.json#'
-        processed_schemas = {compile_schema.get_name(schema_url): '#'}
+        output_json = self.compiler.resolve_schema_references(schema, loaded_schemas)
+        eq_(output_json, expected_output)
 
-        schema = compile_schema.resolve_reference(schema_url)
-        resolver = RefResolver(schema_url, schema, store={})
-        data = compile_schema._resolve_schema_references(schema,
-                                                         resolver,
-                                                         processed_schemas,
-                                                         '#')
+        output_json = self.compiler.resolve_schema_references(schema, loaded_schemas, "123")
+        eq_(output_json, expected_output)
 
-        output_value = json.loads(json.dumps(data))
-        expected_output = json.loads(json.dumps(self.expected_output))
-
-        self.assertTrue(DeepDiff(output_value, expected_output) == {})
