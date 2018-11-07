@@ -70,10 +70,8 @@ class TestCaseSchemaCompiler(object):
         expected_output = json.loads(open(
                                     os.path.join(data_path,
                                                  "expected_output_field1_field2.json")).read())
-        print("expected output --->", expected_output)
-
         output_json = self.compiler.resolve_schema_references(schema, loaded_schemas)
-        print("------>", diff.DeepDiff(output_json, expected_output))
+
         eq_(output_json, expected_output)
 
         output_json = self.compiler.resolve_schema_references(schema, loaded_schemas, "123")
