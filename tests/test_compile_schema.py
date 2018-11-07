@@ -28,7 +28,8 @@ class TestCaseSchemaCompiler(object):
 
     def test_resolve_reference(self):
         self.mock_json.return_value = "{'test':'test'}"
-        tested_output = self.compiler.resolve_reference("https://w3id.org/dats/schema/person_schema.json#")
+        tested_output = self.compiler.resolve_reference(
+            "https://w3id.org/dats/schema/person_schema.json#")
         eq_(tested_output, self.mock_json.return_value)
         self.mock_json_patcher.stop()
 
@@ -111,4 +112,3 @@ class TestCaseSchemaCompiler(object):
 
         output_json = self.compiler.resolve_schema_references(schema, loaded_schemas, "123")
         eq_(output_json, expected_output)
-

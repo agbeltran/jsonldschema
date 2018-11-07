@@ -34,9 +34,8 @@ class TestCasePrepareFullDiffInput(object):
         }
 
         context = {
-            "@context":
-                {
-                    'test':"sdo:test"
+            "@context":  {
+                    'test': "sdo:test"
                 }
         }
 
