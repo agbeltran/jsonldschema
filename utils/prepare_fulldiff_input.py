@@ -50,7 +50,7 @@ def resolve_network(schema_url):
     """
     network_schemas = {}
     schema_content = json.loads(requests.get(schema_url).text)
-    print(schema_content)
+    network_schemas[get_name(schema_content['id'])] = schema_content
     resolver = RefResolver(schema_url, schema_content, store={})
     return resolve_schema_ref(schema_content, resolver, network_schemas)
 
@@ -67,7 +67,7 @@ def resolve_schema_ref(schema, resolver, network):
     """
 
     if SchemaKey.ref in schema and schema['$ref'][0] != '#':
-        reference_path = schema.pop(SchemaKey.ref, None)
+        reference_path = schema[SchemaKey.ref]
         resolved = resolver.resolve(reference_path)[1]
         if type(resolved) != Exception:
             network[get_name(resolved['id'])] = resolved
