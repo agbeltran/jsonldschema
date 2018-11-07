@@ -21,7 +21,6 @@ class TestCaseSchemaCompiler(object):
     @classmethod
     def teardown_class(cls):
         cls.mock_resolver_patcher.stop()
-        #cls.mock_json_patcher.stop()
 
     def test_get_name(self):
         expected_name = self.compiler.get_name("https://w3id.org/dats/schema/study_schema.json#")
@@ -52,12 +51,12 @@ class TestCaseSchemaCompiler(object):
     def test_resolve_schema_references(self):
 
         data_path = os.path.join(os.path.dirname(__file__), "./data")
-        schema = json.loads(open(os.path.join(data_path, "schema_field1_field2.json")).read(), object_pairs_hook=OrderedDict)
+        schema = json.loads(open(os.path.join(data_path, "schema_field1_field2.json")).read(),
+                            object_pairs_hook=OrderedDict)
 
         loaded_schemas = {
             "test.json": schema,
         }
-        #self.mock_json_patcher.start()
         self.mock_resolver.return_value = ["", {
             "id": "schemas/second_test.json",
             "properties": {
@@ -68,7 +67,9 @@ class TestCaseSchemaCompiler(object):
             }
         }]
 
-        expected_output = json.loads(open(os.path.join(data_path, "expected_output_field1_field2.json")).read()) #, object_pairs_hook=OrderedDict)
+        expected_output = json.loads(open(
+                                    os.path.join(data_path,
+                                                 "expected_output_field1_field2.json")).read())
         print("expected output --->", expected_output)
 
         output_json = self.compiler.resolve_schema_references(schema, loaded_schemas)
