@@ -4,6 +4,7 @@ import os
 import time
 import datetime
 import urllib.parse
+from utils import to_boolean
 
 
 STAGING_RESOURCE_API_ENDPOINT = "https://resource.staging.metadatacenter.org"
@@ -107,12 +108,16 @@ class CEDARClient:
         :param api_key: your CEDAR user API key
         :param request_url: the URL to run the validation from
         :param resource: the resource to validate
-        :return: a request response
+        :return: True or False, depending if the resource validated or not, and a message
         """
         headers = self.get_headers(api_key)
         response = requests.request("POST", request_url,
                                     headers=headers, data=json.dumps(resource), verify=True)
-        return response
+        if response.status_code == requests.codes.ok:
+            message = json.loads(response.text)
+            return to_boolean(message["validates"]), message
+        else:
+            response.raise_for_status()
 
     def validate_template(self, server_alias, api_key, template):
         """ Method to validate a CEDAR template
