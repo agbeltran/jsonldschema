@@ -4,7 +4,6 @@ from mock import patch
 from utils import compile_schema
 import os
 import json
-from deepdiff import diff
 
 
 class TestCaseSchemaCompiler(object):
