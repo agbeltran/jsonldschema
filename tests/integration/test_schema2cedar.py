@@ -75,7 +75,7 @@ class TestSchema2Cedar(unittest.TestCase):
 
         eq_(DeepDiff(converted_schema, cedar_schema, exclude_paths=ignored_paths), {})
 
-    def convert_template(self):
+    def test_convert_template(self):
 
         with open(self.input_schema_file, 'r') as orig_schema_file:
             # Load the JSON schema and close the file
@@ -108,7 +108,7 @@ class TestSchema2Cedar(unittest.TestCase):
         else:
             raise Exception('Invalid template conversion: ', validation_message)
 
-    def convert_template_element(self):
+    def test_convert_template_element(self):
 
         print("input schema--->", self.input_schema_file)
 
@@ -143,9 +143,3 @@ class TestSchema2Cedar(unittest.TestCase):
             print(response)
         else:
             raise Exception('Invalid template element conversion: ', validation_message)
-
-    def test_convert_template(self):
-        self.convert_template()
-
-    def test_convert_template_element(self):
-        self.convert_template_element()
