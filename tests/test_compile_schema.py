@@ -53,7 +53,7 @@ class TestCaseSchemaCompiler(object):
             "definitions": {
                 "field_1": {"$ref": "second_test.json#"}
             },
-            "properties": {
+            "properties": OrderedDict({
                 "field_1": {"$ref": "second_test.json#"},
                 "field_2": {
                     "type": "array",
@@ -65,7 +65,7 @@ class TestCaseSchemaCompiler(object):
                         ]
                     }
                 }
-            }
+            })
         }
         loaded_schemas = {
             "test.json": schema,
