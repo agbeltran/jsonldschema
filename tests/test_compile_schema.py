@@ -48,13 +48,15 @@ class TestCaseSchemaCompiler(object):
 
     def test_resolve_schema_references(self):
 
-        schema = {
+        schema = OrderedDict({
             "id": "schemas/test.json#",
             "definitions": {
                 "field_1": {"$ref": "second_test.json#"}
             },
             "properties": OrderedDict({
-                "field_1": {"$ref": "second_test.json#"},
+                "field_1": {
+                    "$ref": "second_test.json#"
+                },
                 "field_2": {
                     "type": "array",
                     "items": {
@@ -66,7 +68,7 @@ class TestCaseSchemaCompiler(object):
                     }
                 }
             })
-        }
+        })
         loaded_schemas = {
             "test.json": schema,
         }
