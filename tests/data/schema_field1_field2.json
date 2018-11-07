@@ -1,0 +1,21 @@
+{
+  "id": "schemas/test.json#",
+  "definitions": {
+    "field_1": {"$ref": "second_test.json#"}
+  },
+  "properties": {
+  "field_1": {
+    "$ref": "second_test.json#"
+  },
+  "field_2": {
+    "type": "array",
+    "items": {
+      "anyOf": [
+        {
+          "$ref": "second_test.json"
+        }
+      ]
+    }
+  }
+}
+}
