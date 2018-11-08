@@ -119,7 +119,9 @@ class CEDARClientTestCase(unittest.TestCase):
         self.assertTrue(response.text is not None)
 
     def test_delete_elements(self):
-        responses = self.client.delete_elements("production", self.production_api_key, self.folder_id)
+        responses = self.client.delete_elements("production",
+                                                self.production_api_key,
+                                                self.folder_id)
         for response in responses:
             self.assertTrue(response.status_code == 204)
 
@@ -149,4 +151,3 @@ class CEDARClientTestCase(unittest.TestCase):
 
     def test_validate_element_vendor(self):
         self.validate_element("vendor_cedar_schema.json", "production", self.production_api_key)
-
