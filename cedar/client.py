@@ -254,6 +254,20 @@ class CEDARClient:
         response = requests.request("DELETE", requests_url, headers=headers)
         return response
 
+    def delete_element(self, endpoint_type, api_key, element_id):
+        """ Delete a given folder from the server
+
+        :param endpoint_type: the type of server to prompt
+        :param api_key: your CEDAR user API key
+        :param folder_id: the CEDAR target folder's ID
+        :return: a request response
+        """
+        headers = self.get_headers(api_key)
+        requests_url = self.select_endpoint(endpoint_type) \
+                       + "/folders/" + urllib.parse.quote_plus(element_id)
+        response = requests.request("DELETE", requests_url, headers=headers)
+        return response
+
     def create_template_element(self, endpoint_type, api_key, folder_id, template_resource):
         """ Create a new template element on the given server
 
@@ -270,7 +284,10 @@ class CEDARClient:
         with open(template_resource, 'r') as template:
             upload_schema = json.load(template)
         response = requests.request("POST", request_url,
-                                    headers=headers, data=json.dumps(upload_schema), verify=True)
+                                    headers=headers,
+                                    data=json.dumps(upload_schema),
+                                    verify=True)
+        print(response.content)
         return response
 
     def update_template(self, endpoint_type, api_key, template_file):
