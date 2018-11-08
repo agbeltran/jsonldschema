@@ -9,9 +9,9 @@ class CEDARClientTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(CEDARClientTestCase, self).__init__(*args, **kwargs)
 
-        configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json")
+        configfile_path = os.path.join(os.path.dirname(__file__), "../test_config.json")
         if not (os.path.exists(configfile_path)):
-            configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json.sample")
+            configfile_path = os.path.join(os.path.dirname(__file__), "../test_config.json.sample")
         with open(configfile_path) as config_data_file:
             config_json = json.load(config_data_file)
             self.validate_config(config_json)
@@ -117,6 +117,9 @@ class CEDARClientTestCase(unittest.TestCase):
                                                        self.person_schema_path)
         self.assertTrue(response.status_code == 201)
         self.assertTrue(response.text is not None)
+
+    def test_delete_elements(self):
+        test = self.client.delete_elements("production", self.production_api_key, self.folder_id)
 
     """
     Common method for the tests validating the elements

@@ -254,19 +254,41 @@ class CEDARClient:
         response = requests.request("DELETE", requests_url, headers=headers)
         return response
 
-    def delete_element(self, endpoint_type, api_key, element_id):
-        """ Delete a given folder from the server
+    def delete_elements(self, endpoint_type, api_key, folder_id):
+        """ Delete the elements and templates inside a folder
 
         :param endpoint_type: the type of server to prompt
         :param api_key: your CEDAR user API key
         :param folder_id: the CEDAR target folder's ID
         :return: a request response
         """
-        headers = self.get_headers(api_key)
-        requests_url = self.select_endpoint(endpoint_type) \
-                       + "/folders/" + urllib.parse.quote_plus(element_id)
-        response = requests.request("DELETE", requests_url, headers=headers)
-        return response
+
+        target_types = ["element", "template"]
+        target_mapping = {
+            "element": "template-elements",
+            "template": "templates"
+        }
+
+        for target_type in target_types:
+
+            headers = self.get_headers(api_key)
+            endpoint = self.select_endpoint(endpoint_type)
+            targets_url = endpoint + \
+                          "/folders/https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" + \
+                          folder_id + \
+                          "/contents?resource_types=" + \
+                          target_type + \
+                          "&version=all&publication_status=all&sort=name&limit=500"
+
+            target_responses = requests.request("GET", targets_url, headers=headers)
+            for resource in json.loads(target_responses.text)["resources"]:
+                target_id = resource['@id'].split('/')[-1]
+                delete_url = endpoint + "/" + \
+                             target_mapping[target_type] + \
+                             '/https%3A%2F%2Frepo.metadatacenter.org%2F' + \
+                             target_mapping[target_type] + \
+                             '%2F' + target_id
+                delete_response = requests.request("DELETE", delete_url, headers=headers)
 
     def create_template_element(self, endpoint_type, api_key, folder_id, template_resource):
         """ Create a new template element on the given server
