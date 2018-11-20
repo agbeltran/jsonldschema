@@ -101,7 +101,9 @@ class TestClient(object):
     def test_delete_element(self):
         self.mock_request.return_value.status_code = 204
         self.mock_request.return_value.text = '{"resources":[{"@id":"42/"}]}'
-        responses = self.client.delete_elements('production', self.production_api_key, self.folder_id)
+        responses = self.client.delete_elements('production',
+                                                self.production_api_key,
+                                                self.folder_id)
         for response in responses:
             eq_(response.status_code, 204)
 
