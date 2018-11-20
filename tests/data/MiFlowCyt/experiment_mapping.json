@@ -14,7 +14,7 @@
   },
   "organization": {
     "value": "organizations",
-    "benderOption": "inject"
+    "benderOption": "simple"
   },
   "purpose": "purpose",
   "keywords": "keywords",
