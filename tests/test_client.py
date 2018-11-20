@@ -98,6 +98,13 @@ class TestClient(object):
         response = self.client.delete_folder('production', self.production_api_key, self.folder_id)
         eq_(response.status_code, 204)
 
+    def test_delete_element(self):
+        self.mock_request.return_value.status_code = 204
+        self.mock_request.return_value.text = '{"resources":[{"@id":"42/"}]}'
+        responses = self.client.delete_elements('production', self.production_api_key, self.folder_id)
+        for response in responses:
+            eq_(response.status_code, 204)
+
     def test_create_folder(self):
         self.mock_request.return_value.status_code = 201
         response = self.client.create_folder("production",
