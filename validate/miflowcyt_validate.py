@@ -4,6 +4,7 @@ import xml.etree.ElementTree as elemTree
 from json import dump, load
 import os
 import jsonbender
+from copy import deepcopy
 from validate.jsonschema_validator import validate_instance
 
 
@@ -57,10 +58,27 @@ class FlowRepoClient:
                         extracted_json = jsonbender.bend(self.MAPPING, experience_metadata)
                         if extracted_json['organization'] == "\n   ":
                             extracted_json['organization'] = {}
+
+                        if 'keywords' in extracted_json.keys() and 'keyword' in extracted_json['keywords'].keys():
+                            extracted_json['keywords'] = extracted_json['keywords']['keyword']
+
+                        if 'organization' in extracted_json.keys() and 'organization' in extracted_json['organization'].keys():
+                            extracted_json['organization'] = extracted_json['organization']['organization']
+
+                        if 'other' not in extracted_json.keys() or extracted_json['other'] == None:
+                            extracted_json['other'] = {}
+
+                        if 'related-publications' in extracted_json.keys() and \
+                                'publication' in extracted_json['related-publications'].keys():
+                            extracted_json['other']['related-publications'] = deepcopy(
+                                extracted_json['related-publications']['publication'])
+
                         validation = self.validate_instance_from_file(extracted_json,
                                                                       content_ids[i],
                                                                       self.base_schema)
                         self.errors[content_ids[i]] = validation
+
+                return self.errors
             except IndexError:
                 return Exception("The number of available items is inferior to the number you "
                                  "ask for")
@@ -128,7 +146,7 @@ class FlowRepoClient:
                                           "../tests/data/MiFlowCyt/" + file_name)
 
             with open(file_full_path, 'w') as outfile:
-                dump(instance, outfile)
+                dump(instance, outfile, indent=4)
             outfile.close()
 
             errors = validate_instance(

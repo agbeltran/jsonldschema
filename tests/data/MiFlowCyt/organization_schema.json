@@ -35,7 +35,14 @@
     },
     "address": {
       "description": "Address of the organization.",
-      "type": "string"
+      "anyOf": [
+          {
+              "type": "object"
+          },
+          {
+              "type": "string"
+          }
+      ]
     }
   }
 }

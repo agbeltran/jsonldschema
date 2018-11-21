@@ -4,6 +4,7 @@ import json
 import xmljson
 import jsonbender
 import xml.etree.ElementTree as elemTree
+from copy import deepcopy
 
 from validate import miflowcyt_validate
 
@@ -70,17 +71,24 @@ class FlowRepoClientTestCase(unittest.TestCase):
 
     def test_validate_instance_from_file(self):
 
-        experiment_xml = self.client.grab_experiment_from_api(self.api_key, 'FR-FCM-ZZZ3')
+        experiment_xml = self.client.grab_experiment_from_api(self.api_key, 'FR-FCM-ZZY6')
         experience_metadata = xmljson.parker.data((elemTree.fromstring(
             experiment_xml.text)))["public-experiments"]["experiment"]
-        print(json.dumps(experience_metadata, indent=4))
+
         extracted_json = jsonbender.bend(self.client.get_mapping(map_file), experience_metadata)
 
-        #extracted_json = {"test": "test"}
-        print(json.dumps(extracted_json, indent=4))
-        validation = self.client.validate_instance_from_file(extracted_json,
-                                                             'FR-FCM-ZZZ3',
-                                                             base_schema)
+        extracted_json['keywords'] = extracted_json['keywords']['keyword']
+        extracted_json['organization'] = extracted_json['organization']['organization']
+        extracted_json['other'] = {}
+        extracted_json['other']['related-publications'] = deepcopy(extracted_json['related-publications']
+                                                                   ['publication'])
+        del extracted_json['related-publications']
 
-        print(validation)
-        self.assertTrue(validation != [])
+        validation = self.client.validate_instance_from_file(extracted_json, 'FR-FCM-ZZY6', base_schema)
+        self.assertTrue(validation == [])
+
+    def test_make_validation(self):
+        errors = self.client.make_validation(1)
+        for itemKey in errors:
+            print(itemKey, errors[itemKey])
+            self.assertTrue(errors[itemKey] == [])
