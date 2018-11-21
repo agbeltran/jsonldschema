@@ -35,14 +35,15 @@ class FlowRepoClientTestCase(unittest.TestCase):
         try:
             self.assertTrue(config_data['flowrepo_userID'])
         except (KeyError, AssertionError):
-            print("Please set your Flow Repository user ID key in the test_config.json file before "
-                  "running tests")
+            print("Please set your Flow Repository user ID key in the test_config.json "
+                  "file before running tests")
             quit(0)
 
     def setUp(self):
         self.client = miflowcyt_validate.FlowRepoClient(map_file, base_schema, self.api_key)
         self.mappingKeys = {
-            "date", "primaryContact", "qualityControlMeasures", "conclusions", "organization", "purpose",
+            "date", "primaryContact", "qualityControlMeasures",
+            "conclusions", "organization", "purpose",
             "keywords", "experimentVariables", "other"
         }
         self.user_ids = [
@@ -80,11 +81,13 @@ class FlowRepoClientTestCase(unittest.TestCase):
         extracted_json['keywords'] = extracted_json['keywords']['keyword']
         extracted_json['organization'] = extracted_json['organization']['organization']
         extracted_json['other'] = {}
-        extracted_json['other']['related-publications'] = deepcopy(extracted_json['related-publications']
-                                                                   ['publication'])
+        extracted_json['other']['related-publications'] = deepcopy(
+            extracted_json['related-publications']['publication'])
         del extracted_json['related-publications']
 
-        validation = self.client.validate_instance_from_file(extracted_json, 'FR-FCM-ZZY6', base_schema)
+        validation = self.client.validate_instance_from_file(extracted_json,
+                                                             'FR-FCM-ZZY6',
+                                                             base_schema)
         self.assertTrue(validation == [])
 
     def test_make_validation(self):

@@ -59,13 +59,17 @@ class FlowRepoClient:
                         if extracted_json['organization'] == "\n   ":
                             extracted_json['organization'] = {}
 
-                        if 'keywords' in extracted_json.keys() and 'keyword' in extracted_json['keywords'].keys():
+                        if 'keywords' in extracted_json.keys() and \
+                                'keyword' in extracted_json['keywords'].keys():
                             extracted_json['keywords'] = extracted_json['keywords']['keyword']
 
-                        if 'organization' in extracted_json.keys() and 'organization' in extracted_json['organization'].keys():
-                            extracted_json['organization'] = extracted_json['organization']['organization']
+                        if 'organization' in extracted_json.keys() and \
+                                'organization' in extracted_json['organization'].keys():
+                            extracted_json['organization'] = extracted_json['organization'][
+                                                                            'organization']
 
-                        if 'other' not in extracted_json.keys() or extracted_json['other'] == None:
+                        if 'other' not in extracted_json.keys() \
+                                or extracted_json['other'] is None:
                             extracted_json['other'] = {}
 
                         if 'related-publications' in extracted_json.keys() and \
