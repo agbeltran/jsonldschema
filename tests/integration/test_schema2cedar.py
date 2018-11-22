@@ -25,8 +25,8 @@ class TestSchema2Cedar(unittest.TestCase):
         super(TestSchema2Cedar, self).__init__(*args, **kwargs)
         data_path = os.path.join(os.path.dirname(__file__), "../data/")
         self.input_schema_file = os.path.join(data_path, "person_schema.json")
-        self.output_schema_file = os.path.join(data_path, "person_schema_out.json")
-        self.cedar_schema_file = os.path.join(data_path, "dataset_cedar_schema.json")
+        self.output_schema_file_element = os.path.join(data_path, "person_schema_element_out.json")
+        self.output_schema_file_template = os.path.join(data_path, "person_schema_template_out.json")
 
     def setUp(self):
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
@@ -96,7 +96,7 @@ class TestSchema2Cedar(unittest.TestCase):
 
         if validation_response:
             # save the converted file
-            output_schema_file = open(os.path.join(self.cedar_schema_file), "w")
+            output_schema_file = open(os.path.join(self.output_schema_file_template), "w")
             self.template.json_pretty_dump(json.loads(output_schema), output_schema_file)
             output_schema_file.close()
 
@@ -116,22 +116,30 @@ class TestSchema2Cedar(unittest.TestCase):
         orig_schema_file.close()
 
         output_schema = self.templateElement.convert_template_element(schema_as_json)
+
+        print("----- output schema -------")
+        print(output_schema)
+        print("----- end of output schema -------")
+
         validation_response, validation_message = self.client.validate_element("production",
                                                                                self.templateElement.production_api_key,
                                                                                json.loads(output_schema))
+
+
+
         print("validation response---> ", validation_response)
         print("validation message---> ", validation_message)
 
         if validation_response:
             # save the converted file
-            output_schema_file = open(self.output_schema_file, "w")
+            output_schema_file = open(self.output_schema_file_element, "w")
             self.template.json_pretty_dump(output_schema, output_schema_file)
             output_schema_file.close()
 
             response = self.client.create_template_element("production",
                                                            self.templateElement.production_api_key,
                                                            self.templateElement.folder_id,
-                                                           os.path.join(self.output_schema_file))
+                                                           os.path.join(self.output_schema_file_element))
             print(response.json())
         else:
             raise Exception('Invalid template element conversion: ', validation_message)
