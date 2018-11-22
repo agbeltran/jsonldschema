@@ -83,9 +83,10 @@ class TestSchema2Cedar(unittest.TestCase):
         orig_schema_file.close()
 
         output_schema = self.template.convert_template(schema_as_json)
-        validation_response, validation_message = self.client.validate_template("production",
-                                                                                self.template.production_api_key,
-                                                                                json.loads(output_schema))
+        validation_response, validation_message = self.client.validate_template(
+            "production",
+            self.template.production_api_key,
+            json.loads(output_schema))
 
         print("validation response---> ", validation_response)
         print("validation message---> ", json.dumps(validation_message))
@@ -100,10 +101,11 @@ class TestSchema2Cedar(unittest.TestCase):
             self.template.json_pretty_dump(json.loads(output_schema), output_schema_file)
             output_schema_file.close()
 
-            response = self.client.create_template("production",
-                                               self.template.production_api_key,
-                                               self.template.folder_id,
-                                               output_schema)
+            response = self.client.create_template(
+                "production",
+                self.template.production_api_key,
+                self.template.folder_id,
+                output_schema)
             print(response)
         else:
             raise Exception('Invalid template conversion: ', validation_message)
@@ -117,15 +119,16 @@ class TestSchema2Cedar(unittest.TestCase):
 
         output_schema = self.templateElement.convert_template_element(schema_as_json)
 
+
         print("----- output schema -------")
         print(output_schema)
         print("----- end of output schema -------")
 
-        validation_response, validation_message = self.client.validate_element("production",
-                                                                               self.templateElement.production_api_key,
-                                                                               json.loads(output_schema))
 
-
+        validation_response, validation_message = self.client.validate_element(
+            "production",
+            self.templateElement.production_api_key,
+            json.loads(output_schema))
 
         print("validation response---> ", validation_response)
         print("validation message---> ", validation_message)
