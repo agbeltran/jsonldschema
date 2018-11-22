@@ -3,7 +3,6 @@ import unittest
 import json
 from deepdiff import DeepDiff
 from nose.tools import eq_
-from requests import request
 from cedar import schema2cedar, client
 
 
@@ -27,7 +26,8 @@ class TestSchema2Cedar(unittest.TestCase):
         data_path = os.path.join(os.path.dirname(__file__), "../data/")
         self.input_schema_file = os.path.join(data_path, "person_schema.json")
         self.output_schema_file_element = os.path.join(data_path, "person_schema_element_out.json")
-        self.output_schema_file_template = os.path.join(data_path, "person_schema_template_out.json")
+        self.output_schema_file_template = os.path.join(data_path,
+                                                        "person_schema_template_out.json")
 
     def setUp(self):
         self._data_dir = os.path.join(os.path.dirname(__file__), "data")
@@ -141,7 +141,8 @@ class TestSchema2Cedar(unittest.TestCase):
             response = self.client.create_template_element("production",
                                                            self.templateElement.production_api_key,
                                                            self.templateElement.folder_id,
-                                                           os.path.join(self.output_schema_file_element))
+                                                           os.path.join(
+                                                               self.output_schema_file_element))
             print(response.json())
         else:
             raise Exception('Invalid template element conversion: ', validation_message)
