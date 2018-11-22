@@ -321,7 +321,7 @@ class CEDARClient:
             upload_schema = json.load(template)
         response = requests.request("POST", request_url,
                                     headers=headers,
-                                    data=json.dumps(upload_schema),
+                                    data=upload_schema,
                                     verify=True)
         print(response.content)
         return response

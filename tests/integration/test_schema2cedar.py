@@ -107,7 +107,7 @@ class TestSchema2Cedar(unittest.TestCase):
                 self.template.production_api_key,
                 self.template.folder_id,
                 output_schema)
-            print(response)
+            print(response.json())
         else:
             raise Exception('Invalid template conversion: ', validation_message)
 
