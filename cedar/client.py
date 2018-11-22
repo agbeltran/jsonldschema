@@ -4,6 +4,7 @@ import os
 import time
 import datetime
 import urllib.parse
+from utils import to_boolean
 
 
 STAGING_RESOURCE_API_ENDPOINT = "https://resource.staging.metadatacenter.org"
@@ -107,12 +108,16 @@ class CEDARClient:
         :param api_key: your CEDAR user API key
         :param request_url: the URL to run the validation from
         :param resource: the resource to validate
-        :return: a request response
+        :return: True or False, depending if the resource validated or not, and a message
         """
         headers = self.get_headers(api_key)
         response = requests.request("POST", request_url,
                                     headers=headers, data=json.dumps(resource), verify=True)
-        return response
+        if response.status_code == requests.codes.ok:
+            message = json.loads(response.text)
+            return to_boolean(message["validates"]), message
+        else:
+            response.raise_for_status()
 
     def validate_template(self, server_alias, api_key, template):
         """ Method to validate a CEDAR template
@@ -249,6 +254,56 @@ class CEDARClient:
         response = requests.request("DELETE", requests_url, headers=headers)
         return response
 
+    def delete_elements(self, endpoint_type, api_key, folder_id):
+        """ Delete the elements and templates inside a folder
+
+        :param endpoint_type: the type of server to prompt
+        :param api_key: your CEDAR user API key
+        :param folder_id: the CEDAR target folder's ID
+        :return: a request response
+        """
+
+        target_types = ["element", "template"]
+        responses = []
+        for target_type in target_types:
+
+            headers = self.get_headers(api_key)
+            endpoint = self.select_endpoint(endpoint_type)
+
+            targets_url = str(endpoint +
+                              "/folders/https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F" +
+                              folder_id +
+                              "/contents?resource_types=" +
+                              target_type +
+                              "&version=all&publication_status=all&sort=name&limit=500")
+
+            target_responses = requests.request("GET", targets_url, headers=headers)
+            for resource in json.loads(target_responses.text)["resources"]:
+                target_id = resource['@id'].split('/')[-1]
+                if target_type == 'template':
+                    response = self.delete_template(endpoint, api_key, target_id)
+                else:
+                    response = self.delete_template_element(endpoint, api_key, target_id)
+                responses.append(response)
+        return responses
+
+    def delete_template(self, endpoint, api_key, template_id):
+        request_url = endpoint + \
+                      "/templates/https%3A%2F%2Frepo.metadatacenter.org%2Ftemplates%2F" + \
+                      template_id
+        headers = self.get_headers(api_key)
+        response = requests.request("DELETE", request_url, headers=headers)
+        return response
+
+    def delete_template_element(self, endpoint, api_key, template_id):
+        request_url = endpoint + \
+                      "/template-elements/https%3A%2F%2Frepo.metadatacenter.org" + \
+                      "%2Ftemplate-elements%2F" + \
+                      template_id
+        headers = self.get_headers(api_key)
+        response = requests.request("DELETE", request_url, headers=headers)
+        return response
+
     def create_template_element(self, endpoint_type, api_key, folder_id, template_resource):
         """ Create a new template element on the given server
 
@@ -265,7 +320,10 @@ class CEDARClient:
         with open(template_resource, 'r') as template:
             upload_schema = json.load(template)
         response = requests.request("POST", request_url,
-                                    headers=headers, data=json.dumps(upload_schema), verify=True)
+                                    headers=headers,
+                                    data=upload_schema,
+                                    verify=True)
+        print(response.content)
         return response
 
     def update_template(self, endpoint_type, api_key, template_file):

@@ -65,16 +65,26 @@ class TestClient(object):
         eq_(response.status_code, 200)
 
     def test_validate_template(self):
+        mock_json_patcher = patch('cedar.client.json.loads')
+        mock_json = mock_json_patcher.start()
+
         self.mock_request.return_value["validates"] = True
         self.mock_request.return_value["warnings"] = []
         self.mock_request.return_value["errors"] = []
+        mock_json.return_value = {
+            "validates": True,
+            "warnings": [],
+            "errors": []
+        }
+
         with open(self.template_path_with_id, 'r') as template_content:
             template = json.load(template_content)
         response = self.client.validate_template("production", self.production_api_key, template)
-
-        assert_true(response["validates"])
-        eq_(len(response["warning"]), 0)
-        eq_(len(response["errors"]), 0)
+        print(response)
+        assert_true(response[1]["validates"])
+        eq_(len(response[1]["warnings"]), 0)
+        eq_(len(response[1]["errors"]), 0)
+        mock_json_patcher.stop()
 
     def test_get_folder_content(self):
         self.mock_request.return_value.status_code = 200
@@ -87,6 +97,15 @@ class TestClient(object):
         self.mock_request.return_value.status_code = 204
         response = self.client.delete_folder('production', self.production_api_key, self.folder_id)
         eq_(response.status_code, 204)
+
+    def test_delete_element(self):
+        self.mock_request.return_value.status_code = 204
+        self.mock_request.return_value.text = '{"resources":[{"@id":"42/"}]}'
+        responses = self.client.delete_elements('production',
+                                                self.production_api_key,
+                                                self.folder_id)
+        for response in responses:
+            eq_(response.status_code, 204)
 
     def test_create_folder(self):
         self.mock_request.return_value.status_code = 201
