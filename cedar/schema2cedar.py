@@ -681,7 +681,6 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
 
                     # REFINING HERE -> DELETE ALL ITEMS FROM SERVER!!
                     # (or change algo to validate all templates first.
-                    print(schema)
                     raise ValueError("'anyOf' and 'oneOf' are not "
                                      "supported by CEDAR (schema affected: )")
 
@@ -754,6 +753,10 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
         if url_to_load:
             if field_key not in loaded_specs.keys():
                 string_from_url = requests.request("GET", url_to_load)
+                print("STRING: ", string_from_url)
+                print("STRING: ", string_from_url.text)
                 string_to_json = json.loads(string_from_url.text)
+            else:
+                string_to_json = loaded_specs[field_key]
 
         return string_to_json

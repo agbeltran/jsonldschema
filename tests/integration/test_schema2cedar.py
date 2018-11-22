@@ -3,6 +3,7 @@ import unittest
 import json
 from deepdiff import DeepDiff
 from nose.tools import eq_
+from requests import request
 from cedar import schema2cedar, client
 
 
@@ -91,9 +92,9 @@ class TestSchema2Cedar(unittest.TestCase):
         print("validation response---> ", validation_response)
         print("validation message---> ", json.dumps(validation_message))
 
-        print("----- output schema -------")
+        print("----- start of output schema for template -------")
         print(output_schema)
-        print("----- end of output schema -------")
+        print("----- end of output schema for template -------")
 
         if validation_response:
             # save the converted file
@@ -119,11 +120,9 @@ class TestSchema2Cedar(unittest.TestCase):
 
         output_schema = self.templateElement.convert_template_element(schema_as_json)
 
-
-        print("----- output schema -------")
+        print("----- start of output schema for template element-------")
         print(output_schema)
-        print("----- end of output schema -------")
-
+        print("----- end of output schema for template element -------")
 
         validation_response, validation_message = self.client.validate_element(
             "production",
