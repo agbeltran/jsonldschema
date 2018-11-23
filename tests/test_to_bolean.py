@@ -10,3 +10,6 @@ class ToBooleanTestCase(unittest.TestCase):
 
         val2 = utils.to_boolean("no")
         self.assertTrue(val2 is False)
+
+        val3 = utils.to_boolean("pouet")
+        self.assertTrue(isinstance(val3, Exception))
