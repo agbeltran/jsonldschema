@@ -5,4 +5,4 @@ def to_boolean(value):
         return True
     if str(value).lower() in ("no",  "n", "false", "f", "0", "0.0", "", "none", "[]", "{}"):
         return False
-    raise Exception('Invalid value for boolean conversion: ' + str(value))
+    return Exception('Invalid value for boolean conversion: ' + str(value))
