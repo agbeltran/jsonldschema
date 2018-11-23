@@ -38,7 +38,7 @@ class FlowRepoClient:
         content_ids = self.get_user_content_id(self.clientID)
 
         if isinstance(content_ids, Exception):
-            return Exception
+            return Exception("Error with client ID " + self.clientID)
 
         else:
             try:
