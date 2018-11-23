@@ -9,9 +9,6 @@ import sys
 import os
 
 
-loaded_specs = {}
-
-
 class Schema2CedarBase:
     """ The base converter class
 
@@ -33,6 +30,7 @@ class Schema2CedarBase:
             cls.production_api_key = api_key
             cls.folder_id = folder_id
             cls.user_id = user_id
+            cls.loaded_specs = {}
         return object.__new__(cls)
 
     @staticmethod
@@ -687,7 +685,7 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                 # if the schema_path is set
                 if schema_as_json is not None:
 
-                    if itemKey not in loaded_specs.keys():
+                    if itemKey not in self.loaded_specs.keys():
                         temp_spec = json.loads(self.convert_template_element(schema_as_json,
                                                                              fieldKey=itemKey))
 
@@ -715,17 +713,16 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                         else:
                             sub_spec = temp_spec
 
-                        loaded_specs[itemKey] = sub_spec
+                        self.loaded_specs[itemKey] = sub_spec
 
                     else:
-                        sub_spec = loaded_specs[itemKey]
+                        sub_spec = self.loaded_specs[itemKey]
 
                     sub_spec_container[itemKey] = sub_spec
 
         return sub_spec_container
 
-    @staticmethod
-    def load_sub_spec(path_to_load, parent_schema, field_key):
+    def load_sub_spec(self, path_to_load, parent_schema, field_key):
         """ Load the given sub schema into memory
 
         :param path_to_load: path to the sub schema
@@ -751,10 +748,10 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                 orig_schema_file.close()
 
         if url_to_load:
-            if field_key not in loaded_specs.keys():
+            if field_key not in self.loaded_specs.keys():
                 string_from_url = requests.request("GET", url_to_load)
                 string_to_json = json.loads(string_from_url.text)
             else:
-                string_to_json = loaded_specs[field_key]
+                string_to_json = self.loaded_specs[field_key]
 
         return string_to_json
