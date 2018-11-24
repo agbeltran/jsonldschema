@@ -14,7 +14,11 @@
   },
   "organization": {
     "value": "organizations",
-    "benderOption": "inject"
+    "benderOption": "raiseErrors"
+  },
+  "related-publications": {
+    "value": "related-publications",
+    "benderOption": "raiseErrors"
   },
   "purpose": "purpose",
   "keywords": "keywords",

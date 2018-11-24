@@ -36,7 +36,7 @@ class TestFlowRepoClient(object):
         assert_true(isinstance(mapping['keywords'], jsonbender.selectors.OptionalS))
         assert_true(isinstance(mapping['other'], jsonbender.selectors.OptionalS))
         assert_true(isinstance(mapping['primaryContact'], jsonbender.selectors.S))
-        assert_true(isinstance(mapping['organization'], jsonbender.selectors.F))
+        assert_true(isinstance(mapping['organization'], jsonbender.selectors.S))
         assert_true(isinstance(mapping['purpose'], jsonbender.selectors.OptionalS))
         assert_true(isinstance(mapping['qualityControlMeasures'], jsonbender.selectors.OptionalS))
         assert_true(isinstance(mapping['conclusions'], jsonbender.selectors.K))
@@ -80,3 +80,16 @@ class TestFlowRepoClient(object):
         self.mock_request.return_value.status_code = 401
         validation = self.client.make_validation(1)
         assert_true(isinstance(validation, Exception))
+
+        self.mock_request.return_value.status_code = 404
+        validation2 = self.client.make_validation(1)
+        assert_true(isinstance(validation2, Exception))
+
+        mock_get_user_content_patcher = mock.patch(
+            "validate.miflowcyt_validate.FlowRepoClient.get_user_content_id")
+        mock_get_user_content = mock_get_user_content_patcher.start()
+        mock_get_user_content.return_value = ["123"]
+        self.mock_request.return_value.status_code = 404
+        validation3 = self.client.make_validation(1)
+        assert_true(isinstance(validation3, Exception))
+        mock_get_user_content_patcher.stop()
