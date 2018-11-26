@@ -45,3 +45,13 @@ other local JSON schemas. These two schemas are needed for the following cases:
 be automatically given by the server); 
 - when updating a template, the ID is retrieved automatically from the file and 
 the corresponding template gets updated on the server.
+
+## License
+This code is provided under [BSD 3-Clause License](https://github.com/FAIRsharing/jsonldschema/blob/master/LICENSE.md)
+
+## Contact
+
+- [Alejandra Gonzalez-Beltran](http://github.com/agbeltran)
+- [Dominique Batista](http://github.com/terazus)
+
+
