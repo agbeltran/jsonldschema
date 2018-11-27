@@ -1,7 +1,35 @@
 import json
 import requests
+import os
 from jsonschema.validators import RefResolver
 from utils.compile_schema import SchemaKey, get_name
+
+mapping_dir = os.path.join(os.path.dirname(__file__), "../tests/data")
+
+
+def prepare_multiple_input(networks_mapping):
+
+    networks = []
+
+    for network in networks_mapping:
+        mapping_file = os.path.join(mapping_dir, network[1])
+        try:
+            with open(mapping_file) as mapper:
+                mapping = json.load(mapper)
+                mapper.close()
+
+                resolved_network = {
+                    "schemas": resolve_network(network[0]),
+                    "name": mapping["networkName"],
+                    "contexts": load_context(mapping)
+                }
+
+                networks.append(resolved_network)
+
+        except FileNotFoundError:
+            raise FileNotFoundError("Error with one of your context file")
+
+    return networks
 
 
 def prepare_input(schema_1_url, schema_2_url, mapping_1, mapping_2):
@@ -89,3 +117,19 @@ def resolve_schema_ref(schema, resolver, network):
         resolve_schema_ref(schema[SchemaKey.items], resolver, network)
 
     return network
+
+
+if __name__ == '__main__':
+
+    networks_map = [
+        ["https://w3id.org/dats/schema/person_schema.json", "dats_mapping.json"],
+        ["https://w3id.org/mircat/miaca/schema/source_schema.json", "miaca_mapping.json"],
+        ["https://w3id.org/dats/schema/person_schema.json", "dats_mapping.json"]
+    ]
+
+    input_networks = {"networks": prepare_multiple_input(networks_map)}
+    if not isinstance(input_networks, FileNotFoundError):
+        output_file = os.path.join(mapping_dir, "fullDiff_input_example.json")
+        with open(output_file, "w") as file_to_write:
+            file_to_write.write(json.dumps(input_networks, indent=4))
+            file_to_write.close()
