@@ -98,12 +98,17 @@ class HTMLGenerator:
         """
 
         self.output_dir = os.path.join(os.path.dirname(__file__), "html")
-        self.htmlCode = json2html.convert(json=diff.output)
+        self.htmlCode = "<HTML>"
+        for overlap in diff.output:
+            self.htmlCode += json2html.convert(json=overlap)
+            self.htmlCode += "<HR>"
+            self.htmlCode += "</HTML>"
 
     def generate_html(self):
         file_name = os.path.join(self.output_dir, "test.html")
+        print(self.htmlCode)
         with open(file_name, "w") as html_file:
-            html_file.write(json.dumps(self.htmlCode))
+            html_file.write(self.htmlCode)
             html_file.close()
         webbrowser.get('firefox').open_new_tab(file_name)
 
