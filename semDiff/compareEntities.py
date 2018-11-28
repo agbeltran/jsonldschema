@@ -145,7 +145,8 @@ class EntityCoverage:
                     for second_field_val in context2[field]:
                         local_overlap = Overlap(first_field_val, second_field_val)
                         overlap_output.append(local_overlap)
-                        del unmatched_fields[field]
+                        if field in unmatched_fields:
+                            del unmatched_fields[field]
 
         absolute_coverage = namedtuple('AbsoluteCoverage', ['overlap_number', 'total_fields'])
         local_coverage = absolute_coverage(str(overlap_number), str(processed_field))
