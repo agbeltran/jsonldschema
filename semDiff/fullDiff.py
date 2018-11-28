@@ -1,7 +1,10 @@
+import os
 from collections import namedtuple
 from copy import deepcopy
 import json
+import webbrowser
 from semDiff import compareNetwork, compareEntities
+from json2html import *
 
 
 class FullSemDiff:
@@ -78,13 +81,31 @@ class FullSemDiffMultiple:
 
     def compute_overlap(self, start_position=0):
         for i in range(start_position + 1, len(self.networks)):
-            print(start_position, 'VS', i)
             contexts = [self.networks[start_position]["contexts"], self.networks[i]["contexts"]]
             coverage = FullSemDiff(contexts, self.networks[start_position]["schemas"], self.networks[i]["schemas"])
-            print(coverage.twins)
+            self.output.append(coverage.twins)
 
         if start_position < len(self.networks):
             self.compute_overlap(start_position + 1)
+
+
+class HTMLGenerator:
+
+    def __init__(self, diff):
+        """ Output overlaps as an HTML file
+        :param diff: a FullSemDiffMultiple object
+        :type diff: FullSemDiffMultiple
+        """
+
+        self.output_dir = os.path.join(os.path.dirname(__file__), "html")
+        self.htmlCode = json2html.convert(json=diff.output)
+
+    def generate_html(self):
+        file_name = os.path.join(self.output_dir, "test.html")
+        with open(file_name, "w") as html_file:
+            html_file.write(json.dumps(self.htmlCode))
+            html_file.close()
+        webbrowser.get('firefox').open_new_tab(file_name)
 
 
 if __name__ == '__main__':
@@ -93,3 +114,5 @@ if __name__ == '__main__':
         input_file.close()
 
     fullDiff = FullSemDiffMultiple(data['networks'])
+    report = HTMLGenerator(fullDiff)
+    report.generate_html()
