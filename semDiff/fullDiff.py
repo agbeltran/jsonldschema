@@ -80,10 +80,14 @@ class FullSemDiffMultiple:
         self.compute_overlap()
 
     def compute_overlap(self, start_position=0):
+        local_overlap = []
         for i in range(start_position + 1, len(self.networks)):
             contexts = [self.networks[start_position]["contexts"], self.networks[i]["contexts"]]
             coverage = FullSemDiff(contexts, self.networks[start_position]["schemas"], self.networks[i]["schemas"])
-            self.output.append(coverage.twins)
+            local_overlap.append(coverage.twins)
+
+        if len(local_overlap) > 0:
+            self.output.append(local_overlap)
 
         if start_position < len(self.networks):
             self.compute_overlap(start_position + 1)
@@ -98,19 +102,23 @@ class HTMLGenerator:
         """
 
         self.output_dir = os.path.join(os.path.dirname(__file__), "html")
+        self.diff = diff
         self.htmlCode = "<HTML>"
-        for overlap in diff.output:
+        for overlap in self.diff.output:
             self.htmlCode += json2html.convert(json=overlap)
             self.htmlCode += "<HR>"
-            self.htmlCode += "</HTML>"
+        self.htmlCode += "</HTML>"
 
     def generate_html(self):
         file_name = os.path.join(self.output_dir, "test.html")
-        print(self.htmlCode)
         with open(file_name, "w") as html_file:
             html_file.write(self.htmlCode)
             html_file.close()
         webbrowser.get('firefox').open_new_tab(file_name)
+
+    def convert_to_html(self):
+        for overlap in self.diff.output:
+            print(overlap)
 
 
 if __name__ == '__main__':
@@ -118,6 +126,6 @@ if __name__ == '__main__':
         data = json.load(input_file)
         input_file.close()
 
-    fullDiff = FullSemDiffMultiple(data['networks'])
-    report = HTMLGenerator(fullDiff)
-    report.generate_html()
+    report = HTMLGenerator(FullSemDiffMultiple(data['networks']))
+    #report.generate_html()
+    report.convert_to_html()
