@@ -2,6 +2,7 @@ from collections import OrderedDict
 import requests
 import json
 import os
+from utils.prepare_fulldiff_input import resolve_network
 
 
 def create_context_template(schema, semantic_types, name):
@@ -131,3 +132,30 @@ def create_network_context(network_file, semantic_types):
                 output_file.write(json.dumps(local_context[context_type], indent=4))
 
     return contexts
+
+
+def prepare_input(schema_url, network_name, file_name):
+    """ Enable to resolve all references from a given schema and create the output
+    for create_network_context
+    :param schema_url: url of the schema
+    :type schema_url: basestring
+    :param network_name: the name of the network
+    :type network_name: basestring
+    :param file_name: the name of the file where the mapping data should be saved
+    :type file_name: str
+    :return: a TextIOWrapper with the location of the mapping file
+    """
+    output = {
+        "networkName": network_name,
+        "schemas": {}
+    }
+    network = resolve_network(schema_url)
+
+    for schema in network.keys():
+        output['schemas'][schema] = network[schema]['id']
+
+    with open(file_name, "w") as mapping_file:
+        mapping_file.write(json.dumps(output, indent=4))
+        mapping_file.close()
+
+    return file_name

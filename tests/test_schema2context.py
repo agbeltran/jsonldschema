@@ -1,9 +1,12 @@
 import unittest
+import os
 from mock import patch, mock_open
 from utils.schema2context import create_context_template, \
     process_schema_name, \
     create_context_template_from_url, \
-    create_network_context
+    create_network_context, \
+    prepare_input
+
 
 person_schema = {
     "id": "https://w3id.org/dats/schema/person_schema.json",
@@ -219,3 +222,31 @@ class TestSchema2Context(unittest.TestCase):
             self.mock_makedir_patcher.stop()
             self.mock_json_load_patcher.stop()
             self.assertTrue(contexts == expected_output)
+
+    def test_prepare_input(self):
+        expected_output = {
+            "networkName": "DATS",
+            "schemas": {
+                "person_schema.json":
+                    "https://w3id.org/dats/schema/person_schema.json",
+                "identifier_info_schema.json":
+                    "https://w3id.org/dats/schema/identifier_info_schema.json",
+                "alternate_identifier_info_schema.json":
+                    "https://w3id.org/dats/schema/alternate_identifier_info_schema.json",
+                "related_identifier_info_schema.json":
+                    "https://w3id.org/dats/schema/related_identifier_info_schema.json",
+                "organization_schema.json":
+                    "https://w3id.org/dats/schema/organization_schema.json",
+                "annotation_schema.json":
+                    "https://w3id.org/dats/schema/annotation_schema.json",
+                "category_values_pair_schema.json":
+                    "https://w3id.org/dats/schema/category_values_pair_schema.json"
+            }
+        }
+        url = "https://w3id.org/dats/schema/person_schema.json"
+
+        data_directory = os.path.join(os.path.dirname(__file__), "./../tests/data")
+        data_file = os.path.join(data_directory, "DATS_schemas_mapping.json")
+        mapping_file_path = prepare_input(url, 'DATS', data_file)
+
+        self.assertTrue(isinstance(mapping_file_path, str))
