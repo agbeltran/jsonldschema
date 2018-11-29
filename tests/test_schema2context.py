@@ -243,6 +243,7 @@ class TestSchema2Context(unittest.TestCase):
                     "https://w3id.org/dats/schema/category_values_pair_schema.json"
             }
         }
+        print(expected_output)
         url = "https://w3id.org/dats/schema/person_schema.json"
 
         data_directory = os.path.join(os.path.dirname(__file__), "./../tests/data")
