@@ -1,0 +1,10 @@
+{
+  "networkName": "MIACA",
+  "schemas":{
+    "application_schema": "https://w3id.org/mircat/miaca/schema/application_schema.json",
+    "array_schema": "https://w3id.org/mircat/miaca/schema/array_schema.json",
+    "miaca_schema": "https://fairsharing.github.io/mircat/miaca/schema/miaca_schema.json",
+    "project_schema": "https://fairsharing.github.io/mircat/miaca/schema/project_schema.json",
+    "source_schema": "https://fairsharing.github.io/mircat/miaca/schema/source_schema.json"
+  }
+}

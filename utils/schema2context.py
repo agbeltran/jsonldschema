@@ -1,4 +1,7 @@
 from collections import OrderedDict
+import requests
+import json
+import os
 
 
 def create_context_template(schema, semantic_types, name):
@@ -17,12 +20,12 @@ def create_context_template(schema, semantic_types, name):
         contexts[semantic_type] = OrderedDict()
         contexts[semantic_type]["@context"] = OrderedDict()
         contexts[semantic_type]["@context"][semantic_type] = semantic_types[semantic_type]
-        contexts[semantic_type]["@context"][name] = ""
+        contexts[semantic_type]["@context"][name] = semantic_type + ":"
         contexts[semantic_type]["@context"]["@language"] = "en"
 
         for field in schema["properties"]:
             if field not in jsonld_ignored_keys:
-                contexts[semantic_type]['@context'][field] = ""
+                contexts[semantic_type]['@context'][field] = semantic_type + ":"
 
     return contexts
 
@@ -41,3 +44,80 @@ def process_schema_name(name):
         output_name += name_part.capitalize()
 
     return output_name
+
+
+def create_context_template_from_url(schema_url, semantic_types):
+    """ Create a context template from the given URL
+    :param schema_url: the schema URL
+    :type schema_url: basestring
+    :param semantic_types: a dictionary with {"ontologyName":"ontologyBaseURL"}
+    :type semantic_types: dict
+    :return: a dictionary with a context variable for easy ontology
+    """
+    try:
+        response = requests.get(schema_url)
+        if response.status_code == 200:
+            schema = json.loads(response.text)
+            schema_name = process_schema_name(schema['id'].split("/")[-1])
+            return create_context_template(schema, semantic_types, schema_name)
+        else:
+            raise Exception("No schema could be found at given URL", schema_url)
+    except requests.exceptions.MissingSchema:
+        raise Exception("No schema could be found at given URL", schema_url)
+
+
+def create_network_context(network_file, semantic_types):
+    """ Generates the context files for each schema in the given network
+
+    :param network_file: a mapping dict {"schemaName": "schemaURL"}
+    :type network_file: dict
+    :param semantic_types: a mapping dict of ontologies {"ontologyName": "Ontology URL"}
+    :type semantic_types: dict
+    :return:
+    """
+    data_dir = os.path.join(os.path.dirname(__file__), "./../tests/data")
+
+    # create the main output directory
+    output_top_dir = os.path.join(os.path.dirname(__file__), "./generated_context")
+    if not os.path.exists(output_top_dir):
+        os.makedirs(output_top_dir)
+
+    # open the mapping file
+    with open(os.path.join(data_dir, network_file)) as mapping_file:
+        mapping = json.load(mapping_file)
+        mapping_file.close()
+
+    # create a sub directory base on the network name found in mapping
+    output_sub_dir = os.path.join(os.path.dirname(__file__), "./generated_context/" + mapping['networkName'])
+    if not os.path.exists(output_sub_dir):
+        os.makedirs(output_sub_dir)
+
+    # create subsub directory for each ontology
+    for ontology_name in semantic_types:
+        local_output_dir = os.path.join(os.path.dirname(__file__),
+                                        "./generated_context/" + mapping['networkName'] + "/" + ontology_name)
+        if not os.path.exists(local_output_dir):
+            os.makedirs(local_output_dir)
+
+    # go
+    for schema_name in mapping['schemas']:
+
+        schema_url = mapping['schemas'][schema_name]
+        local_context = create_context_template_from_url(schema_url, semantic_types)
+
+        for context_type in local_context:
+            context_file_name = schema_name.replace('schema', "") + context_type + "_context.jsonld"
+            local_output_file = os.path.join(os.path.dirname(__file__), "./generated_context/" + mapping['networkName'] + "/" + context_type + "/" + context_file_name)
+            with open(local_output_file, "w") as output_file:
+                output_file.write(json.dumps(local_context[context_type], indent=4))
+
+
+if __name__ == '__main__':
+    base = {
+        "sdo": "https://schema.org",
+        "obo": "http://purl.obolibrary.org/obo/"
+    }
+    url = "https://w3id.org/dats/schema/person_schema.json"
+
+    context = create_context_template_from_url(url, base)
+    create_network_context("miaca_schemas_mapping.json", base)
