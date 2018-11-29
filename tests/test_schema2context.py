@@ -1,5 +1,9 @@
 import unittest
-from utils.schema2context import create_context_template, process_schema_name
+from mock import patch
+from utils.schema2context import create_context_template, \
+    process_schema_name, \
+    create_context_template_from_url, \
+    create_network_context
 
 person_schema = {
     "id": "https://w3id.org/dats/schema/person_schema.json",
@@ -62,5 +66,40 @@ class TestSchema2Context(unittest.TestCase):
         self.assertTrue('identifier' in new_context['obo']["@context"].keys())
 
     def test_process_schema_name(self):
-        print(process_schema_name(schema_name))
         self.assertTrue(process_schema_name(schema_name) == "IdentifierInfo")
+
+    def test_create_context_template_from_url(self):
+        url = "https://w3id.org/dats/schema/person_schema.json"
+
+        self.mock_request_patcher = patch('utils.schema2context.requests.get')
+        self.mock_request = self.mock_request_patcher.start()
+        self.mock_request.return_value.status_code = 200
+
+        self.mock_json_load_patcher = patch('utils.schema2context.json.loads')
+        self.mock_json_load = self.mock_json_load_patcher.start()
+        self.mock_json_load.return_value = {
+            "id": url,
+            "properties": {}
+        }
+
+        context = create_context_template_from_url(url, base)
+
+        self.assertTrue('sdo' in context.keys())
+        self.assertTrue('obo' in context.keys())
+        self.assertTrue('@context' in context['sdo'].keys()
+                        and '@context' in context['obo'].keys())
+        self.assertTrue('Person' in context['sdo']["@context"].keys()
+                        and 'Person' in context['obo']["@context"].keys())
+
+        self.mock_request.return_value.status_code = 400
+        context_error_1 = create_context_template_from_url(url, base)
+        self.assertTrue(isinstance(context_error_1, Exception))
+
+        self.mock_request_patcher.stop()
+        context_error_2 = create_context_template_from_url("123", base)
+        self.assertTrue(isinstance(context_error_2, Exception))
+
+        self.mock_json_load_patcher.stop()
+
+    def test_create_network_context(self):
+        contexts = create_network_context("miaca_schemas_mapping.json", base)

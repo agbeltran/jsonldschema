@@ -61,20 +61,22 @@ def create_context_template_from_url(schema_url, semantic_types):
             schema_name = process_schema_name(schema['id'].split("/")[-1])
             return create_context_template(schema, semantic_types, schema_name)
         else:
-            raise Exception("No schema could be found at given URL", schema_url)
+            return Exception("No schema could be found at given URL", schema_url)
     except requests.exceptions.MissingSchema:
-        raise Exception("No schema could be found at given URL", schema_url)
+        return Exception("No schema could be found at given URL", schema_url)
 
 
 def create_network_context(network_file, semantic_types):
-    """ Generates the context files for each schema in the given network
+    """ Generates the context files for each schema in the given network and write these files to the disk
 
-    :param network_file: a mapping dict {"schemaName": "schemaURL"}
-    :type network_file: dict
+    :param network_file: a file containing a mapping dict {"schemaName": "schemaURL"}
+    :type network_file: str
     :param semantic_types: a mapping dict of ontologies {"ontologyName": "Ontology URL"}
     :type semantic_types: dict
-    :return:
+    :return: None
     """
+
+    # this needs to be changed
     data_dir = os.path.join(os.path.dirname(__file__), "./../tests/data")
 
     # create the main output directory
@@ -99,7 +101,7 @@ def create_network_context(network_file, semantic_types):
         if not os.path.exists(local_output_dir):
             os.makedirs(local_output_dir)
 
-    # go
+    # For each schema
     for schema_name in mapping['schemas']:
 
         schema_url = mapping['schemas'][schema_name]
@@ -111,7 +113,7 @@ def create_network_context(network_file, semantic_types):
             with open(local_output_file, "w") as output_file:
                 output_file.write(json.dumps(local_context[context_type], indent=4))
 
-
+"""
 if __name__ == '__main__':
     base = {
         "sdo": "https://schema.org",
@@ -121,3 +123,4 @@ if __name__ == '__main__':
 
     context = create_context_template_from_url(url, base)
     create_network_context("miaca_schemas_mapping.json", base)
+"""
