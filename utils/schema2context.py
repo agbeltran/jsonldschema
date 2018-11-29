@@ -73,8 +73,10 @@ def create_network_context(network_file, semantic_types):
     :type network_file: str
     :param semantic_types: a mapping dict of ontologies {"ontologyName": "Ontology URL"}
     :type semantic_types: dict
-    :return: None
+    :return: the resolved contexts
     """
+
+    contexts = {}
 
     # this needs to be changed
     data_dir = os.path.join(os.path.dirname(__file__), "./../tests/data")
@@ -104,14 +106,19 @@ def create_network_context(network_file, semantic_types):
     # For each schema
     for schema_name in mapping['schemas']:
 
+        contexts[schema_name] = {}
+
         schema_url = mapping['schemas'][schema_name]
         local_context = create_context_template_from_url(schema_url, semantic_types)
 
         for context_type in local_context:
+            contexts[schema_name][context_type] = local_context[context_type]
             context_file_name = schema_name.replace('schema', "") + context_type + "_context.jsonld"
             local_output_file = os.path.join(os.path.dirname(__file__), "./generated_context/" + mapping['networkName'] + "/" + context_type + "/" + context_file_name)
             with open(local_output_file, "w") as output_file:
                 output_file.write(json.dumps(local_context[context_type], indent=4))
+
+    return contexts
 
 """
 if __name__ == '__main__':
