@@ -67,8 +67,8 @@ def create_context_template_from_url(schema_url, semantic_types):
 
 
 def create_network_context(network_file, semantic_types):
-    """ Generates the context files for each schema in the given network and write these files to the disk
-
+    """ Generates the context files for each schema in the given network
+    and write these files to the disk
     :param network_file: a file containing a mapping dict {"schemaName": "schemaURL"}
     :type network_file: str
     :param semantic_types: a mapping dict of ontologies {"ontologyName": "Ontology URL"}
@@ -92,14 +92,18 @@ def create_network_context(network_file, semantic_types):
         mapping_file.close()
 
     # create a sub directory base on the network name found in mapping
-    output_sub_dir = os.path.join(os.path.dirname(__file__), "./generated_context/" + mapping['networkName'])
+    output_sub_dir = os.path.join(os.path.dirname(__file__),
+                                  "./generated_context/" + mapping['networkName'])
     if not os.path.exists(output_sub_dir):
         os.makedirs(output_sub_dir)
 
     # create subsub directory for each ontology
     for ontology_name in semantic_types:
         local_output_dir = os.path.join(os.path.dirname(__file__),
-                                        "./generated_context/" + mapping['networkName'] + "/" + ontology_name)
+                                        "./generated_context/" +
+                                        mapping['networkName'] +
+                                        "/" +
+                                        ontology_name)
         if not os.path.exists(local_output_dir):
             os.makedirs(local_output_dir)
 
@@ -113,21 +117,17 @@ def create_network_context(network_file, semantic_types):
 
         for context_type in local_context:
             contexts[schema_name][context_type] = local_context[context_type]
-            context_file_name = schema_name.replace('schema', "") + context_type + "_context.jsonld"
-            local_output_file = os.path.join(os.path.dirname(__file__), "./generated_context/" + mapping['networkName'] + "/" + context_type + "/" + context_file_name)
+            context_file_name = schema_name.replace('schema', "")
+            context_file_name += context_type
+            context_file_name += "_context.jsonld"
+            local_output_file = os.path.join(os.path.dirname(__file__),
+                                             "./generated_context/" +
+                                             mapping['networkName'] +
+                                             "/" +
+                                             context_type +
+                                             "/" +
+                                             context_file_name)
             with open(local_output_file, "w") as output_file:
                 output_file.write(json.dumps(local_context[context_type], indent=4))
 
     return contexts
-
-"""
-if __name__ == '__main__':
-    base = {
-        "sdo": "https://schema.org",
-        "obo": "http://purl.obolibrary.org/obo/"
-    }
-    url = "https://w3id.org/dats/schema/person_schema.json"
-
-    context = create_context_template_from_url(url, base)
-    create_network_context("miaca_schemas_mapping.json", base)
-"""

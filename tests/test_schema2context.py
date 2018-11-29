@@ -1,5 +1,4 @@
 import unittest
-import json
 from mock import patch, mock_open
 from utils.schema2context import create_context_template, \
     process_schema_name, \
@@ -194,18 +193,23 @@ class TestSchema2Context(unittest.TestCase):
         self.mock_makedir = self.mock_makedir_patcher.start()
         self.mock_makedir.return_value = True
 
-        with patch('builtins.open', new_callable=mock_open()) as data:
+        with patch('builtins.open', new_callable=mock_open()):
             self.mock_json_load_patcher = patch('utils.schema2context.json.loads')
             self.mock_json_load = self.mock_json_load_patcher.start()
             self.mock_json_load.return_value = {
                 "id": "https://w3id.org/dats/schema/person_schema.json",
                 "networkName": "MIACA",
                 "schemas": {
-                    "application_schema": "https://w3id.org/mircat/miaca/schema/application_schema.json",
-                    "array_schema": "https://w3id.org/mircat/miaca/schema/array_schema.json",
-                    "miaca_schema": "https://fairsharing.github.io/mircat/miaca/schema/miaca_schema.json",
-                    "project_schema": "https://fairsharing.github.io/mircat/miaca/schema/project_schema.json",
-                    "source_schema": "https://fairsharing.github.io/mircat/miaca/schema/source_schema.json"
+                    "application_schema":
+                        "https://w3id.org/mircat/miaca/schema/application_schema.json",
+                    "array_schema":
+                        "https://w3id.org/mircat/miaca/schema/array_schema.json",
+                    "miaca_schema":
+                        "https://fairsharing.github.io/mircat/miaca/schema/miaca_schema.json",
+                    "project_schema":
+                        "https://fairsharing.github.io/mircat/miaca/schema/project_schema.json",
+                    "source_schema":
+                        "https://fairsharing.github.io/mircat/miaca/schema/source_schema.json"
                 },
                 "properties": {}
             }
