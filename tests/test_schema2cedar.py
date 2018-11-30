@@ -240,3 +240,13 @@ class TestSchema2Cedar(object):
         required_item = self.cedarTemplate.set_required_item(schema_as_json)
         print(json.dumps(required_item, indent=4))
         assert_true(required_item == expected_required_item)
+
+    def test_json_pretty_dump(self):
+        tested_variable = {
+            "test": "test"
+        }
+        output_file_path = os.path.join(os.path.dirname(__file__), "data/schema.json")
+        output_file = open(output_file_path, "w")
+        pretty_dump = self.cedarTemplate.json_pretty_dump(tested_variable, output_file)
+        output_file.close()
+        assert_true(pretty_dump is None)
