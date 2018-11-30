@@ -224,6 +224,35 @@ class TestSchema2Context(unittest.TestCase):
             self.assertTrue(contexts == expected_output)
 
     def test_prepare_input(self):
+
+        self.mock_resolver_patcher = patch('utils.schema2context.resolve_network')
+        self.mock_resolver = self.mock_resolver_patcher.start()
+        self.mock_resolver.return_value = {
+            "person_schema.json": {
+                "id": "https://w3id.org/dats/schema/person_schema.json"
+            },
+            "identifier_info_schema.json": {
+                "id": "https://w3id.org/dats/schema/identifier_info_schema.json"
+            },
+            "alternate_identifier_info_schema.json": {
+                "id": "https://w3id.org/dats/schema/alternate_identifier_info_schema.json"
+            },
+            "related_identifier_info_schema.json": {
+                "id": "https://w3id.org/dats/schema/related_identifier_info_schema.json"
+            },
+            "organization_schema.json": {
+                "id": "https://w3id.org/dats/schema/organization_schema.json"
+            },
+            "annotation_schema.json": {
+                "id": "https://w3id.org/dats/schema/annotation_schema.json"
+            },
+            "category_values_pair_schema.json": {
+                "id": "https://w3id.org/dats/schema/category_values_pair_schema.json"
+            }
+        }
+
+        network_name = "DATS"
+
         expected_output = {
             "networkName": "DATS",
             "schemas": {
@@ -243,11 +272,12 @@ class TestSchema2Context(unittest.TestCase):
                     "https://w3id.org/dats/schema/category_values_pair_schema.json"
             }
         }
-        print(expected_output)
         url = "https://w3id.org/dats/schema/person_schema.json"
 
-        data_directory = os.path.join(os.path.dirname(__file__), "./../tests/data")
-        data_file = os.path.join(data_directory, "DATS_schemas_mapping.json")
-        mapping_file_path = prepare_input(url, 'DATS', data_file)
+        data_directory = os.path.join(os.path.dirname(__file__), "data")
+        data_file = os.path.join(data_directory, network_name + "_schemas_mapping.json")
+        mapping_variable, mapping_file_path = prepare_input(url, network_name, data_file)
 
+        self.assertTrue("/tests/data/DATS_schemas_mapping.json" in mapping_file_path)
         self.assertTrue(isinstance(mapping_file_path, str))
+        self.assertTrue(mapping_variable == expected_output)

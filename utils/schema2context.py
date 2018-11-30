@@ -158,4 +158,4 @@ def prepare_input(schema_url, network_name, file_name):
         mapping_file.write(json.dumps(output, indent=4))
         mapping_file.close()
 
-    return file_name
+    return [output, file_name]
