@@ -281,3 +281,5 @@ class TestSchema2Context(unittest.TestCase):
         self.assertTrue("/tests/data/DATS_schemas_mapping.json" in mapping_file_path)
         self.assertTrue(isinstance(mapping_file_path, str))
         self.assertTrue(mapping_variable == expected_output)
+
+        self.mock_resolver_patcher.stop()
