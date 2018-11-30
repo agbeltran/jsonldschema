@@ -31,6 +31,7 @@ class Schema2CedarBase:
             cls.folder_id = folder_id
             cls.user_id = user_id
             cls.loaded_specs = {}
+            cls.processed_specs_ids = []
         return object.__new__(cls)
 
     @staticmethod
@@ -685,18 +686,17 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                 # if the schema_path is set
                 if schema_as_json is not None:
 
+                    validation = False
+
                     if itemKey not in self.loaded_specs.keys():
                         temp_spec = json.loads(self.convert_template_element(schema_as_json,
                                                                              fieldKey=itemKey))
 
-                        # TODO NEED SOME REFINING HERE -> VALIDATE BEFORE POST !!!
                         try:
-                            response = requests.request("POST",
-                                                        request_url,
-                                                        headers=headers,
-                                                        data=json.dumps(temp_spec),
-                                                        verify=True)
-                            response.raise_for_status()
+                            validation = client.validate_element('production',
+                                                                 self.production_api_key,
+                                                                 temp_spec)
+
                         except requests.exceptions.HTTPError as err:
                             print("Http Error:", err)
                             if err.response.status_code == 401:
@@ -705,15 +705,40 @@ class Schema2CedarTemplateElement(Schema2CedarBase):
                             if err.response.status_code == 404:
                                 print("Make sure that the folder_id in "
                                       + "the test_config.json file is correct")
-                            sys.exit(1)
 
-                        temp_spec["@id"] = json.loads(response.text)["@id"]
-                        if multiple_items:
-                            sub_spec = {'items': temp_spec, "type": "array", "minItems": 1}
+                        if isinstance(validation, list) and validation[0] is True:
+                            try:
+                                response = requests.request("POST",
+                                                            request_url,
+                                                            headers=headers,
+                                                            data=json.dumps(temp_spec),
+                                                            verify=True)
+                                response.raise_for_status()
+                            except requests.exceptions.HTTPError as err:
+                                print("Http Error:", err)
+                                if err.response.status_code == 401:
+                                    print("Make sure that the API keys in "
+                                          + "the test_config.json file are correct")
+                                if err.response.status_code == 404:
+                                    print("Make sure that the folder_id in "
+                                          + "the test_config.json file is correct")
+                                sys.exit(1)
+
+                            temp_spec["@id"] = json.loads(response.text)["@id"]
+                            if multiple_items:
+                                sub_spec = {'items': temp_spec, "type": "array", "minItems": 1}
+                            else:
+                                sub_spec = temp_spec
+
+                            self.processed_specs_ids.append(temp_spec["@id"])
+                            self.loaded_specs[itemKey] = sub_spec
+
                         else:
-                            sub_spec = temp_spec
-
-                        self.loaded_specs[itemKey] = sub_spec
+                            for item in self.processed_specs_ids:
+                                client.delete_template_element("production",
+                                                               self.production_api_key,
+                                                               item)
+                            sys.exit("Error validating a template element")
 
                     else:
                         sub_spec = self.loaded_specs[itemKey]
