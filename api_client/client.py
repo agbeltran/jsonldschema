@@ -89,11 +89,11 @@ app = falcon.API(middleware=[
 ])
 """
 app = falcon.API()
-db = StorageEngine()
+database = StorageEngine()
 
-network_resolver = NetworkCompilerClient(db)
-context_creator = Schema2Context(db)
-semDiff_processor = FullSemDiffProcessor(db)
+network_resolver = NetworkCompilerClient(database)
+context_creator = Schema2Context(database)
+semDiff_processor = FullSemDiffProcessor(database)
 app.add_route('/resolve_network', network_resolver)
 app.add_route('/create_context', context_creator)
 app.add_route('/semDiff', semDiff_processor)
