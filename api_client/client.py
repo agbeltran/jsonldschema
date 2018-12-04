@@ -36,7 +36,7 @@ class NetworkCompilerClient(object):
 
         proper_thing = self.db.resolve_network(doc)
         resp.status = falcon.HTTP_201
-        #resp.location = '/%s/things/%s' % (user_id, proper_thing['id'])
+        # resp.location = '/%s/things/%s' % (user_id, proper_thing['id'])
         resp.body = proper_thing
 
 
@@ -80,8 +80,6 @@ class FullSemDiffProcessor(object):
         resp.body = proper_thing
 
 
-
-
 """
 # Configure your WSGI server to load "things.app" (app is a WSGI callable)
 app = falcon.API(middleware=[
@@ -99,9 +97,7 @@ semDiff_processor = FullSemDiffProcessor(db)
 app.add_route('/resolve_network', network_resolver)
 app.add_route('/create_context', context_creator)
 app.add_route('/semDiff', semDiff_processor)
-#app.add_route('/{user_id}/things', things)
-
-
+# app.add_route('/{user_id}/things', things)
 
 # If a responder ever raised an instance of StorageError, pass control to
 # the given handler.
@@ -112,6 +108,7 @@ app.add_error_handler(StorageError, StorageError.handle)
 # yet, or perhaps is a single cluster that all data centers have to share.
 # sink = SinkAdapter()
 # app.add_sink(sink, r'/search/(?P<engine>ddg|y)\Z')
+
 
 
 if __name__ == '__main__':

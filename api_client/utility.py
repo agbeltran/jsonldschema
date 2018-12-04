@@ -46,7 +46,9 @@ class StorageEngine(object):
 
             for schema in network.keys():
                 schema_name = process_schema_name(network[schema]['id']).lower()
-                local_context = create_context_template(network[schema], user_input['vocab'], schema_name)
+                local_context = create_context_template(network[schema],
+                                                        user_input['vocab'],
+                                                        schema_name)
 
                 for vocab_name in local_context:
                     output[vocab_name][schema_name] = local_context[vocab_name]
@@ -54,7 +56,9 @@ class StorageEngine(object):
             return json.dumps(output, indent=4)
 
     def create_full_sem_diff(self, user_input):
-        sem_diff = FullSemDiff(user_input['mapping'], user_input['network_1'], user_input['network_2'])
+        sem_diff = FullSemDiff(user_input['mapping'],
+                               user_input['network_1'],
+                               user_input['network_2'])
         print(sem_diff)
 
         return json.dumps(sem_diff.twins)
@@ -70,6 +74,7 @@ class StorageError(Exception):
         raise falcon.HTTPError(falcon.HTTP_725,
                                'Database Error',
                                description)
+
 
 """
 class SinkAdapter(object):
