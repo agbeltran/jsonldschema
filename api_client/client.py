@@ -110,7 +110,6 @@ app.add_error_handler(StorageError, StorageError.handle)
 # app.add_sink(sink, r'/search/(?P<engine>ddg|y)\Z')
 
 
-
 if __name__ == '__main__':
     httpd = simple_server.make_server('localhost', 8000, app)
     httpd.serve_forever()
