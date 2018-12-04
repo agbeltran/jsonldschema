@@ -1,20 +1,20 @@
 import json
-import uuid
-
 import falcon
-import requests
 
 from utils.compile_schema import resolve_schema_references, get_name, resolve_reference
+from utils.schema2context import resolve_network, process_schema_name, create_context_template
 
 
 class StorageEngine(object):
 
+    """
     def get_things(self, marker, limit):
         return [{'id': str(uuid.uuid4()), 'color': 'green'}]
 
     def add_thing(self, thing):
         thing['id'] = str(uuid.uuid4())
         return thing
+    """
 
     def resolve_network(self, schema):
         processed_schemas = {}
@@ -25,6 +25,32 @@ class StorageEngine(object):
                           resolve_reference(schema_url),
                           processed_schemas,
                           schema_url), indent=4)
+
+    def create_context(self, user_input):
+        if 'schema_url' not in user_input.keys():
+            raise falcon.HTTPError(falcon.HTTP_400,
+                                   "Query error, no schema url was provided")
+        elif 'vocab' not in user_input.keys() \
+                or type(user_input["vocab"]) != dict or \
+                not len(user_input['vocab']) > 0:
+            raise falcon.HTTPError(falcon.HTTP_400,
+                                   "Query error, no vocabulary was provided ")
+        else:
+
+            output = {}
+            network = resolve_network(user_input["schema_url"])
+
+            for semantic_type in user_input['vocab']:
+                output[semantic_type] = {}
+
+            for schema in network.keys():
+                schema_name = process_schema_name(network[schema]['id']).lower()
+                local_context = create_context_template(network[schema], user_input['vocab'], schema_name)
+
+                for vocab_name in local_context:
+                    output[vocab_name][schema_name] = local_context[vocab_name]
+
+            return json.dumps(output, indent=4)
 
 
 class StorageError(Exception):
@@ -38,7 +64,7 @@ class StorageError(Exception):
                                'Database Error',
                                description)
 
-
+"""
 class SinkAdapter(object):
 
     engines = {
@@ -55,7 +81,7 @@ class SinkAdapter(object):
         resp.content_type = result.headers['content-type']
         resp.body = result.text
 
-"""
+
 class AuthMiddleware(object):
 
     def process_request(self, req, resp):
