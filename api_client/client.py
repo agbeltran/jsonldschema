@@ -59,6 +59,29 @@ class Schema2Context(object):
         resp.status = falcon.HTTP_201
         resp.body = proper_thing
 
+
+class FullSemDiffProcessor(object):
+
+    def __init__(self, db):
+        self.db = db
+        self.logger = logging.getLogger('thingsapp.' + __name__)
+
+    @falcon.before(max_body(64 * 1024))
+    def on_get(self, req, resp):
+        try:
+            doc = req.media
+        except KeyError:
+            raise falcon.HTTPBadRequest(
+                'Missing thing',
+                'A thing must be submitted in the request body.')
+
+        proper_thing = self.db.create_full_sem_diff(doc)
+        resp.status = falcon.HTTP_201
+        resp.body = proper_thing
+
+
+
+
 """
 # Configure your WSGI server to load "things.app" (app is a WSGI callable)
 app = falcon.API(middleware=[
@@ -69,11 +92,15 @@ app = falcon.API(middleware=[
 """
 app = falcon.API()
 db = StorageEngine()
+
 network_resolver = NetworkCompilerClient(db)
 context_creator = Schema2Context(db)
-#app.add_route('/{user_id}/things', things)
+semDiff_processor = FullSemDiffProcessor(db)
 app.add_route('/resolve_network', network_resolver)
 app.add_route('/create_context', context_creator)
+app.add_route('/semDiff', semDiff_processor)
+#app.add_route('/{user_id}/things', things)
+
 
 
 # If a responder ever raised an instance of StorageError, pass control to

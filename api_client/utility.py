@@ -3,6 +3,7 @@ import falcon
 
 from utils.compile_schema import resolve_schema_references, get_name, resolve_reference
 from utils.schema2context import resolve_network, process_schema_name, create_context_template
+from semDiff.fullDiff import FullSemDiff
 
 
 class StorageEngine(object):
@@ -51,6 +52,12 @@ class StorageEngine(object):
                     output[vocab_name][schema_name] = local_context[vocab_name]
 
             return json.dumps(output, indent=4)
+
+    def create_full_sem_diff(self, user_input):
+        sem_diff = FullSemDiff(user_input['mapping'], user_input['network_1'], user_input['network_2'])
+        print(sem_diff)
+
+        return json.dumps(sem_diff.twins)
 
 
 class StorageError(Exception):
