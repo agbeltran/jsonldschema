@@ -5,12 +5,12 @@ import os
 
 class MircatClient:
 
-    def __init__(self):
+    def __init__(self, client_url, port):
         self.headers = {
             "Content-Type": "application/json",
         }
-        self.port = 8000
-        self.base_URL = "http://localhost"
+        self.port = port
+        self.base_URL = client_url
         self.request_base_url = self.base_URL + ":" + str(self.port)
 
     def create_context(self):
@@ -63,7 +63,7 @@ class MircatClient:
 
 
 if __name__ == '__main__':
-    client = MircatClient()
+    client = MircatClient("http://localhost", 8000)
     # print(client.create_context())
     # print(client.resolve_network())
     print(client.make_full_sem_diff())
