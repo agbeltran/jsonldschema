@@ -61,9 +61,20 @@ class MircatClient:
                                 headers=self.headers)
         return response.text
 
+    def validate_schema(self):
+        extra_url = "/schema/validate"
+        schema_url = "https://w3id.org/dats/schema/access_schema.json"
+
+        response = requests.get(self.request_base_url + extra_url,
+                                data=json.dumps(schema_url),
+                                headers=self.headers)
+
+        return response.text
+
 
 if __name__ == '__main__':
     client = MircatClient("http://localhost", 8000)
     # print(client.create_context())
     # print(client.resolve_network())
-    print(client.make_full_sem_diff())
+    # print(client.make_full_sem_diff())
+    print(client.validate_schema())

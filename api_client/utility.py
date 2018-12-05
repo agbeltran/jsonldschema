@@ -1,5 +1,9 @@
 import json
 import falcon
+import requests
+
+from jsonschema.validators import Draft4Validator
+from jsonschema import SchemaError
 
 from utils.compile_schema import resolve_schema_references, get_name, resolve_reference
 from utils.schema2context import resolve_network, process_schema_name, create_context_template
@@ -59,9 +63,18 @@ class StorageEngine(object):
         sem_diff = FullSemDiff(user_input['mapping'],
                                user_input['network_1'],
                                user_input['network_2'])
-        print(sem_diff)
 
-        return json.dumps(sem_diff.twins)
+        return json.dumps(sem_diff.twins, indent=4)
+
+    def validate_schema(self, user_input):
+        try:
+            validation = Draft4Validator.check_schema(json.loads(requests.get(user_input).text))
+            if validation is not None:
+                return json.dumps(validation, indent=4)
+            else:
+                return "You schema is valid"
+        except Exception as e:
+            return "Problem loading the schema: " + str(e)
 
 
 class StorageError(Exception):
