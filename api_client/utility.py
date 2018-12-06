@@ -6,11 +6,11 @@ from jsonschema.validators import Draft4Validator, RefResolver
 
 from utils.compile_schema import resolve_schema_references, get_name, resolve_reference
 from utils.schema2context import resolve_network, process_schema_name, create_context_template
+from utils.prepare_fulldiff_input import resolve_network as fast_resolver
 from semDiff.fullDiff import FullSemDiff
 
 
 class StorageEngine(object):
-
 
     def resolve_network(self, schema):
         processed_schemas = {}
@@ -67,6 +67,21 @@ class StorageEngine(object):
         except Exception as e:
             return "Problem loading the schema: " + str(e)
 
+    def validate_network(self, user_input):
+
+        validation = {}
+        schema_url = user_input[0]
+        resolved_network = fast_resolver(schema_url)
+
+        for schema in resolved_network.keys():
+            local_validation = Draft4Validator.check_schema(resolved_network[schema])
+            if local_validation is not None:
+                validation[schema] = local_validation
+            else:
+                validation[schema] = "This schema is valid"
+
+        return json.dumps(validation, indent=4)
+
     def validate_instance(self, user_input):
 
         schema_url = user_input['schema_url']
@@ -89,7 +104,6 @@ class StorageEngine(object):
                 try:
                     resolver = RefResolver(schema_url, schema, {})
                     drafter = Draft4Validator(json.loads(schema.text), resolver=resolver)
-                    # validation = drafter.validate(json.loads(instance.text), json.loads(schema.text))
                     errors_array = sorted(drafter.iter_errors(json.loads(instance.text)), key=lambda e: e.path)
                     errors = {}
                     for i in range(len(errors_array)):
