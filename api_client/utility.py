@@ -2,8 +2,7 @@ import json
 import falcon
 import requests
 
-from jsonschema.validators import Draft4Validator
-from jsonschema import SchemaError
+from jsonschema.validators import Draft4Validator, RefResolver
 
 from utils.compile_schema import resolve_schema_references, get_name, resolve_reference
 from utils.schema2context import resolve_network, process_schema_name, create_context_template
@@ -12,14 +11,6 @@ from semDiff.fullDiff import FullSemDiff
 
 class StorageEngine(object):
 
-    """
-    def get_things(self, marker, limit):
-        return [{'id': str(uuid.uuid4()), 'color': 'green'}]
-
-    def add_thing(self, thing):
-        thing['id'] = str(uuid.uuid4())
-        return thing
-    """
 
     def resolve_network(self, schema):
         processed_schemas = {}
@@ -75,6 +66,44 @@ class StorageEngine(object):
                 return "You schema is valid"
         except Exception as e:
             return "Problem loading the schema: " + str(e)
+
+    def validate_instance(self, user_input):
+
+        schema_url = user_input['schema_url']
+        instance_url = user_input['instance_url']
+
+        try:
+            schema = requests.get(schema_url)
+            instance = requests.get(instance_url)
+
+            if schema.status_code != 200:
+                return str(falcon.HTTPError(falcon.HTTP_400,
+                                            "verifiy your URL ",
+                                            schema_url))
+            elif instance.status_code != 200:
+                return str(falcon.HTTPError(falcon.HTTP_400,
+                                            "verifiy your URL ",
+                                            instance_url))
+
+            else:
+                try:
+                    resolver = RefResolver(schema_url, schema, {})
+                    drafter = Draft4Validator(json.loads(schema.text), resolver=resolver)
+                    # validation = drafter.validate(json.loads(instance.text), json.loads(schema.text))
+                    errors_array = sorted(drafter.iter_errors(json.loads(instance.text)), key=lambda e: e.path)
+                    errors = {}
+                    for i in range(len(errors_array)):
+                        errors[i] = errors_array[i].message
+
+                    if len(errors) > 0:
+                        return json.dumps(errors, indent=4)
+                    else:
+                        return "Your json is valid"
+                except Exception as e:
+                    return str(e)
+
+        except requests.RequestException as e:
+            return "Problem loading your schema or your instance: " + str(e)
 
 
 class StorageError(Exception):

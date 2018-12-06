@@ -62,7 +62,7 @@ class MircatClient:
         return response.text
 
     def validate_schema(self):
-        extra_url = "/schema/validate"
+        extra_url = "/validate/schema"
         schema_url = "https://w3id.org/dats/schema/access_schema.json"
 
         response = requests.get(self.request_base_url + extra_url,
@@ -71,10 +71,25 @@ class MircatClient:
 
         return response.text
 
+    def validate_instance(self):
+        extra_url = "/validate/instance"
+
+        user_input = {
+            "schema_url": "https://w3id.org/dats/schema/activity_schema.json",
+            "instance_url": "https://w3id.org/mircat/miflowcyt/schema/sample_schema.json"
+        }
+
+        response = requests.get(self.request_base_url + extra_url,
+                                data=json.dumps(user_input),
+                                headers=self.headers)
+
+        return response.text
+
 
 if __name__ == '__main__':
-    client = MircatClient("http://localhost", 8000)
+    client = MircatClient("http://localhost", 8001)
     # print(client.create_context())
     # print(client.resolve_network())
     # print(client.make_full_sem_diff())
-    print(client.validate_schema())
+    # print(client.validate_schema())
+    print(client.validate_instance())
