@@ -4,6 +4,13 @@ import os
 
 
 class MircatClient:
+    """
+    A simple client example plugged on the api_client
+    :param port: the port to target
+    :type port: int
+    :param client_url: the url of the api_client
+    :type client_url: basestring
+    """
 
     def __init__(self, client_url, port):
         self.headers = {
@@ -14,6 +21,9 @@ class MircatClient:
         self.request_base_url = self.base_URL + ":" + str(self.port)
 
     def create_context(self):
+        """ Method to create contexts for the given network
+        :return: a variable containing a context for each vocabulary and schema
+        """
         extra_url = "/create_context"
         test_input = {
             "schema_url": "https://w3id.org/dats/schema/access_schema.json",
