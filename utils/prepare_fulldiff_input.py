@@ -94,11 +94,14 @@ def resolve_schema_ref(schema, resolver, network):
     :return: a fully processed network with resolved ref
     """
 
-    if SchemaKey.ref in schema and schema['$ref'][0] != '#':
+    if SchemaKey.ref in schema \
+            and schema['$ref'][0] != '#' \
+            and schema['$ref'].replace('#', '') not in network:
         reference_path = schema[SchemaKey.ref]
         resolved = resolver.resolve(reference_path)[1]
         if type(resolved) != Exception:
             network[get_name(resolved['id'])] = resolved
+            resolve_schema_ref(resolved, resolver, network)
 
     if SchemaKey.properties in schema:
         for k, val in schema[SchemaKey.properties].items():

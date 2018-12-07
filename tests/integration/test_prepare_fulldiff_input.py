@@ -13,7 +13,7 @@ class CompileSchemaTestCase(unittest.TestCase):
         super(CompileSchemaTestCase, self).__init__(*args, **kwargs)
 
     def setUp(self):
-        self.mapping_dir = os.path.join(os.path.dirname(__file__), "data")
+        self.mapping_dir = os.path.join(os.path.dirname(__file__), "../data")
 
         mapping_files = ["dats_mapping.json", "miaca_mapping.json"]
         i = 0
