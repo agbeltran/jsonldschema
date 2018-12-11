@@ -277,13 +277,8 @@ class TestSchema2Context(unittest.TestCase):
             }
         }
         url = "https://w3id.org/dats/schema/person_schema.json"
+        mapping_variable = prepare_input(url, network_name)
 
-        data_directory = os.path.join(os.path.dirname(__file__), "data")
-        data_file = os.path.join(data_directory, network_name + "_schemas_mapping.json")
-        mapping_variable, mapping_file_path = prepare_input(url, network_name, data_file)
-
-        self.assertTrue("/tests/data/DATS_schemas_mapping.json" in mapping_file_path)
-        self.assertTrue(isinstance(mapping_file_path, str))
         self.assertTrue(mapping_variable == expected_output)
 
         self.mock_resolver_patcher.stop()
