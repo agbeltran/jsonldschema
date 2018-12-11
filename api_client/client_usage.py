@@ -113,4 +113,3 @@ if __name__ == '__main__':
     # print(client.validate_schema())
     # print(client.validate_instance())
     print(client.validate_network())
-

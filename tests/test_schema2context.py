@@ -1,5 +1,4 @@
 import unittest
-import os
 from mock import patch, mock_open
 from utils.schema2context import create_context_template, \
     process_schema_name, \
@@ -209,13 +208,13 @@ class TestSchema2Context(unittest.TestCase):
             self.mock_resolver.return_value = {
                 "application_schema": {
                     "id": "https://w3id.org/mircat/miaca/schema/application_schema.json"},
-                "array_schema":{
+                "array_schema": {
                     "id": "https://w3id.org/mircat/miaca/schema/array_schema.json"},
-                "miaca_schema":{
+                "miaca_schema": {
                     "id": "https://fairsharing.github.io/mircat/miaca/schema/miaca_schema.json"},
-                "project_schema":{
+                "project_schema": {
                     "id": "https://fairsharing.github.io/mircat/miaca/schema/project_schema.json"},
-                "source_schema":{
+                "source_schema": {
                     "id": "https://fairsharing.github.io/mircat/miaca/schema/source_schema.json"}
             }
 

@@ -138,6 +138,8 @@ class NetworkValidator(object):
         proper_thing = self.db.validate_network(doc)
         resp.status = falcon.HTTP_201
         resp.body = proper_thing
+
+
 """
 # Configure your WSGI server to load "things.app" (app is a WSGI callable)
 app = falcon.API(middleware=[

@@ -29,8 +29,3 @@ class TestSchema2Context(unittest.TestCase):
                                 "MIACME")
 
         create_network_context(mapping, base)
-
-
-
-
-

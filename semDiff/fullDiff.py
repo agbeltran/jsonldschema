@@ -4,14 +4,14 @@ from copy import deepcopy
 import json
 import webbrowser
 from semDiff import compareNetwork, compareEntities
-from json2html import *
+from json2html import json2html
 
 
 class FullSemDiff:
     """
     A class that computes the coverage at entity level and extracts 'semantic synonyms'
-    (named twins in the code) between two network. It will then compute the coverage at attribute level
-    between 'semantic synonyms'.
+    (named twins in the code) between two network. It will then compute the coverage at
+    attribute level between 'semantic synonyms'.
     """
 
     def __init__(self, contexts, network_1, network_2):
@@ -51,8 +51,10 @@ class FullSemDiff:
                         local_twin = twin_tuple(entity_name, twin)
 
                         # compare the entities
-                        attribute_diff = compareEntities.EntityCoverage(entity_schema, entity_context,
-                                                                        twin_schema, twin_context)
+                        attribute_diff = compareEntities.EntityCoverage(entity_schema,
+                                                                        entity_context,
+                                                                        twin_schema,
+                                                                        twin_context)
                         # create the tuple
                         attribute_coverage = twin_coverage(local_twin,
                                                            attribute_diff.full_coverage)
@@ -63,9 +65,9 @@ class FullSemDiff:
 
 class FullSemDiffMultiple:
     """
-    A class that computes the coverage at entity level and extracts 'semantic synonyms'
-    (named twins in the code) between multiple networks. It will then compute the coverage at attribute level
-    between 'semantic synonyms'.
+    A class that computes the coverage at entity level and extracts
+    'semantic synonyms' (named twins in the code) between multiple
+    networks. It will then compute the coverage at attribute level between 'semantic synonyms'.
     """
 
     def __init__(self, networks):
@@ -83,7 +85,9 @@ class FullSemDiffMultiple:
         local_overlap = []
         for i in range(start_position + 1, len(self.networks)):
             contexts = [self.networks[start_position]["contexts"], self.networks[i]["contexts"]]
-            coverage = FullSemDiff(contexts, self.networks[start_position]["schemas"], self.networks[i]["schemas"])
+            coverage = FullSemDiff(contexts,
+                                   self.networks[start_position]["schemas"],
+                                   self.networks[i]["schemas"])
             local_overlap.append(coverage.twins)
 
         if len(local_overlap) > 0:
@@ -127,5 +131,5 @@ if __name__ == '__main__':
         input_file.close()
 
     report = HTMLGenerator(FullSemDiffMultiple(data['networks']))
-    #report.generate_html()
+    report.generate_html()
     report.convert_to_html()

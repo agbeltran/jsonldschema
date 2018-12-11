@@ -104,7 +104,8 @@ class StorageEngine(object):
                 try:
                     resolver = RefResolver(schema_url, schema, {})
                     drafter = Draft4Validator(json.loads(schema.text), resolver=resolver)
-                    errors_array = sorted(drafter.iter_errors(json.loads(instance.text)), key=lambda e: e.path)
+                    errors_array = sorted(drafter.iter_errors(json.loads(instance.text)),
+                                          key=lambda e: e.path)
                     errors = {}
                     for i in range(len(errors_array)):
                         errors[i] = errors_array[i].message
