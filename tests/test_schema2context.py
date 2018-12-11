@@ -201,26 +201,30 @@ class TestSchema2Context(unittest.TestCase):
             self.mock_json_load = self.mock_json_load_patcher.start()
             self.mock_json_load.return_value = {
                 "id": "https://w3id.org/dats/schema/person_schema.json",
-                "networkName": "MIACA",
-                "schemas": {
-                    "application_schema":
-                        "https://w3id.org/mircat/miaca/schema/application_schema.json",
-                    "array_schema":
-                        "https://w3id.org/mircat/miaca/schema/array_schema.json",
-                    "miaca_schema":
-                        "https://fairsharing.github.io/mircat/miaca/schema/miaca_schema.json",
-                    "project_schema":
-                        "https://fairsharing.github.io/mircat/miaca/schema/project_schema.json",
-                    "source_schema":
-                        "https://fairsharing.github.io/mircat/miaca/schema/source_schema.json"
-                },
                 "properties": {}
             }
 
-            contexts = create_network_context("miaca_schemas_mapping.json", base)
+            self.mock_resolver_patcher = patch('utils.schema2context.resolve_network')
+            self.mock_resolver = self.mock_resolver_patcher.start()
+            self.mock_resolver.return_value = {
+                "application_schema": {
+                    "id": "https://w3id.org/mircat/miaca/schema/application_schema.json"},
+                "array_schema":{
+                    "id": "https://w3id.org/mircat/miaca/schema/array_schema.json"},
+                "miaca_schema":{
+                    "id": "https://fairsharing.github.io/mircat/miaca/schema/miaca_schema.json"},
+                "project_schema":{
+                    "id": "https://fairsharing.github.io/mircat/miaca/schema/project_schema.json"},
+                "source_schema":{
+                    "id": "https://fairsharing.github.io/mircat/miaca/schema/source_schema.json"}
+            }
+
+            mapping = prepare_input("https://w3id.org/dats/schema/person_schema.json", "DATS")
+            contexts = create_network_context(mapping, base)
             self.mock_request_patcher.stop()
             self.mock_makedir_patcher.stop()
             self.mock_json_load_patcher.stop()
+            self.mock_resolver_patcher.stop()
             self.assertTrue(contexts == expected_output)
 
     def test_prepare_input(self):
