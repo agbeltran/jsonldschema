@@ -13,10 +13,9 @@ class TestSchema2Context(unittest.TestCase):
         }
 
         mapping = prepare_input(url,
-                                "MIACA", "../data/automated_miaca_mapping.json")
+                                "MIACA")
 
-        create_network_context("automated_miaca_mapping.json", base)
-
+        create_network_context(mapping, base)
 
     def test_create_context_network2(self):
         url = "https://w3id.org/mircat/miacme/schema/miacme_schema.json"
@@ -27,9 +26,9 @@ class TestSchema2Context(unittest.TestCase):
         }
 
         mapping = prepare_input(url,
-                                "MIACME", "../data/automated_miacme_mapping.json")
+                                "MIACME")
 
-        create_network_context("automated_miacme_mapping.json", base)
+        create_network_context(mapping, base)
 
 
 
