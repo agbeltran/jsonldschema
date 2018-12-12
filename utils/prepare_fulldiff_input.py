@@ -127,4 +127,3 @@ def resolve_schema_ref(schema, resolver, network):
 
     return network
 
-
