@@ -1,6 +1,6 @@
 import unittest
 import os
-from utils.schema2context import create_network_context, prepare_input
+from utils.schema2context import create_network_context, prepare_input, create_and_save_contexts
 
 
 class TestSchema2Context(unittest.TestCase):
@@ -31,5 +31,5 @@ class TestSchema2Context(unittest.TestCase):
 
         output_directory = os.path.join(os.path.dirname(__file__), "../data/contexts")
 
-        context = create_network_context(mapping, base, output_directory)
+        context = create_and_save_contexts(mapping, base, output_directory)
         print(context)
