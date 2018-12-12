@@ -112,9 +112,8 @@ def create_network_context(mapping, semantic_types, write_to_file=False):
 
                 for context_type in local_context:
                     contexts[schema_name][context_type] = local_context[context_type]
-                    context_file_name = schema_name.split('_', 1)[0]
-                    context_file_name += "_"+context_type
-                    context_file_name += "_context.jsonld"
+                    context_file_name = schema_name.replace("_schema.json",
+                                                            "_" + context_type + "_context.jsonld")
                     local_output_file = os.path.join(os.path.dirname(__file__),
                                                      write_to_file + '/' +
                                                      mapping['networkName'] +
