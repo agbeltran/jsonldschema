@@ -416,3 +416,9 @@ class TestSchema2Context(unittest.TestCase):
         self.assertTrue(mapping_variable == expected_output)
 
         self.mock_resolver_patcher.stop()
+
+        second_url = "test123"
+        with self.assertRaises(Exception) as context:
+            prepare_input(second_url, network_name)
+            self.assertTrue("Error with one or more schemas"
+                            in context.exception)

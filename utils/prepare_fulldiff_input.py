@@ -128,17 +128,3 @@ def resolve_schema_ref(schema, resolver, network):
     return network
 
 
-if __name__ == '__main__':
-
-    networks_map = [
-        ["https://w3id.org/dats/schema/person_schema.json", "dats_mapping.json"],
-        ["https://w3id.org/mircat/miaca/schema/source_schema.json", "miaca_mapping.json"],
-        ["https://w3id.org/dats/schema/person_schema.json", "dats_mapping.json"]
-    ]
-
-    input_networks = {"networks": prepare_multiple_input(networks_map)}
-    if not isinstance(input_networks, FileNotFoundError):
-        output_file = os.path.join(mapping_dir, "fullDiff_input_example.json")
-        with open(output_file, "w") as file_to_write:
-            file_to_write.write(json.dumps(input_networks, indent=4))
-            file_to_write.close()
