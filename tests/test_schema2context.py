@@ -224,7 +224,8 @@ class TestSchema2Context(unittest.TestCase):
 
             with self.assertRaises(Exception) as context:
                 create_network_context(mapping, base, ["test"])
-                self.assertTrue("Please provide a valid path to your directory" in context.exception)
+                self.assertTrue("Please provide a valid path to your directory"
+                                in context.exception)
 
             self.mock_request_patcher.stop()
             self.mock_makedir_patcher.stop()
