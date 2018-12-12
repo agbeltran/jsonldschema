@@ -18,7 +18,7 @@ class TestSchema2Context(unittest.TestCase):
 
         create_network_context(mapping, base)
 
-    def test_create_context_network2(self):
+    def test_create_and_save_contexts(self):
         url = "https://w3id.org/mircat/miacme/schema/miacme_schema.json"
 
         base = {
