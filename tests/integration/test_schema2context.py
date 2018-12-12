@@ -1,4 +1,5 @@
 import unittest
+import os
 from utils.schema2context import create_network_context, prepare_input
 
 
@@ -28,4 +29,7 @@ class TestSchema2Context(unittest.TestCase):
         mapping = prepare_input(url,
                                 "MIACME")
 
-        create_network_context(mapping, base)
+        output_directory = os.path.join(os.path.dirname(__file__), "../data/contexts")
+
+        context = create_network_context(mapping, base, output_directory)
+        print(context)

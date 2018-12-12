@@ -220,11 +220,13 @@ class TestSchema2Context(unittest.TestCase):
 
             mapping = prepare_input("https://w3id.org/dats/schema/person_schema.json", "DATS")
             contexts = create_network_context(mapping, base)
+            contexts2 = create_network_context(mapping, base, "test")
             self.mock_request_patcher.stop()
             self.mock_makedir_patcher.stop()
             self.mock_json_load_patcher.stop()
             self.mock_resolver_patcher.stop()
             self.assertTrue(contexts == expected_output)
+            self.assertTrue(contexts2 == expected_output)
 
     def test_prepare_input(self):
 
