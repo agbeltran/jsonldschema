@@ -91,3 +91,4 @@ class TestCasePrepareFullDiffInput(object):
         self.mock_request.return_value = RequestMockResponse
         tested_output = self.pre_process.resolve_network(schema_url)
         eq_(tested_output, expected_output)
+

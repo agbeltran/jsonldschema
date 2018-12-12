@@ -64,8 +64,11 @@ def load_context(context):
     full_context = {}
 
     for schema in context['contexts']:
-        context_content = requests.get(context['contexts'][schema])
-        full_context[schema+'.json'] = json.loads(context_content.text)['@context']
+        try:
+            context_content = requests.get(context['contexts'][schema])
+            full_context[schema+'.json'] = json.loads(context_content.text)['@context']
+        except Exception as e:
+            raise e
 
     return full_context
 
@@ -77,10 +80,13 @@ def resolve_network(schema_url):
     :return: a fully resolved network
     """
     network_schemas = {}
-    schema_content = json.loads(requests.get(schema_url).text)
-    network_schemas[get_name(schema_content['id'])] = schema_content
-    resolver = RefResolver(schema_url, schema_content, store={})
-    return resolve_schema_ref(schema_content, resolver, network_schemas)
+    try:
+        schema_content = json.loads(requests.get(schema_url).text)
+        network_schemas[get_name(schema_content['id'])] = schema_content
+        resolver = RefResolver(schema_url, schema_content, store={})
+        return resolve_schema_ref(schema_content, resolver, network_schemas)
+    except Exception:
+        raise Exception("There is a problem with your url or schema", schema_url)
 
 
 def resolve_schema_ref(schema, resolver, network):

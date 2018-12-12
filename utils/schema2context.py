@@ -153,9 +153,12 @@ def prepare_input(schema_url, network_name):
         "networkName": network_name,
         "schemas": {}
     }
-    network = resolve_network(schema_url)
+    try:
+        network = resolve_network(schema_url)
 
-    for schema in network.keys():
-        output['schemas'][schema] = network[schema]['id']
+        for schema in network.keys():
+            output['schemas'][schema] = network[schema]['id']
 
-    return output
+        return output
+    except Exception as e:
+        raise Exception("Error with one or more schemas", e)
