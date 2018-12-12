@@ -126,4 +126,3 @@ def resolve_schema_ref(schema, resolver, network):
         resolve_schema_ref(schema[SchemaKey.items], resolver, network)
 
     return network
-
