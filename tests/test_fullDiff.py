@@ -354,4 +354,5 @@ class FellSemDiffMultipleTestCase(unittest.TestCase):
         ]
         self.assertTrue(len(self.full_diff.output[0][0]) == 0)
         self.assertTrue(len(self.full_diff.output[1][0]) == 0)
-        self.assertTrue(json.dumps(self.full_diff.output[0][1]) == json.dumps(expected_overlaps))
+        self.assertTrue(json.dumps(self.full_diff.output[0][1], sort_keys=True)
+                        == json.dumps(expected_overlaps, sort_keys=True))
