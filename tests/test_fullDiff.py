@@ -184,5 +184,3 @@ class FellSemDiffMultipleTestCase(unittest.TestCase):
         self.assertTrue(len(self.full_diff.output[1]) == 1)
         self.assertTrue(len(self.full_diff.output[1][0]) == 0)
         self.assertTrue(len(self.full_diff.output) == 2)
-
-
