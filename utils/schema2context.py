@@ -67,95 +67,104 @@ def create_context_template_from_url(schema_url, semantic_types):
         return Exception("No schema could be found at given URL", schema_url)
 
 
-def create_network_context(network_file, semantic_types):
+def create_network_context(mapping, semantic_types):
     """ Generates the context files for each schema in the given network
-    and write these files to the disk
-    :param network_file: a file containing a mapping dict {"schemaName": "schemaURL"}
-    :type network_file: str
+    :param mapping: a file containing a mapping dict {"schemaName": "schemaURL"}
+    :type mapping: dict
     :param semantic_types: a mapping dict of ontologies {"ontologyName": "Ontology URL"}
     :type semantic_types: dict
     :return: the resolved contexts
     """
 
     contexts = {}
-
-    # this needs to be changed
-    data_dir = os.path.join(os.path.dirname(__file__), "./../tests/data")
-
-    # create the main output directory
-    output_top_dir = os.path.join(os.path.dirname(__file__), "./generated_context")
-    if not os.path.exists(output_top_dir):
-        os.makedirs(output_top_dir)
-
-    # open the mapping file
-    with open(os.path.join(data_dir, network_file)) as mapping_file:
-        mapping = json.load(mapping_file)
-        mapping_file.close()
-
-    # create a sub directory base on the network name found in mapping
-    output_sub_dir = os.path.join(os.path.dirname(__file__),
-                                  "./generated_context/" + mapping['networkName'])
-    if not os.path.exists(output_sub_dir):
-        os.makedirs(output_sub_dir)
-
-    # create subsub directory for each ontology
-    for ontology_name in semantic_types:
-        local_output_dir = os.path.join(os.path.dirname(__file__),
-                                        "./generated_context/" +
-                                        mapping['networkName'] +
-                                        "/" +
-                                        ontology_name)
-        if not os.path.exists(local_output_dir):
-            os.makedirs(local_output_dir)
-
     # For each schema
     for schema_name in mapping['schemas']:
-
         contexts[schema_name] = {}
-
         schema_url = mapping['schemas'][schema_name]
         local_context = create_context_template_from_url(schema_url, semantic_types)
-
         for context_type in local_context:
             contexts[schema_name][context_type] = local_context[context_type]
-            context_file_name = schema_name.replace('schema', "")
-            context_file_name += context_type
-            context_file_name += "_context.jsonld"
-            local_output_file = os.path.join(os.path.dirname(__file__),
-                                             "./generated_context/" +
-                                             mapping['networkName'] +
-                                             "/" +
-                                             context_type +
-                                             "/" +
-                                             context_file_name)
-            with open(local_output_file, "w") as output_file:
-                output_file.write(json.dumps(local_context[context_type], indent=4))
+    return contexts
+
+
+def create_and_save_contexts(mapping, semantic_types, write_to_file):
+    """ Generates the context files for each schema in the given network
+    and write these files to the disk
+    :param mapping: a file containing a mapping dict {"schemaName": "schemaURL"}
+    :type mapping: dict
+    :param semantic_types: a mapping dict of ontologies {"ontologyName": "Ontology URL"}
+    :type semantic_types: dict
+    :param write_to_file: the directory absolute path to output the variables
+    :type write_to_file: basestring
+    :return: the resolved contexts
+    """
+    contexts = {}
+    try:
+        if not os.path.exists(write_to_file):
+            os.makedirs(write_to_file)
+
+        # create a sub directory base on the network name found in mapping
+        output_sub_dir = os.path.join(os.path.dirname(__file__),
+                                      write_to_file + '/' + mapping['networkName'])
+        if not os.path.exists(output_sub_dir):
+            os.makedirs(output_sub_dir)
+
+        # create subsub directory for each ontology
+        for ontology_name in semantic_types:
+            local_output_dir = os.path.join(os.path.dirname(__file__),
+                                            write_to_file + '/' +
+                                            mapping['networkName'] +
+                                            "/" +
+                                            ontology_name)
+            if not os.path.exists(local_output_dir):
+                os.makedirs(local_output_dir)
+
+        # For each schema
+        for schema_name in mapping['schemas']:
+            contexts[schema_name] = {}
+
+            schema_url = mapping['schemas'][schema_name]
+            local_context = create_context_template_from_url(schema_url, semantic_types)
+
+            for context_type in local_context:
+                contexts[schema_name][context_type] = local_context[context_type]
+                context_file_name = schema_name.replace("_schema.json",
+                                                        "_" + context_type + "_context.jsonld")
+                local_output_file = os.path.join(os.path.dirname(__file__),
+                                                 write_to_file + '/' +
+                                                 mapping['networkName'] +
+                                                 "/" +
+                                                 context_type +
+                                                 "/" +
+                                                 context_file_name)
+                with open(local_output_file, "w") as output_file:
+                    output_file.write(json.dumps(local_context[context_type], indent=4))
+
+    except Exception as e:
+        raise Exception("Please provide a valid path to your directory", e)
 
     return contexts
 
 
-def prepare_input(schema_url, network_name, file_name):
+def prepare_input(schema_url, network_name):
     """ Enable to resolve all references from a given schema and create the output
     for create_network_context
     :param schema_url: url of the schema
     :type schema_url: basestring
     :param network_name: the name of the network
     :type network_name: basestring
-    :param file_name: the name of the file where the mapping data should be saved
-    :type file_name: str
     :return: a TextIOWrapper with the location of the mapping file
     """
     output = {
         "networkName": network_name,
         "schemas": {}
     }
-    network = resolve_network(schema_url)
+    try:
+        network = resolve_network(schema_url)
 
-    for schema in network.keys():
-        output['schemas'][schema] = network[schema]['id']
+        for schema in network.keys():
+            output['schemas'][schema] = network[schema]['id']
 
-    with open(file_name, "w") as mapping_file:
-        mapping_file.write(json.dumps(output, indent=4))
-        mapping_file.close()
-
-    return [output, file_name]
+        return output
+    except Exception as e:
+        raise Exception("Error with one or more schemas", e)

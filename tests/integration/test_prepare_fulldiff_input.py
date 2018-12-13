@@ -5,6 +5,7 @@ import json
 from deepdiff import DeepDiff
 from jsonschema.validators import RefResolver
 from utils import prepare_fulldiff_input
+from utils.compile_schema import get_name
 
 
 class CompileSchemaTestCase(unittest.TestCase):
@@ -13,7 +14,7 @@ class CompileSchemaTestCase(unittest.TestCase):
         super(CompileSchemaTestCase, self).__init__(*args, **kwargs)
 
     def setUp(self):
-        self.mapping_dir = os.path.join(os.path.dirname(__file__), "data")
+        self.mapping_dir = os.path.join(os.path.dirname(__file__), "../data")
 
         mapping_files = ["dats_mapping.json", "miaca_mapping.json"]
         i = 0
@@ -46,13 +47,13 @@ class CompileSchemaTestCase(unittest.TestCase):
     def test_resolve_network(self):
         expected_output = self.load_expected_input()[0]['schemas']
         data = prepare_fulldiff_input.resolve_network(self.network_1_schema_url)
-
         self.assertTrue(DeepDiff(data, expected_output) == {})
 
     def test_resolve_schema_ref(self):
         expected_output = self.load_expected_input()[0]['schemas']
         network_schemas = {}
         schema_content = json.loads(requests.get(self.network_1_schema_url).text)
+        network_schemas[get_name(schema_content['id'])] = schema_content
         resolver = RefResolver(self.network_1_schema_url, schema_content, store={})
         data = prepare_fulldiff_input.resolve_schema_ref(schema_content, resolver, network_schemas)
         self.assertTrue(DeepDiff(data, expected_output) == {})

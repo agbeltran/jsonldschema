@@ -1,7 +1,35 @@
 import json
 import requests
+import os
 from jsonschema.validators import RefResolver
 from utils.compile_schema import SchemaKey, get_name
+
+mapping_dir = os.path.join(os.path.dirname(__file__), "../tests/data")
+
+
+def prepare_multiple_input(networks_mapping):
+
+    networks = []
+
+    for network in networks_mapping:
+        mapping_file = os.path.join(mapping_dir, network[1])
+        try:
+            with open(mapping_file) as mapper:
+                mapping = json.load(mapper)
+                mapper.close()
+
+                resolved_network = {
+                    "schemas": resolve_network(network[0]),
+                    "name": mapping["networkName"],
+                    "contexts": load_context(mapping)
+                }
+
+                networks.append(resolved_network)
+
+        except FileNotFoundError:
+            raise FileNotFoundError("Error with one of your context file")
+
+    return networks
 
 
 def prepare_input(schema_1_url, schema_2_url, mapping_1, mapping_2):
@@ -36,8 +64,11 @@ def load_context(context):
     full_context = {}
 
     for schema in context['contexts']:
-        context_content = requests.get(context['contexts'][schema])
-        full_context[schema+'.json'] = json.loads(context_content.text)['@context']
+        try:
+            context_content = requests.get(context['contexts'][schema])
+            full_context[schema+'.json'] = json.loads(context_content.text)['@context']
+        except Exception as e:
+            raise e
 
     return full_context
 
@@ -49,10 +80,13 @@ def resolve_network(schema_url):
     :return: a fully resolved network
     """
     network_schemas = {}
-    schema_content = json.loads(requests.get(schema_url).text)
-    network_schemas[get_name(schema_content['id'])] = schema_content
-    resolver = RefResolver(schema_url, schema_content, store={})
-    return resolve_schema_ref(schema_content, resolver, network_schemas)
+    try:
+        schema_content = json.loads(requests.get(schema_url).text)
+        network_schemas[get_name(schema_content['id'])] = schema_content
+        resolver = RefResolver(schema_url, schema_content, store={})
+        return resolve_schema_ref(schema_content, resolver, network_schemas)
+    except Exception:
+        raise Exception("There is a problem with your url or schema", schema_url)
 
 
 def resolve_schema_ref(schema, resolver, network):
@@ -66,11 +100,14 @@ def resolve_schema_ref(schema, resolver, network):
     :return: a fully processed network with resolved ref
     """
 
-    if SchemaKey.ref in schema and schema['$ref'][0] != '#':
+    if SchemaKey.ref in schema \
+            and schema['$ref'][0] != '#' \
+            and schema['$ref'].replace('#', '') not in network:
         reference_path = schema[SchemaKey.ref]
         resolved = resolver.resolve(reference_path)[1]
         if type(resolved) != Exception:
             network[get_name(resolved['id'])] = resolved
+            resolve_schema_ref(resolved, resolver, network)
 
     if SchemaKey.properties in schema:
         for k, val in schema[SchemaKey.properties].items():

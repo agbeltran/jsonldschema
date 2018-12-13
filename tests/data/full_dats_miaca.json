@@ -1,82 +1,13 @@
 [
     {
         "schemas": {
-            "category_values_pair_schema.json": {
-                "additionalProperties": false,
-                "type": "object",
-                "id": "https://w3id.org/dats/schema/category_values_pair_schema.json",
-                "title": "DATS extension mechanism",
+            "person_schema.json": {
+                "id": "https://w3id.org/dats/schema/person_schema.json",
                 "$schema": "http://json-schema.org/draft-04/schema",
-                "properties": {
-                    "@type": {
-                        "type": "string",
-                        "description": "The JSON-LD type",
-                        "enum": [
-                            "CategoryValuesPair"
-                        ]
-                    },
-                    "@id": {
-                        "type": "string",
-                        "description": "The JSON-LD identifier",
-                        "format": "uri"
-                    },
-                    "category": {
-                        "type": "string",
-                        "description": "A characteristic or property about the entity this object is associated with."
-                    },
-                    "categoryIRI": {
-                        "description": "The IRI corresponding to the category, if associated with an ontology term.",
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "uri"
-                            },
-                            {
-                                "type": "string",
-                                "maxLength": 0
-                            }
-                        ]
-                    },
-                    "values": {
-                        "type": "array",
-                        "description": "A set of (annotated) values associated with the cateogory.",
-                        "items": {
-                            "$ref": "annotation_schema.json#"
-                        }
-                    },
-                    "@context": {
-                        "description": "The JSON-LD context",
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "object"
-                            },
-                            {
-                                "type": "array"
-                            }
-                        ]
-                    }
-                },
-                "description": "Extension mechanism for DATS, which allows to add extra properties to the entities. It should be used only for cases where there are no specific properties to deal with the desired property."
-            },
-            "alternate_identifier_info_schema.json": {
-                "additionalProperties": false,
+                "title": "DATS person schema",
+                "description": "A human being",
                 "type": "object",
-                "id": "https://w3id.org/dats/schema/alternate_identifier_info_schema.json",
-                "title": "DATS alternate identifier information schema",
-                "$schema": "http://json-schema.org/draft-04/schema",
                 "properties": {
-                    "identifier": {
-                        "type": "string",
-                        "description": "An identifier or identifiers other than the primary Identifier applied to the resource being registered. (definition from DataCite)"
-                    },
-                    "@id": {
-                        "type": "string",
-                        "description": "The JSON-LD identifier",
-                        "format": "uri"
-                    },
                     "@context": {
                         "description": "The JSON-LD context",
                         "anyOf": [
@@ -91,170 +22,88 @@
                             }
                         ]
                     },
-                    "identifierSource": {
-                        "type": "string",
-                        "description": "The identifier source represents information about the organisation/namespace responsible for minting the identifiers. It must be provided if the identifier is provided."
-                    },
-                    "@type": {
-                        "type": "string",
-                        "description": "The JSON-LD type",
-                        "enum": [
-                            "AlternateIdentifier"
-                        ]
-                    }
-                },
-                "description": "Information about an alternate identifier (other than the primary)."
-            },
-            "identifier_info_schema.json": {
-                "additionalProperties": false,
-                "type": "object",
-                "id": "https://w3id.org/dats/schema/identifier_info_schema.json",
-                "title": "DATS identifier information schema",
-                "$schema": "http://json-schema.org/draft-04/schema",
-                "properties": {
-                    "identifier": {
-                        "type": "string",
-                        "description": "A code uniquely identifying an entity locally to a system or globally."
-                    },
                     "@id": {
-                        "type": "string",
                         "description": "The JSON-LD identifier",
+                        "type": "string",
                         "format": "uri"
                     },
-                    "@context": {
-                        "description": "The JSON-LD context",
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "object"
-                            },
-                            {
-                                "type": "array"
-                            }
-                        ]
-                    },
-                    "identifierSource": {
-                        "type": "string",
-                        "description": "The identifier source represents information about the organisation/namespace responsible for minting the identifiers. It must be provided if the identifier is provided."
-                    },
                     "@type": {
-                        "type": "string",
                         "description": "The JSON-LD type",
-                        "enum": [
-                            "Identifier"
-                        ]
-                    }
-                },
-                "description": "Information about the primary identifier."
-            },
-            "organization_schema.json": {
-                "additionalProperties": false,
-                "type": "object",
-                "id": "https://w3id.org/dats/schema/organization_schema.json",
-                "title": "DATS organization schema",
-                "$schema": "http://json-schema.org/draft-04/schema",
-                "required": [
-                    "name"
-                ],
-                "properties": {
-                    "@type": {
                         "type": "string",
-                        "description": "The JSON-LD type",
                         "enum": [
-                            "Organization"
+                            "Person"
                         ]
                     },
                     "identifier": {
-                        "description": "The identifier of the organization.",
+                        "description": "Primary identifier for the person.",
                         "$ref": "identifier_info_schema.json#"
                     },
-                    "location": {
-                        "description": "The place where the organization is located.",
-                        "$ref": "place_schema.json#"
-                    },
-                    "abbreviation": {
-                        "type": "string",
-                        "description": "The shortname, abbreviation associated to the organization."
-                    },
-                    "@context": {
-                        "description": "The JSON-LD context",
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "object"
-                            },
-                            {
-                                "type": "array"
-                            }
-                        ]
-                    },
-                    "@id": {
-                        "type": "string",
-                        "description": "The JSON-LD identifier",
-                        "format": "uri"
+                    "alternateIdentifiers": {
+                        "description": "Alternate identifiers for the person.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "alternate_identifier_info_schema.json#"
+                        }
                     },
                     "relatedIdentifiers": {
+                        "description": "Related identifiers for the person.",
                         "type": "array",
-                        "description": "Related identifiers for the organization.",
                         "items": {
                             "$ref": "related_identifier_info_schema.json#"
                         }
                     },
-                    "roles": {
+                    "fullName": {
+                        "description": "The first name, any middle names, and surname of a person.",
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "description": "The given name of the person.",
+                        "type": "string"
+                    },
+                    "middleInitial": {
+                        "description": "The first letter of the person's middle name.",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "The person's family name.",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "An electronic mail address for the person.",
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "affiliations": {
+                        "description": "The organizations to which the person is associated with.",
                         "type": "array",
-                        "description": "The roles of the organization (ideally from a controlled vocabulary/ontology).",
+                        "items": {
+                            "$ref": "organization_schema.json#"
+                        }
+                    },
+                    "roles": {
+                        "description": "The roles assumed by a person, ideally from a controlled vocabulary/ontology.",
+                        "type": "array",
                         "items": {
                             "$ref": "annotation_schema.json#"
                         }
                     },
                     "extraProperties": {
-                        "type": "array",
                         "description": "Extra properties that do not fit in the previous specified attributes. ",
+                        "type": "array",
                         "items": {
                             "$ref": "category_values_pair_schema.json#"
                         }
-                    },
-                    "alternateIdentifiers": {
-                        "type": "array",
-                        "description": "Alternate identifiers for the organization.",
-                        "items": {
-                            "$ref": "alternate_identifier_info_schema.json#"
-                        }
-                    },
-                    "name": {
-                        "type": "string",
-                        "description": "The name of the organization."
                     }
                 },
-                "description": "Legal or physical entity corresponding to a business or administration."
+                "additionalProperties": false
             },
-            "annotation_schema.json": {
-                "additionalProperties": false,
-                "type": "object",
-                "id": "https://w3id.org/dats/schema/annotation_schema.json",
-                "title": "DATS annotation schema",
+            "identifier_info_schema.json": {
+                "id": "https://w3id.org/dats/schema/identifier_info_schema.json",
                 "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "DATS identifier information schema",
+                "description": "Information about the primary identifier.",
+                "type": "object",
                 "properties": {
-                    "@id": {
-                        "type": "string",
-                        "description": "The JSON-LD identifier",
-                        "format": "uri"
-                    },
-                    "value": {
-                        "description": "The value of the annotation - it can be a string or a number (for coded values).",
-                        "oneOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "number"
-                            }
-                        ]
-                    },
                     "@context": {
                         "description": "The JSON-LD context",
                         "anyOf": [
@@ -269,46 +118,113 @@
                             }
                         ]
                     },
-                    "valueIRI": {
-                        "description": "The IRI of a concept or ontology term associated with the value. It can also be an empty string",
+                    "@id": {
+                        "description": "The JSON-LD identifier",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
+                        "description": "The JSON-LD type",
+                        "type": "string",
+                        "enum": [
+                            "Identifier"
+                        ]
+                    },
+                    "identifier": {
+                        "description": "A code uniquely identifying an entity locally to a system or globally.",
+                        "type": "string"
+                    },
+                    "identifierSource": {
+                        "description": "The identifier source represents information about the organisation/namespace responsible for minting the identifiers. It must be provided if the identifier is provided.",
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "alternate_identifier_info_schema.json": {
+                "id": "https://w3id.org/dats/schema/alternate_identifier_info_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "DATS alternate identifier information schema",
+                "description": "Information about an alternate identifier (other than the primary).",
+                "type": "object",
+                "properties": {
+                    "@context": {
+                        "description": "The JSON-LD context",
                         "anyOf": [
                             {
-                                "type": "string",
-                                "format": "uri"
+                                "type": "string"
                             },
                             {
-                                "type": "string",
-                                "maxLength": 0
+                                "type": "object"
+                            },
+                            {
+                                "type": "array"
                             }
                         ]
                     },
-                    "@type": {
+                    "@id": {
+                        "description": "The JSON-LD identifier",
                         "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
                         "description": "The JSON-LD type",
+                        "type": "string",
                         "enum": [
-                            "Annotation"
+                            "AlternateIdentifier"
                         ]
+                    },
+                    "identifier": {
+                        "description": "An identifier or identifiers other than the primary Identifier applied to the resource being registered. (definition from DataCite)",
+                        "type": "string"
+                    },
+                    "identifierSource": {
+                        "description": "The identifier source represents information about the organisation/namespace responsible for minting the identifiers. It must be provided if the identifier is provided.",
+                        "type": "string"
                     }
                 },
-                "description": "A pair of value (string or numeric) with a corresponding ontology term (IRI), if applicable."
+                "additionalProperties": false
             },
             "related_identifier_info_schema.json": {
-                "additionalProperties": false,
-                "type": "object",
                 "id": "https://w3id.org/dats/schema/related_identifier_info_schema.json",
-                "title": "DATS related identifier information schema",
                 "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "DATS related identifier information schema",
+                "description": "Information about an idenfier of related resources.",
+                "type": "object",
                 "properties": {
-                    "@type": {
+                    "@context": {
+                        "description": "The JSON-LD context",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "@id": {
+                        "description": "The JSON-LD identifier",
                         "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
                         "description": "The JSON-LD type",
+                        "type": "string",
                         "enum": [
                             "RelatedIdentifier"
                         ]
                     },
                     "identifier": {
-                        "type": "string",
-                        "description": "An identifier of a related resource."
+                        "description": "An identifier of a related resource.",
+                        "type": "string"
+                    },
+                    "identifierSource": {
+                        "description": "The identifier source represents information about the organisation/namespace responsible for minting the identifiers. It must be provided if the identifier is provided.",
+                        "type": "string"
                     },
                     "relationType": {
                         "description": "The type of the relationship corresponding to this identifier.",
@@ -324,7 +240,17 @@
                                 "$ref": "annotation_schema.json#"
                             }
                         ]
-                    },
+                    }
+                },
+                "additionalProperties": false
+            },
+            "annotation_schema.json": {
+                "id": "https://w3id.org/dats/schema/annotation_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "DATS annotation schema",
+                "description": "A pair of value (string or numeric) with a corresponding ontology term (IRI), if applicable.",
+                "type": "object",
+                "properties": {
                     "@context": {
                         "description": "The JSON-LD context",
                         "anyOf": [
@@ -340,16 +266,284 @@
                         ]
                     },
                     "@id": {
-                        "type": "string",
                         "description": "The JSON-LD identifier",
+                        "type": "string",
                         "format": "uri"
                     },
-                    "identifierSource": {
+                    "@type": {
+                        "description": "The JSON-LD type",
                         "type": "string",
-                        "description": "The identifier source represents information about the organisation/namespace responsible for minting the identifiers. It must be provided if the identifier is provided."
+                        "enum": [
+                            "Annotation"
+                        ]
+                    },
+                    "value": {
+                        "description": "The value of the annotation - it can be a string or a number (for coded values).",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "number"
+                            }
+                        ]
+                    },
+                    "valueIRI": {
+                        "description": "The IRI of a concept or ontology term associated with the value. It can also be an empty string",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     }
                 },
-                "description": "Information about an idenfier of related resources."
+                "additionalProperties": false
+            },
+            "organization_schema.json": {
+                "id": "https://w3id.org/dats/schema/organization_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "DATS organization schema",
+                "description": "Legal or physical entity corresponding to a business or administration.",
+                "type": "object",
+                "properties": {
+                    "@context": {
+                        "description": "The JSON-LD context",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "@id": {
+                        "description": "The JSON-LD identifier",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
+                        "description": "The JSON-LD type",
+                        "type": "string",
+                        "enum": [
+                            "Organization"
+                        ]
+                    },
+                    "identifier": {
+                        "description": "The identifier of the organization.",
+                        "$ref": "identifier_info_schema.json#"
+                    },
+                    "alternateIdentifiers": {
+                        "description": "Alternate identifiers for the organization.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "alternate_identifier_info_schema.json#"
+                        }
+                    },
+                    "relatedIdentifiers": {
+                        "description": "Related identifiers for the organization.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "related_identifier_info_schema.json#"
+                        }
+                    },
+                    "name": {
+                        "description": "The name of the organization.",
+                        "type": "string"
+                    },
+                    "abbreviation": {
+                        "description": "The shortname, abbreviation associated to the organization.",
+                        "type": "string"
+                    },
+                    "location": {
+                        "description": "The place where the organization is located.",
+                        "$ref": "place_schema.json#"
+                    },
+                    "roles": {
+                        "description": "The roles of the organization (ideally from a controlled vocabulary/ontology).",
+                        "type": "array",
+                        "items": {
+                            "$ref": "annotation_schema.json#"
+                        }
+                    },
+                    "extraProperties": {
+                        "description": "Extra properties that do not fit in the previous specified attributes. ",
+                        "type": "array",
+                        "items": {
+                            "$ref": "category_values_pair_schema.json#"
+                        }
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "name"
+                ]
+            },
+            "place_schema.json": {
+                "id": "https://w3id.org/dats/schema/place_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "DATS place schema",
+                "description": "A spatially bounded entity.",
+                "comment": "It corresponds to Feature in GeoJSON, https://tools.ietf.org/html/rfc7946, geoLocation in DataCite,http://schema.datacite.org/meta/kernel-4.0/ and Place in schema.org",
+                "type": "object",
+                "definitions": {
+                    "position": {
+                        "description": "A GeoJSON Position",
+                        "type": "array",
+                        "minItems": 2,
+                        "items": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "properties": {
+                    "@context": {
+                        "description": "The JSON-LD context",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "@id": {
+                        "description": "The JSON-LD identifier",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
+                        "description": "The JSON-LD type",
+                        "type": "string",
+                        "enum": [
+                            "Place"
+                        ]
+                    },
+                    "identifier": {
+                        "description": "Primary identifier for the place.",
+                        "$ref": "identifier_info_schema.json#"
+                    },
+                    "alternateIdentifiers": {
+                        "description": "Alternate identifiers for the place.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "alternate_identifier_info_schema.json#"
+                        }
+                    },
+                    "relatedIdentifiers": {
+                        "description": "Related identifiers for the place.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "related_identifier_info_schema.json#"
+                        }
+                    },
+                    "name": {
+                        "description": "The name of the place.",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "A textual narrative comprised of one or more statements describing the place.",
+                        "type": "string"
+                    },
+                    "postalAddress": {
+                        "description": "A physical street address.",
+                        "type": "string"
+                    },
+                    "geometry": {
+                        "description": "A region of a space.",
+                        "type": "string",
+                        "comment": "It follows GeoJSON specification https://tools.ietf.org/html/rfc7946",
+                        "enum": [
+                            "Point",
+                            "MultiPoint",
+                            "LineString",
+                            "MultiLineString",
+                            "Polygon",
+                            "MultiPolygon",
+                            "GeometryCollection"
+                        ]
+                    },
+                    "coordinates": {
+                        "description": "A non-empty list of GeoJSON positions.",
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "$ref": "#/definitions/position"
+                        }
+                    }
+                }
+            },
+            "category_values_pair_schema.json": {
+                "id": "https://w3id.org/dats/schema/category_values_pair_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "DATS extension mechanism",
+                "description": "Extension mechanism for DATS, which allows to add extra properties to the entities. It should be used only for cases where there are no specific properties to deal with the desired property.",
+                "type": "object",
+                "properties": {
+                    "@context": {
+                        "description": "The JSON-LD context",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "@id": {
+                        "description": "The JSON-LD identifier",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
+                        "description": "The JSON-LD type",
+                        "type": "string",
+                        "enum": [
+                            "CategoryValuesPair"
+                        ]
+                    },
+                    "category": {
+                        "description": "A characteristic or property about the entity this object is associated with.",
+                        "type": "string"
+                    },
+                    "categoryIRI": {
+                        "description": "The IRI corresponding to the category, if associated with an ontology term.",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
+                    },
+                    "values": {
+                        "description": "A set of (annotated) values associated with the cateogory.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "annotation_schema.json#"
+                        }
+                    }
+                },
+                "additionalProperties": false
             }
         },
         "name": "DATS",
@@ -942,7 +1136,92 @@
         }
     },
     {
-        "schemas": {},
+        "schemas": {
+            "source_schema.json": {
+                "id": "https://w3id.org/mircat/miaca/schema/source_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "MIACA Source - corresponding to a person and their organization",
+                "description": "Contact details of researcher/person/laboratory/institution in charge of the project -Used to describe the contact details of the scientist - corresponds to MIACA XSD sourceType",
+                "type": "object",
+                "properties": {
+                    "@context": {
+                        "description": "The JSON-LD context",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "@id": {
+                        "description": "The JSON-LD identifier",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
+                        "description": "The JSON-LD type",
+                        "type": "string",
+                        "enum": [
+                            "Source"
+                        ]
+                    },
+                    "ID": {
+                        "description": "The source identifier",
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "name of the researcher working on the project.",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "institution": {
+                        "description": "name of the institution/affiliation the researcher is working at",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "department": {
+                        "description": "department in the institution",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "address": {
+                        "description": "address of the institution",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "city": {
+                        "description": "city the institution is placed",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "country": {
+                        "description": "country the city is placed",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "email": {
+                        "description": "email of the researcher",
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "ID",
+                    "name",
+                    "institution",
+                    "department",
+                    "address",
+                    "city",
+                    "country",
+                    "email"
+                ]
+            }
+        },
         "name": "MIACA",
         "contexts": {
             "project_schema.json": {

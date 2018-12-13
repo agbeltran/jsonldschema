@@ -1,5 +1,8 @@
 import unittest
-from semDiff.fullDiff import FullSemDiff
+import json
+import os
+from collections import OrderedDict
+from semDiff.fullDiff import FullSemDiff, FullSemDiffMultiple
 
 DATS_contexts = {
     "person_schema.json": {
@@ -160,3 +163,24 @@ class FullSemDiffTestCase(unittest.TestCase):
         # Testing ignored fields
         self.assertTrue(self.full_diff.twins[0].overlap['ignored fields'][0]
                         == 'alternateIdentifiers')
+
+
+class FellSemDiffMultipleTestCase(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(FellSemDiffMultipleTestCase, self).__init__(*args, **kwargs)
+        data_path = os.path.join(os.path.dirname(__file__), "data/")
+        prepared_input = os.path.join(data_path, "fullDiff_input_example.json")
+        with open(prepared_input, 'r') as input_file:
+            self.mapping = json.load(input_file, object_pairs_hook=OrderedDict)
+            input_file.close()
+
+    def setUp(self):
+        self.full_diff = FullSemDiffMultiple(self.mapping['networks'])
+
+    def test___init__(self):
+        self.assertTrue(len(self.full_diff.output[0]) == 2)
+        self.assertTrue(len(self.full_diff.output[0][0]) == 0)
+        self.assertTrue(len(self.full_diff.output[1]) == 1)
+        self.assertTrue(len(self.full_diff.output[1][0]) == 0)
+        self.assertTrue(len(self.full_diff.output) == 2)
