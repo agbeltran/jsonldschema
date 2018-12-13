@@ -359,4 +359,6 @@ class FellSemDiffMultipleTestCase(unittest.TestCase):
 
         expected_overlaps_as_string = json.dumps(expected_overlaps)
         for item in self.full_diff.output[0][1]:
+            print(json.dumps(item))
+            print(expected_overlaps_as_string)
             self.assertTrue(json.dumps(item) in expected_overlaps_as_string)
