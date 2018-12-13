@@ -1,5 +1,7 @@
 import unittest
-from semDiff.fullDiff import FullSemDiff
+import json
+import os
+from semDiff.fullDiff import FullSemDiff, FullSemDiffMultiple
 
 DATS_contexts = {
     "person_schema.json": {
@@ -160,3 +162,196 @@ class FullSemDiffTestCase(unittest.TestCase):
         # Testing ignored fields
         self.assertTrue(self.full_diff.twins[0].overlap['ignored fields'][0]
                         == 'alternateIdentifiers')
+
+
+class FellSemDiffMultipleTestCase(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(FellSemDiffMultipleTestCase, self).__init__(*args, **kwargs)
+        data_path = os.path.join(os.path.dirname(__file__), "data/")
+        prepared_input = os.path.join(data_path, "fullDiff_input_example.json")
+        with open(prepared_input, 'r') as input_file:
+            self.mapping = json.load(input_file)
+            input_file.close()
+
+    def setUp(self):
+        self.full_diff = FullSemDiffMultiple(self.mapping['networks'])
+
+    def test___init__(self):
+        expected_overlaps = [
+            [
+                [
+                    "Annotation",
+                    "Annotation"
+                ],
+                {
+                    "coverage": [
+                        "100.0",
+                        [
+                            "2",
+                            "2"
+                        ]
+                    ],
+                    "overlapping fields": [
+                        [
+                            "value",
+                            "value"
+                        ],
+                        [
+                            "valueIRI",
+                            "valueIRI"
+                        ]
+                    ],
+                    "ignored fields": []
+                }
+            ],
+            [
+                [
+                    "Organization",
+                    "Organization"
+                ],
+                {
+                    "coverage": [
+                        "125.0",
+                        [
+                            "5",
+                            "4"
+                        ]
+                    ],
+                    "overlapping fields": [
+                        [
+                            "identifier",
+                            "identifier"
+                        ],
+                        [
+                            "name",
+                            "name"
+                        ],
+                        [
+                            "name",
+                            "abbreviation"
+                        ],
+                        [
+                            "abbreviation",
+                            "name"
+                        ],
+                        [
+                            "abbreviation",
+                            "abbreviation"
+                        ],
+                        [
+                            "location",
+                            "location"
+                        ],
+                        [
+                            "roles",
+                            "roles"
+                        ]
+                    ],
+                    "ignored fields": [
+                        "alternateIdentifiers",
+                        "relatedIdentifiers",
+                        "extraProperties"
+                    ]
+                }
+            ],
+            [
+                [
+                    "Person",
+                    "Person"
+                ],
+                {
+                    "coverage": [
+                        "100.0",
+                        [
+                            "7",
+                            "7"
+                        ]
+                    ],
+                    "overlapping fields": [
+                        [
+                            "identifier",
+                            "identifier"
+                        ],
+                        [
+                            "fullName",
+                            "fullName"
+                        ],
+                        [
+                            "firstName",
+                            "firstName"
+                        ],
+                        [
+                            "lastName",
+                            "lastName"
+                        ],
+                        [
+                            "email",
+                            "email"
+                        ],
+                        [
+                            "affiliations",
+                            "affiliations"
+                        ],
+                        [
+                            "roles",
+                            "roles"
+                        ]
+                    ],
+                    "ignored fields": [
+                        "alternateIdentifiers",
+                        "relatedIdentifiers",
+                        "middleInitial",
+                        "extraProperties"
+                    ]
+                }
+            ],
+            [
+                [
+                    "Place",
+                    "Place"
+                ],
+                {
+                    "coverage": [
+                        "100.0",
+                        [
+                            "6",
+                            "6"
+                        ]
+                    ],
+                    "overlapping fields": [
+                        [
+                            "identifier",
+                            "identifier"
+                        ],
+                        [
+                            "name",
+                            "name"
+                        ],
+                        [
+                            "description",
+                            "description"
+                        ],
+                        [
+                            "postalAddress",
+                            "postalAddress"
+                        ],
+                        [
+                            "geometry",
+                            "geometry"
+                        ],
+                        [
+                            "coordinates",
+                            "coordinates"
+                        ]
+                    ],
+                    "ignored fields": [
+                        "alternateIdentifiers",
+                        "relatedIdentifiers"
+                    ]
+                }
+            ]
+        ]
+        self.assertTrue(len(self.full_diff.output[0][0]) == 0)
+        self.assertTrue(len(self.full_diff.output[1][0]) == 0)
+        self.assertTrue(json.dumps(self.full_diff.output[0][1]) == json.dumps(expected_overlaps))

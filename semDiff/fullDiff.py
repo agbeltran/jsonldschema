@@ -96,7 +96,7 @@ class FullSemDiffMultiple:
         if start_position < len(self.networks):
             self.compute_overlap(start_position + 1)
 
-
+'''
 class HTMLGenerator:
 
     def __init__(self, diff):
@@ -133,3 +133,4 @@ if __name__ == '__main__':
     report = HTMLGenerator(FullSemDiffMultiple(data['networks']))
     report.generate_html()
     report.convert_to_html()
+'''
