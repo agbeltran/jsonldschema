@@ -29,7 +29,6 @@ class TestCasePrepareFullDiffInput(unittest.TestCase):
         # cls.mock_resolver_patcher.stop()
 
     def test_load_context(self):
-
         mock_request_patcher = patch('utils.prepare_fulldiff_input.requests.get')
         mock_request = mock_request_patcher.start()
 
@@ -41,7 +40,7 @@ class TestCasePrepareFullDiffInput(unittest.TestCase):
         }
 
         context = {
-            "@context":  {
+            "@context": {
                 'test': "sdo:test"
             }
         }
@@ -127,16 +126,16 @@ class TestCasePrepareFullDiffInput(unittest.TestCase):
         mock_load_context = mock_load_context_patcher.start()
         mock_load_context.return_value = {
             "person_schema.json": {
-                    "sdo": "https://schema.org/",
-                    "Person": "sdo:Person",
-                    "identifier": "sdo:identifier",
-                    "firstName": "sdo:givenName",
-                    "lastName": "sdo:familyName",
-                    "fullName": "sdo:name",
-                    "email": "sdo:email",
-                    "affiliations": "sdo:affiliation",
-                    "roles": "sdo:roleName"
-                }
+                "sdo": "https://schema.org/",
+                "Person": "sdo:Person",
+                "identifier": "sdo:identifier",
+                "firstName": "sdo:givenName",
+                "lastName": "sdo:familyName",
+                "fullName": "sdo:name",
+                "email": "sdo:email",
+                "affiliations": "sdo:affiliation",
+                "roles": "sdo:roleName"
+            }
         }
 
         expected_output = {
@@ -211,6 +210,14 @@ class TestCasePrepareFullDiffInput(unittest.TestCase):
         self.assertTrue(input_networks == expected_output)
         mock_resolve_network_patcher.stop()
         mock_load_context_patcher.stop()
+
+        networks_map_error = [
+            ["https://w3id.org/dats/schema/person_schema.json", "123"],
+            ["https://w3id.org/mircat/miaca/schema/source_schema.json", 123],
+        ]
+
+        with self.assertRaises(Exception):
+            prepare_fulldiff_input.prepare_multiple_input(networks_map_error)
 
     def test_prepare_input(self):
         mock_resolve_network_patcher = patch('utils.prepare_fulldiff_input.resolve_network')
