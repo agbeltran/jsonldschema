@@ -115,3 +115,191 @@ class TestCasePrepareFullDiffInput(unittest.TestCase):
             self.assertTrue('There is a problem with your url or schema'
                             in context.exception)
         mock_resolver_patcher.stop()
+
+    def test_prepare_multiple_input(self):
+        mock_resolve_network_patcher = patch('utils.prepare_fulldiff_input.resolve_network')
+        mock_resolve_network = mock_resolve_network_patcher.start()
+        mock_resolve_network.return_value = {
+            "person_schema": "https://w3id.org/dats/schema/person_schema.json"
+        }
+
+        mock_load_context_patcher = patch('utils.prepare_fulldiff_input.load_context')
+        mock_load_context = mock_load_context_patcher.start()
+        mock_load_context.return_value = {
+            "person_schema.json": {
+                    "sdo": "https://schema.org/",
+                    "Person": "sdo:Person",
+                    "identifier": "sdo:identifier",
+                    "firstName": "sdo:givenName",
+                    "lastName": "sdo:familyName",
+                    "fullName": "sdo:name",
+                    "email": "sdo:email",
+                    "affiliations": "sdo:affiliation",
+                    "roles": "sdo:roleName"
+                }
+        }
+
+        expected_output = {
+            'networks': [
+                {
+                    'schemas': {
+                        'person_schema': 'https://w3id.org/dats/schema/person_schema.json'
+                    },
+                    'name': 'DATS',
+                    'contexts': {
+                        'person_schema.json': {
+                            'sdo': 'https://schema.org/',
+                            'Person': 'sdo:Person',
+                            'identifier': 'sdo:identifier',
+                            'firstName': 'sdo:givenName',
+                            'lastName': 'sdo:familyName',
+                            'fullName': 'sdo:name',
+                            'email': 'sdo:email',
+                            'affiliations': 'sdo:affiliation',
+                            'roles': 'sdo:roleName'
+                        }
+                    }
+                },
+                {
+                    'schemas': {
+                        'person_schema': 'https://w3id.org/dats/schema/person_schema.json'
+                    },
+                    'name': 'MIACA',
+                    'contexts': {
+                        'person_schema.json': {
+                            'sdo': 'https://schema.org/',
+                            'Person': 'sdo:Person',
+                            'identifier': 'sdo:identifier',
+                            'firstName': 'sdo:givenName',
+                            'lastName': 'sdo:familyName',
+                            'fullName': 'sdo:name',
+                            'email': 'sdo:email',
+                            'affiliations': 'sdo:affiliation',
+                            'roles': 'sdo:roleName'
+                        }
+                    }
+                },
+                {
+                    'schemas': {
+                        'person_schema': 'https://w3id.org/dats/schema/person_schema.json'
+                    },
+                    'name': 'DATS',
+                    'contexts': {
+                        'person_schema.json': {
+                            'sdo': 'https://schema.org/',
+                            'Person': 'sdo:Person',
+                            'identifier': 'sdo:identifier',
+                            'firstName': 'sdo:givenName',
+                            'lastName': 'sdo:familyName',
+                            'fullName': 'sdo:name',
+                            'email': 'sdo:email',
+                            'affiliations': 'sdo:affiliation',
+                            'roles': 'sdo:roleName'
+                        }
+                    }
+                }
+            ]
+        }
+
+        networks_map = [
+            ["https://w3id.org/dats/schema/person_schema.json", "dats_mapping.json"],
+            ["https://w3id.org/mircat/miaca/schema/source_schema.json", "miaca_mapping.json"],
+            ["https://w3id.org/dats/schema/person_schema.json", "dats_mapping.json"]
+        ]
+
+        input_networks = {"networks": prepare_fulldiff_input.prepare_multiple_input(networks_map)}
+        self.assertTrue(input_networks == expected_output)
+        mock_resolve_network_patcher.stop()
+        mock_load_context_patcher.stop()
+
+    def test_prepare_input(self):
+        mock_resolve_network_patcher = patch('utils.prepare_fulldiff_input.resolve_network')
+        mock_resolve_network = mock_resolve_network_patcher.start()
+        mock_resolve_network.return_value = {
+            "person_schema": "https://w3id.org/dats/schema/person_schema.json"
+        }
+
+        mock_load_context_patcher = patch('utils.prepare_fulldiff_input.load_context')
+        mock_load_context = mock_load_context_patcher.start()
+        mock_load_context.return_value = {
+            "person_schema.json": {
+                "sdo": "https://schema.org/",
+                "Person": "sdo:Person",
+                "identifier": "sdo:identifier",
+                "firstName": "sdo:givenName",
+                "lastName": "sdo:familyName",
+                "fullName": "sdo:name",
+                "email": "sdo:email",
+                "affiliations": "sdo:affiliation",
+                "roles": "sdo:roleName"
+            }
+        }
+
+        mapping = [
+            {
+                "networkName": "DATS",
+                "contexts": {
+                    "person_schema.json": "http://w3id.org/dats/context"
+                                          "/sdo/person_sdo_context.jsonld"
+                }
+            },
+            {
+                "networkName": "MIACA",
+                "contexts": {
+                    "person_schema.json": "http://w3id.org/dats/context"
+                                          "/sdo/person_sdo_context.jsonld"
+                }
+            }
+        ]
+
+        expected_output = [
+            {
+                'schemas': {
+                    'person_schema': 'https://w3id.org/dats/schema/person_schema.json'
+                },
+                'name': 'DATS',
+                'contexts': {
+                    'person_schema.json': {
+                        'sdo': 'https://schema.org/',
+                        'Person': 'sdo:Person',
+                        'identifier': 'sdo:identifier',
+                        'firstName': 'sdo:givenName',
+                        'lastName': 'sdo:familyName',
+                        'fullName': 'sdo:name',
+                        'email': 'sdo:email',
+                        'affiliations': 'sdo:affiliation',
+                        'roles': 'sdo:roleName'
+                    }
+                }
+            },
+            {
+                'schemas': {
+                    'person_schema': 'https://w3id.org/dats/schema/person_schema.json'
+                },
+                'name': 'MIACA',
+                'contexts': {
+                    'person_schema.json': {
+                        'sdo': 'https://schema.org/',
+                        'Person': 'sdo:Person',
+                        'identifier': 'sdo:identifier',
+                        'firstName': 'sdo:givenName',
+                        'lastName': 'sdo:familyName',
+                        'fullName': 'sdo:name',
+                        'email': 'sdo:email',
+                        'affiliations': 'sdo:affiliation',
+                        'roles': 'sdo:roleName'
+                    }
+                }
+            }
+        ]
+
+        input_networks = prepare_fulldiff_input.prepare_input("https://w3id.org/dats"
+                                                              "/schema/person_schema.json",
+                                                              "https://w3id.org/mircat/miaca"
+                                                              "/schema/source_schema.json",
+                                                              mapping[0],
+                                                              mapping[1])
+        self.assertTrue(input_networks == expected_output)
+
+        mock_resolve_network_patcher.stop()
+        mock_load_context_patcher.stop()
