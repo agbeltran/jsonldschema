@@ -1,6 +1,7 @@
 import unittest
 import json
 import os
+from collections import OrderedDict
 from semDiff.fullDiff import FullSemDiff, FullSemDiffMultiple
 
 DATS_contexts = {
@@ -171,7 +172,7 @@ class FellSemDiffMultipleTestCase(unittest.TestCase):
         data_path = os.path.join(os.path.dirname(__file__), "data/")
         prepared_input = os.path.join(data_path, "fullDiff_input_example.json")
         with open(prepared_input, 'r') as input_file:
-            self.mapping = json.load(input_file)
+            self.mapping = json.load(input_file, object_pairs_hook=OrderedDict)
             input_file.close()
 
     def setUp(self):
