@@ -34,7 +34,6 @@ class TestSchema2Context(unittest.TestCase):
         context = create_and_save_contexts(mapping, base, output_directory)
         print(context)
 
-
     def test_create_and_save_contexts_2(self):
         url = "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json"
 
