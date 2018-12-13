@@ -1,10 +1,13 @@
-import os
 from collections import namedtuple
 from copy import deepcopy
+from semDiff import compareNetwork, compareEntities
+
+'''
+from json2html import json2html
 import json
 import webbrowser
-from semDiff import compareNetwork, compareEntities
-from json2html import json2html
+import os
+'''
 
 
 class FullSemDiff:
@@ -95,6 +98,7 @@ class FullSemDiffMultiple:
 
         if start_position < len(self.networks):
             self.compute_overlap(start_position + 1)
+
 
 '''
 class HTMLGenerator:
