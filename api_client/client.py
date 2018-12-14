@@ -2,10 +2,18 @@ import falcon
 import logging
 from wsgiref import simple_server
 
-from api_client.utility import StorageEngine, StorageError
+from api_client.utility import (
+    StorageEngine,
+    StorageError
+)
 
 
 def max_body(limit):
+    """ Simple function to limit the size of the request
+    :param limit: the maxiùum size of the request
+    :type limit: int
+    :return:
+    """
 
     def hook(req, resp, resource, params):
         length = req.content_length
@@ -19,122 +27,124 @@ def max_body(limit):
     return hook
 
 
-class NetworkCompilerClient(object):
+class ClientBase(object):
+    """ The base class for all client classes
+    .. warning:: Do not use
+    :param db: the storage engine
+    :type db: StorageEngine
+    """
 
-    def __init__(self, db):
-        self.db = db
-        self.logger = logging.getLogger('thingsapp.' + __name__)
+    def __new__(cls, db):
+        if cls is ClientBase:
+            raise TypeError("base class may not be instantiated")
+        else:
+            cls.db = db
+            cls.logger = logging.getLogger('thingsapp.' + __name__)
+        return object.__new__(cls)
 
-    @falcon.before(max_body(64 * 1024))
-    def on_get(self, req, resp):
+    @staticmethod
+    def get_request_body(req):
         try:
-            doc = req.media
+            return req.media
         except KeyError:
             raise falcon.HTTPBadRequest(
                 'Missing thing',
                 'A thing must be submitted in the request body.')
 
+
+class NetworkCompilerClient(ClientBase):
+    """ Resolve all references and sub references for a given schema URL
+    """
+
+    @falcon.before(max_body(64 * 1024))
+    def on_get(self, req, resp):
+        """ Process the get request
+        :param req: the user request
+        :param resp: the server response
+        """
+        doc = self.get_request_body(req)
         proper_thing = self.db.resolve_network(doc)
         resp.status = falcon.HTTP_201
-        # resp.location = '/%s/things/%s' % (user_id, proper_thing['id'])
         resp.body = proper_thing
 
 
-class Schema2Context(object):
-
-    def __init__(self, db):
-        self.db = db
-        self.logger = logging.getLogger('thingsapp.' + __name__)
+class Schema2ContextClient(ClientBase):
+    """ Fully resolves a schema set from a given URL and
+    creates the context template for each given ontology
+    """
 
     @falcon.before(max_body(64 * 1024))
     def on_get(self, req, resp):
-        try:
-            doc = req.media
-        except KeyError:
-            raise falcon.HTTPBadRequest(
-                'Missing thing',
-                'A thing must be submitted in the request body.')
-
+        """ Process the get request
+        :param req: the user request
+        :param resp: the server response
+        """
+        doc = self.get_request_body(req)
         proper_thing = self.db.create_context(doc)
         resp.status = falcon.HTTP_201
         resp.body = proper_thing
 
 
-class FullSemDiffProcessor(object):
-
-    def __init__(self, db):
-        self.db = db
-        self.logger = logging.getLogger('thingsapp.' + __name__)
+class FullSemDiffClient(ClientBase):
+    """ Resolves the two given networks and compares their semantic
+    values based on bound context files
+    """
 
     @falcon.before(max_body(64 * 1024))
     def on_get(self, req, resp):
-        try:
-            doc = req.media
-        except KeyError:
-            raise falcon.HTTPBadRequest(
-                'Missing thing',
-                'A thing must be submitted in the request body.')
-
+        """ Process the get request
+        :param req: the user request
+        :param resp: the server response
+        """
+        doc = self.get_request_body(req)
         proper_thing = self.db.create_full_sem_diff(doc)
         resp.status = falcon.HTTP_201
         resp.body = proper_thing
 
 
-class SchemaValidator(object):
-
-    def __init__(self, db):
-        self.db = db
-        self.logger = logging.getLogger('thingsapp.' + __name__)
+class SchemaValidatorClient(ClientBase):
+    """ Validates a schema with the jsonschema library
+    """
 
     @falcon.before(max_body(64 * 1024))
     def on_get(self, req, resp):
-        try:
-            doc = req.media
-        except KeyError:
-            raise falcon.HTTPBadRequest(
-                'Missing thing',
-                'A thing must be submitted in the request body.')
-
+        """ Process the get request
+        :param req: the user request
+        :param resp: the server response
+        """
+        doc = self.get_request_body(req)
         proper_thing = self.db.validate_schema(doc)
         resp.status = falcon.HTTP_201
         resp.body = proper_thing
 
 
-class InstanceValidator(object):
-
-    def __init__(self, db):
-        self.db = db
-        self.logger = logging.getLogger('thingsapp.' + __name__)
+class InstanceValidatorClient(ClientBase):
+    """ Validates a given instance against a given schema
+    """
 
     @falcon.before(max_body(64 * 1024))
     def on_get(self, req, resp):
-        try:
-            doc = req.media
-        except KeyError:
-            raise falcon.HTTPBadRequest(
-                'Missing thing',
-                'A thing must be submitted in the request body.')
-
+        """ Process the get request
+        :param req: the user request
+        :param resp: the server response
+        """
+        doc = self.get_request_body(req)
         proper_thing = self.db.validate_instance(doc)
         resp.status = falcon.HTTP_201
         resp.body = proper_thing
 
 
-class NetworkValidator(object):
-
-    def __init__(self, db):
-        self.db = db
-        self.logger = logging.getLogger('thingsapp.' + __name__)
+class NetworkValidatorClient(ClientBase):
+    """ Resolves a network from given URL and validates each schema
+    """
 
     @falcon.before(max_body(64 * 1024))
     def on_get(self, req, resp):
-        try:
-            doc = req.media
-        except KeyError:
-            raise falcon.HTTPBadRequest(
-                'Missing thing',
-                'A thing must be submitted in the request body.')
-
+        """ Process the get request
+        :param req: the user request
+        :param resp: the server response
+        """
+        doc = self.get_request_body(req)
         proper_thing = self.db.validate_network(doc)
         resp.status = falcon.HTTP_201
         resp.body = proper_thing
@@ -143,20 +153,21 @@ class NetworkValidator(object):
 """
 # Configure your WSGI server to load "things.app" (app is a WSGI callable)
 app = falcon.API(middleware=[
-    AuthMiddleware(),
     RequireJSON(),
     JSONTranslator(),
 ])
+
 """
+
 app = falcon.API()
 database = StorageEngine()
 
 network_resolver = NetworkCompilerClient(database)
-context_creator = Schema2Context(database)
-semDiff_processor = FullSemDiffProcessor(database)
-schema_validator = SchemaValidator(database)
-instance_validator = InstanceValidator(database)
-network_validator = NetworkValidator(database)
+context_creator = Schema2ContextClient(database)
+semDiff_processor = FullSemDiffClient(database)
+schema_validator = SchemaValidatorClient(database)
+instance_validator = InstanceValidatorClient(database)
+network_validator = NetworkValidatorClient(database)
 
 app.add_route('/resolve_network', network_resolver)
 app.add_route('/create_context', context_creator)
@@ -169,12 +180,6 @@ app.add_route('/validate/network', network_validator)
 # If a responder ever raised an instance of StorageError, pass control to
 # the given handler.
 app.add_error_handler(StorageError, StorageError.handle)
-
-# Proxy some things to another service; this example shows how you might
-# send parts of an API off to a legacy system that hasn't been upgraded
-# yet, or perhaps is a single cluster that all data centers have to share.
-# sink = SinkAdapter()
-# app.add_sink(sink, r'/search/(?P<engine>ddg|y)\Z')
 
 
 if __name__ == '__main__':
