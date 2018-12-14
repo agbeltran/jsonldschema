@@ -129,48 +129,6 @@ class APIAppTest(APIClientTestCase):
             "mapping": [network1["contexts"], network2["contexts"]]
         }
 
-        expected_output = [
-            [
-                [
-                    "Person",
-                    "Source"
-                ],
-                {
-                    "coverage": [
-                        "57.14",
-                        [
-                            "4",
-                            "7"
-                        ]
-                    ],
-                    "overlapping fields": [
-                        [
-                            "identifier",
-                            "ID"
-                        ],
-                        [
-                            "fullName",
-                            "name"
-                        ],
-                        [
-                            "email",
-                            "email"
-                        ],
-                        [
-                            "affiliations",
-                            "institution"
-                        ]
-                    ],
-                    "ignored fields": [
-                        "alternateIdentifiers",
-                        "relatedIdentifiers",
-                        "middleInitial",
-                        "extraProperties"
-                    ]
-                }
-            ]
-        ]
-
         result = self.simulate_get('/semDiff', body=json.dumps(test_input))
         self.assertEqual(result.json[0][0], [
                "Person",
