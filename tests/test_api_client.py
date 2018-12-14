@@ -172,7 +172,23 @@ class APIAppTest(APIClientTestCase):
         ]
 
         result = self.simulate_get('/semDiff', body=json.dumps(test_input))
-        self.assertEqual(result.json, expected_output)
+        self.assertEqual(result.json[0][0], [
+               "Person",
+               "Source"
+        ])
+        self.assertEqual(result.json[0][1]['coverage'], [
+                "57.14",
+                [
+                    "4",
+                    "7"
+                ]
+        ])
+        self.assertEqual(result.json[0][1]['ignored fields'], [
+                "alternateIdentifiers",
+                "relatedIdentifiers",
+                "middleInitial",
+                "extraProperties"
+        ])
 
     def test_schema_validator(self):
 
