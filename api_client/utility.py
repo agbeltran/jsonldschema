@@ -34,15 +34,14 @@ class StorageEngine(object):
                                                          schema_url)
             self.cached_requests["resolved_network"][schema_url] = {}
             self.cached_requests["resolved_network"][schema_url]['schema'] = resolved_network
-            self.cached_requests["resolved_network"][schema_url]['timestamp'] = datetime.datetime.now()
+            self.cached_requests["resolved_network"][schema_url][
+                'timestamp'] = datetime.datetime.now()
 
             return json.dumps(resolved_network, indent=4)
 
         else:
-            print("Retrieving resolve_network request from cache for ", schema_url)
-            print('Request timestamp:', self.cached_requests["resolved_network"][schema_url]["timestamp"])
-            print((datetime.datetime.now() - self.cached_requests["resolved_network"][schema_url]["timestamp"]).days)
-            return json.dumps(self.cached_requests["resolved_network"][schema_url]['schema'], indent=4)
+            return json.dumps(self.cached_requests["resolved_network"][
+                                  schema_url]['schema'], indent=4)
 
     def create_context(self, user_input):
         if 'schema_url' not in user_input.keys():
