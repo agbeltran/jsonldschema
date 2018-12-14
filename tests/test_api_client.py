@@ -141,12 +141,16 @@ class APIAppTest(APIClientTestCase):
                     "7"
                 ]
         ])
-        self.assertEqual(result.json[0][1]['ignored fields'], [
+
+        ignored_fields = [
                 "alternateIdentifiers",
                 "relatedIdentifiers",
                 "middleInitial",
                 "extraProperties"
-        ])
+        ]
+
+        for field in ignored_fields:
+            self.assertTrue(field in result.json[0][1]['ignored fields'])
 
     def test_schema_validator(self):
 
