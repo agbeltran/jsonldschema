@@ -1,6 +1,7 @@
 import json
 import falcon
 import requests
+import datetime
 
 from jsonschema.validators import Draft4Validator, RefResolver
 
@@ -12,15 +13,36 @@ from semDiff.fullDiff import FullSemDiff
 
 class StorageEngine(object):
 
+    def __init__(self):
+        self.cached_requests = {
+            "resolved_network": {},
+            "create_context": {},
+            "create_full_sem_diff": {},
+            "validate_schema": {},
+            "validate_network": {},
+            "validate_instance": {}
+        }
+
     def resolve_network(self, schema):
         processed_schemas = {}
         schema_url = schema['schema_url']
 
-        processed_schemas[get_name(schema_url)] = '#'
-        return json.dumps(resolve_schema_references(
-                          resolve_reference(schema_url),
-                          processed_schemas,
-                          schema_url), indent=4)
+        if schema_url not in self.cached_requests["resolved_network"].keys():
+            processed_schemas[get_name(schema_url)] = '#'
+            resolved_network = resolve_schema_references(resolve_reference(schema_url),
+                                                         processed_schemas,
+                                                         schema_url)
+            self.cached_requests["resolved_network"][schema_url] = {}
+            self.cached_requests["resolved_network"][schema_url]['schema'] = resolved_network
+            self.cached_requests["resolved_network"][schema_url]['timestamp'] = datetime.datetime.now()
+
+            return json.dumps(resolved_network, indent=4)
+
+        else:
+            print("Retrieving resolve_network request from cache for ", schema_url)
+            print('Request timestamp:', self.cached_requests["resolved_network"][schema_url]["timestamp"])
+            print((datetime.datetime.now() - self.cached_requests["resolved_network"][schema_url]["timestamp"]).days)
+            return json.dumps(self.cached_requests["resolved_network"][schema_url]['schema'], indent=4)
 
     def create_context(self, user_input):
         if 'schema_url' not in user_input.keys():
@@ -63,9 +85,9 @@ class StorageEngine(object):
             if validation is not None:
                 return json.dumps(validation, indent=4)
             else:
-                return "You schema is valid"
+                return json.dumps("You schema is valid")
         except Exception as e:
-            return "Problem loading the schema: " + str(e)
+            return json.dumps("Problem loading the schema " + user_input)
 
     def validate_network(self, user_input):
 
@@ -79,7 +101,6 @@ class StorageEngine(object):
                 validation[schema] = local_validation
             else:
                 validation[schema] = "This schema is valid"
-
         return json.dumps(validation, indent=4)
 
     def validate_instance(self, user_input):
@@ -201,6 +222,7 @@ class JSONTranslator(object):
     # use req.media and resp.media for this instead.
 
     def process_request(self, req, resp):
+        print(req.media)
         # req.stream corresponds to the WSGI wsgi.input environ variable,
         # and allows you to read bytes from the request body.
         #
@@ -224,9 +246,16 @@ class JSONTranslator(object):
                                    'JSON was incorrect or not encoded as '
                                    'UTF-8.')
 
+
+
+    '''
     def process_response(self, req, resp, resource):
+        print(resp)
+        print(req)
+        print(resource)
         if 'result' not in resp.context:
             return
 
         resp.body = json.dumps(resp.context['result'])
+    '''
 """

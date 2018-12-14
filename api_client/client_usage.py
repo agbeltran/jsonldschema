@@ -112,4 +112,4 @@ if __name__ == '__main__':
     # print(client.make_full_sem_diff())
     # print(client.validate_schema())
     # print(client.validate_instance())
-    print(client.validate_network())
+    # print(client.validate_network())

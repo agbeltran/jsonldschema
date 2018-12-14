@@ -46,14 +46,14 @@ class ClientBase(object):
     def get_request_body(req):
         try:
             return req.media
-        except KeyError:
+        except Exception:
             raise falcon.HTTPBadRequest(
                 'Missing thing',
                 'A thing must be submitted in the request body.')
 
 
 class NetworkCompilerClient(ClientBase):
-    """ Resolve all references and sub references for a given schema URL
+    """ Resolves all references and sub references for a given schema URL
     """
 
     @falcon.before(max_body(64 * 1024))
@@ -159,29 +159,35 @@ app = falcon.API(middleware=[
 
 """
 
-app = falcon.API()
-database = StorageEngine()
 
-network_resolver = NetworkCompilerClient(database)
-context_creator = Schema2ContextClient(database)
-semDiff_processor = FullSemDiffClient(database)
-schema_validator = SchemaValidatorClient(database)
-instance_validator = InstanceValidatorClient(database)
-network_validator = NetworkValidatorClient(database)
+def create_client():
+    """
+    Simple function that instantiates the app and creates the bridge to the API
+    :return: the falcon app
+    """
+    application = falcon.API()
+    database = StorageEngine()
 
-app.add_route('/resolve_network', network_resolver)
-app.add_route('/create_context', context_creator)
-app.add_route('/semDiff', semDiff_processor)
-app.add_route('/validate/schema', schema_validator)
-app.add_route('/validate/instance', instance_validator)
-app.add_route('/validate/network', network_validator)
-# app.add_route('/{user_id}/things', things)
+    network_resolver = NetworkCompilerClient(database)
+    context_creator = Schema2ContextClient(database)
+    sem_diff_processor = FullSemDiffClient(database)
+    schema_validator = SchemaValidatorClient(database)
+    instance_validator = InstanceValidatorClient(database)
+    network_validator = NetworkValidatorClient(database)
 
-# If a responder ever raised an instance of StorageError, pass control to
-# the given handler.
-app.add_error_handler(StorageError, StorageError.handle)
+    application.add_route('/resolve_network', network_resolver)
+    application.add_route('/create_context', context_creator)
+    application.add_route('/semDiff', sem_diff_processor)
+    application.add_route('/validate/schema', schema_validator)
+    application.add_route('/validate/instance', instance_validator)
+    application.add_route('/validate/network', network_validator)
+
+    application.add_error_handler(StorageError, StorageError.handle)
+
+    return application
 
 
 if __name__ == '__main__':
+    app = create_client()
     httpd = simple_server.make_server('localhost', 8001, app)
     httpd.serve_forever()
