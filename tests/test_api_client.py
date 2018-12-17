@@ -285,4 +285,3 @@ class APIAppTest(APIClientTestCase):
                                         'description':
                                         'The size of the request is too large.'
                                         ' The body must not exceed 65536 bytes in length.'})
-
