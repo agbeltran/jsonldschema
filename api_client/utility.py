@@ -91,8 +91,9 @@ class StorageEngine(object):
     def validate_network(self, user_input):
 
         validation = {}
-        schema_url = user_input[0]
+        schema_url = user_input
         resolved_network = fast_resolver(schema_url)
+        print(resolved_network)
 
         for schema in resolved_network.keys():
             local_validation = Draft4Validator.check_schema(resolved_network[schema])
@@ -104,10 +105,9 @@ class StorageEngine(object):
 
     def validate_instance(self, user_input):
 
-        schema_url = user_input['schema_url']
-        instance_url = user_input['instance_url']
-
         try:
+            schema_url = user_input['schema_url']
+            instance_url = user_input['instance_url']
             schema = requests.get(schema_url)
             instance = requests.get(instance_url)
 
@@ -136,11 +136,15 @@ class StorageEngine(object):
                     else:
                         return json.dumps("Your json is valid")
 
-                except Exception as e:
-                    raise Exception("Malformed JSON, please verify your schema and your instance")
+                except Exception:
+                    raise falcon.HTTPError(falcon.HTTP_400,
+                                           "Malformed JSON, "
+                                           "please verify your schema and your instance")
 
         except requests.RequestException as e:
-            return "Problem loading your schema or your instance: " + str(e)
+            raise falcon.HTTPError(falcon.HTTP_400,
+                                   "Problem loading your schema or your instance: ",
+                                   str(e))
 
 
 class StorageError(Exception):

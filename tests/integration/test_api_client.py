@@ -97,7 +97,7 @@ class MircatClient:
 
     def validate_network(self):
         extra_url = "/validate/network"
-        schema_url = "https://w3id.org/dats/schema/activity_schema.json",
+        schema_url = "https://w3id.org/dats/schema/activity_schema.json"
         response = requests.get(self.request_base_url + extra_url,
                                 data=json.dumps(schema_url),
                                 headers=self.headers)
@@ -107,9 +107,9 @@ class MircatClient:
 
 if __name__ == '__main__':
     client = MircatClient("http://localhost", 8001)
-    print(client.create_context())
+    # print(client.create_context())
     # print(client.resolve_network())
     # print(client.make_full_sem_diff())
     # print(client.validate_schema())
     # print(client.validate_instance())
-    # print(client.validate_network())
+    print(client.validate_network())

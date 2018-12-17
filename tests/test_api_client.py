@@ -189,27 +189,22 @@ class APIAppTest(APIClientTestCase):
                 self.text = json.dumps(return_value)
                 self.status_code = status_code
 
+        # Testing with correct input
         side_effect = [
             MockedRequest({"abc": "def"}, 200),
             MockedRequest({"cde": "123"}, 200)
         ]
-
-        side_effect_error = [
-            MockedRequest({"abc": "def"}, 400),
-            MockedRequest({"cde": "123"}, 200)
-        ]
-
-        side_effect_error_2 = [
-            MockedRequest({"abc": "def"}, 200),
-            MockedRequest({"cde": "123"}, 400)
-        ]
-
         mock_request_patcher = patch("api_client.utility.requests.get", side_effect=side_effect)
         mock_request_patcher.start()
         result = self.simulate_get('/validate/instance', body=json.dumps(user_input))
         self.assertTrue(result.json == "Your json is valid")
         mock_request_patcher.stop()
 
+        # Testing with 400 error on first set
+        side_effect_error = [
+            MockedRequest({"abc": "def"}, 400),
+            MockedRequest({"cde": "123"}, 200)
+        ]
         mock_request_patcher = patch("api_client.utility.requests.get",
                                      side_effect=side_effect_error)
         mock_request_patcher.start()
@@ -220,6 +215,11 @@ class APIAppTest(APIClientTestCase):
                                                   'dats/schema/activity_schema.json'})
         mock_request_patcher.stop()
 
+        # Testing with 400 error on second set
+        side_effect_error_2 = [
+            MockedRequest({"abc": "def"}, 200),
+            MockedRequest({"cde": "123"}, 400)
+        ]
         mock_request_patcher = patch("api_client.utility.requests.get",
                                      side_effect=side_effect_error_2)
         mock_request_patcher.start()
@@ -229,3 +229,48 @@ class APIAppTest(APIClientTestCase):
                                                   'https://w3id.org/'
                                                   'mircat/miflowcyt/schema/sample_schema.json'})
         mock_request_patcher.stop()
+
+        # Testing with malformed json
+        side_effect_error_3 = [
+            MockedRequest("abc", 200),
+            MockedRequest({"cde": "123"}, 200)
+        ]
+        mock_request_patcher = patch("api_client.utility.requests.get",
+                                     side_effect=side_effect_error_3)
+        mock_request_patcher.start()
+        result_error = self.simulate_get('/validate/instance', body=json.dumps(user_input))
+        self.assertTrue(result_error.json == {'title':
+                                              'Malformed JSON, '
+                                              'please verify your schema and your instance'})
+        mock_request_patcher.stop()
+
+        # Testing malformed user input
+        user_input_malformed = {
+            "schema_url": "abc",
+            "instance_url": "sdef"
+        }
+        result_error = self.simulate_get('/validate/instance',
+                                         body=json.dumps(user_input_malformed))
+        self.assertTrue(result_error.json == {'title':
+                                              'Problem loading your schema or your instance: ',
+                                              'description':
+                                                  "Invalid URL 'abc':"
+                                                  " No schema supplied. "
+                                                  "Perhaps you meant http://abc?"})
+
+    def test_network_validator(self):
+        schema_url = "https://w3id.org/dats/schema/person_schema.json"
+
+        mock_api_patcher = patch("api_client.utility.fast_resolver")
+        mock_api = mock_api_patcher.start()
+
+        path = os.path.join(os.path.dirname(__file__), "./data")
+        with open(os.path.join(path, "dats.json"), 'r') as input_file:
+            # Load the JSON schema and close the file
+            mock_api.return_value = json.load(input_file)['schemas']
+            input_file.close()
+
+        result = self.simulate_get("/validate/network", body=json.dumps(schema_url))
+        self.assertTrue(result.json == {'person_schema.json': 'This schema is valid',
+                                        'identifier_info_schema': 'This schema is valid'})
+        mock_api_patcher.stop()
