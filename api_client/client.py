@@ -7,6 +7,7 @@ from api_client.utility import StorageEngine
 
 def max_body(limit):
     """ Simple function to limit the size of the request
+
     :param limit: the maxiùum size of the request
     :type limit: int
     :return:
@@ -27,6 +28,7 @@ def max_body(limit):
 class ClientBase(object):
     """ The base class for all client classes
     .. warning:: Do not use
+
     :param db: the storage engine
     :type db: StorageEngine
     """
@@ -56,6 +58,7 @@ class NetworkCompilerClient(ClientBase):
     @falcon.before(max_body(64 * 1024))
     def on_get(self, req, resp):
         """ Process the get request
+
         :param req: the user request
         :param resp: the server response
         """
@@ -73,6 +76,7 @@ class Schema2ContextClient(ClientBase):
     @falcon.before(max_body(64 * 1024))
     def on_get(self, req, resp):
         """ Process the get request
+
         :param req: the user request
         :param resp: the server response
         """
@@ -90,6 +94,7 @@ class FullSemDiffClient(ClientBase):
     @falcon.before(max_body(64 * 1024))
     def on_get(self, req, resp):
         """ Process the get request
+
         :param req: the user request
         :param resp: the server response
         """
@@ -106,6 +111,7 @@ class SchemaValidatorClient(ClientBase):
     @falcon.before(max_body(64 * 1024))
     def on_get(self, req, resp):
         """ Process the get request
+
         :param req: the user request
         :param resp: the server response
         """
@@ -122,6 +128,7 @@ class InstanceValidatorClient(ClientBase):
     @falcon.before(max_body(64 * 1024))
     def on_get(self, req, resp):
         """ Process the get request
+
         :param req: the user request
         :param resp: the server response
         """
@@ -138,6 +145,7 @@ class NetworkValidatorClient(ClientBase):
     @falcon.before(max_body(64 * 1024))
     def on_get(self, req, resp):
         """ Process the get request
+
         :param req: the user request
         :param resp: the server response
         """
@@ -160,6 +168,7 @@ app = falcon.API(middleware=[
 def create_client():
     """
     Simple function that instantiates the app and creates the bridge to the API
+
     :return: the falcon app
     """
     application = falcon.API()
