@@ -19,6 +19,26 @@ class APIClientTestCase(testing.TestCase):
 
 class APIAppTest(APIClientTestCase):
 
+    def test_base(self):
+        with self.assertRaises(Exception) as context:
+            db = StorageEngine()
+            ClientBase(db)
+            self.assertTrue("base class may not be instantiated"
+                            in context.exception)
+
+    def test_get_request_body(self):
+        with self.assertRaises(Exception) as context:
+            db = StorageEngine()
+            test = NetworkCompilerClient(db)
+
+            class MyCustomTest:
+                pass
+
+            test.get_request_body(MyCustomTest())
+
+            self.assertTrue("Missing thing"
+                            in context.exception)
+
     def test_resolve_network(self):
         mock_api_patcher = patch("api_client.utility.resolve_schema_references")
         mock_api = mock_api_patcher.start()
@@ -91,26 +111,6 @@ class APIAppTest(APIClientTestCase):
         self.assertEqual(result_error.json, error)
         mock_api_patcher.stop()
 
-    def test_base(self):
-        with self.assertRaises(Exception) as context:
-            db = StorageEngine()
-            ClientBase(db)
-            self.assertTrue("base class may not be instantiated"
-                            in context.exception)
-
-    def test_get_request_body(self):
-        with self.assertRaises(Exception) as context:
-            db = StorageEngine()
-            test = NetworkCompilerClient(db)
-
-            class MyCustomTest:
-                pass
-
-            test.get_request_body(MyCustomTest())
-
-            self.assertTrue("Missing thing"
-                            in context.exception)
-
     def test_full_sem_diff(self):
         path = os.path.join(os.path.dirname(__file__), "./data")
         with open(os.path.join(path, "dats.json"), 'r') as dats_file:
@@ -156,11 +156,11 @@ class APIAppTest(APIClientTestCase):
 
         mock_request_patcher = patch("api_client.utility.requests.get")
         mock_request = mock_request_patcher.start()
-        path = os.path.join(os.path.dirname(__file__), "./data")
 
         class MockedRequest:
 
             def __init__(self):
+                path = os.path.join(os.path.dirname(__file__), "./data")
                 with open(os.path.join(path, "access_schema.json"), 'r') as input_file:
                     # Load the JSON schema and close the file
                     self.text = json.dumps(json.load(input_file))
@@ -176,3 +176,56 @@ class APIAppTest(APIClientTestCase):
         schema_url_error = "https://w3id.org/dats/schema/access_sche"
         result2 = self.simulate_get('/validate/schema', body=json.dumps(schema_url_error))
         self.assertEqual(result2.json, "Problem loading the schema " + schema_url_error)
+
+    def test_instance_validator(self):
+        user_input = {
+            "schema_url": "https://w3id.org/dats/schema/activity_schema.json",
+            "instance_url": "https://w3id.org/mircat/miflowcyt/schema/sample_schema.json"
+        }
+
+        class MockedRequest:
+
+            def __init__(self, return_value, status_code):
+                self.text = json.dumps(return_value)
+                self.status_code = status_code
+
+        side_effect = [
+            MockedRequest({"abc": "def"}, 200),
+            MockedRequest({"cde": "123"}, 200)
+        ]
+
+        side_effect_error = [
+            MockedRequest({"abc": "def"}, 400),
+            MockedRequest({"cde": "123"}, 200)
+        ]
+
+        side_effect_error_2 = [
+            MockedRequest({"abc": "def"}, 200),
+            MockedRequest({"cde": "123"}, 400)
+        ]
+
+        mock_request_patcher = patch("api_client.utility.requests.get", side_effect=side_effect)
+        mock_request_patcher.start()
+        result = self.simulate_get('/validate/instance', body=json.dumps(user_input))
+        self.assertTrue(result.json == "Your json is valid")
+        mock_request_patcher.stop()
+
+        mock_request_patcher = patch("api_client.utility.requests.get",
+                                     side_effect=side_effect_error)
+        mock_request_patcher.start()
+        result_error = self.simulate_get('/validate/instance', body=json.dumps(user_input))
+        self.assertTrue(result_error.json == {'title': 'verifiy your URL ',
+                                              'description':
+                                                  'https://w3id.org/'
+                                                  'dats/schema/activity_schema.json'})
+        mock_request_patcher.stop()
+
+        mock_request_patcher = patch("api_client.utility.requests.get",
+                                     side_effect=side_effect_error_2)
+        mock_request_patcher.start()
+        result_error = self.simulate_get('/validate/instance', body=json.dumps(user_input))
+        self.assertTrue(result_error.json == {'title': 'verifiy your URL ',
+                                              'description':
+                                                  'https://w3id.org/'
+                                                  'mircat/miflowcyt/schema/sample_schema.json'})
+        mock_request_patcher.stop()

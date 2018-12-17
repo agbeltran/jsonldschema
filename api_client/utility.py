@@ -112,13 +112,13 @@ class StorageEngine(object):
             instance = requests.get(instance_url)
 
             if schema.status_code != 200:
-                return str(falcon.HTTPError(falcon.HTTP_400,
-                                            "verifiy your URL ",
-                                            schema_url))
+                raise falcon.HTTPError(falcon.HTTP_400,
+                                       "verifiy your URL ",
+                                       schema_url)
             elif instance.status_code != 200:
-                return str(falcon.HTTPError(falcon.HTTP_400,
-                                            "verifiy your URL ",
-                                            instance_url))
+                raise falcon.HTTPError(falcon.HTTP_400,
+                                       "verifiy your URL ",
+                                       instance_url)
 
             else:
                 try:
@@ -127,15 +127,17 @@ class StorageEngine(object):
                     errors_array = sorted(drafter.iter_errors(json.loads(instance.text)),
                                           key=lambda e: e.path)
                     errors = {}
+
                     for i in range(len(errors_array)):
                         errors[i] = errors_array[i].message
 
                     if len(errors) > 0:
                         return json.dumps(errors, indent=4)
                     else:
-                        return "Your json is valid"
+                        return json.dumps("Your json is valid")
+
                 except Exception as e:
-                    return str(e)
+                    raise Exception("Malformed JSON, please verify your schema and your instance")
 
         except requests.RequestException as e:
             return "Problem loading your schema or your instance: " + str(e)

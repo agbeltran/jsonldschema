@@ -107,7 +107,7 @@ class MircatClient:
 
 if __name__ == '__main__':
     client = MircatClient("http://localhost", 8001)
-    # print(client.create_context())
+    print(client.create_context())
     # print(client.resolve_network())
     # print(client.make_full_sem_diff())
     # print(client.validate_schema())
