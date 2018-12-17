@@ -274,3 +274,15 @@ class APIAppTest(APIClientTestCase):
         self.assertTrue(result.json == {'person_schema.json': 'This schema is valid',
                                         'identifier_info_schema': 'This schema is valid'})
         mock_api_patcher.stop()
+
+    def test_max_req_size(self):
+        user_input = {
+            "schema_url": 600000 * "abc"
+        }
+        result = self.simulate_get("/validate/network", body=json.dumps(user_input))
+        self.assertTrue(result.json == {'title':
+                                        'Request body is too large',
+                                        'description':
+                                        'The size of the request is too large.'
+                                        ' The body must not exceed 65536 bytes in length.'})
+

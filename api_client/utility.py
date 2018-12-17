@@ -93,7 +93,6 @@ class StorageEngine(object):
         validation = {}
         schema_url = user_input
         resolved_network = fast_resolver(schema_url)
-        print(resolved_network)
 
         for schema in resolved_network.keys():
             local_validation = Draft4Validator.check_schema(resolved_network[schema])
@@ -147,6 +146,7 @@ class StorageEngine(object):
                                    str(e))
 
 
+"""
 class StorageError(Exception):
 
     @staticmethod
@@ -158,8 +158,6 @@ class StorageError(Exception):
                                'Database Error',
                                description)
 
-
-"""
 class SinkAdapter(object):
 
     engines = {

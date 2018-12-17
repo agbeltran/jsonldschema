@@ -2,10 +2,7 @@ import falcon
 import logging
 from wsgiref import simple_server
 
-from api_client.utility import (
-    StorageEngine,
-    StorageError
-)
+from api_client.utility import StorageEngine
 
 
 def max_body(limit):
@@ -182,7 +179,7 @@ def create_client():
     application.add_route('/validate/instance', instance_validator)
     application.add_route('/validate/network', network_validator)
 
-    application.add_error_handler(StorageError, StorageError.handle)
+    # application.add_error_handler(StorageError, StorageError.handle)
 
     return application
 
