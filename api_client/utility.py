@@ -1,6 +1,7 @@
 import json
 import falcon
 import requests
+import datetime
 
 from jsonschema.validators import Draft4Validator, RefResolver
 
@@ -11,18 +12,57 @@ from semDiff.fullDiff import FullSemDiff
 
 
 class StorageEngine(object):
+    """ This class is the middle layer that binds the API calls to the actual python code
+
+    """
+
+    def __init__(self):
+        self.cached_requests = {
+            "resolved_network": {},
+            "create_context": {},
+            "create_full_sem_diff": {},
+            "validate_schema": {},
+            "validate_network": {},
+            "validate_instance": {}
+        }
 
     def resolve_network(self, schema):
+        """ Resolves all references of a given schema
+
+        :param schema: a json containing the schema_url attribute
+        :type schema: dict
+        :return: the resolved network
+        """
+
         processed_schemas = {}
         schema_url = schema['schema_url']
 
-        processed_schemas[get_name(schema_url)] = '#'
-        return json.dumps(resolve_schema_references(
-                          resolve_reference(schema_url),
-                          processed_schemas,
-                          schema_url), indent=4)
+        if schema_url not in self.cached_requests["resolved_network"].keys():
+            processed_schemas[get_name(schema_url)] = '#'
+            resolved_network = resolve_schema_references(resolve_reference(schema_url),
+                                                         processed_schemas,
+                                                         schema_url)
+            self.cached_requests["resolved_network"][schema_url] = {}
+            self.cached_requests["resolved_network"][schema_url]['schema'] = resolved_network
+            self.cached_requests["resolved_network"][schema_url][
+                'timestamp'] = datetime.datetime.now()
+
+            return json.dumps(resolved_network, indent=4)
+
+        else:
+            return json.dumps(self.cached_requests["resolved_network"][
+                                  schema_url]['schema'], indent=4)
 
     def create_context(self, user_input):
+        """ Resolve a network a creates the associated context files templates
+
+        :param user_input: a dict that should contain a "schema_url" and a "vocab" attributes.
+            vocab should contain the ontology names as keys and their base URL as value
+        :type user_input: dict
+        :return: a dict containing the context files of all schema in the network and
+            for all given vocabulary
+        """
+
         if 'schema_url' not in user_input.keys():
             raise falcon.HTTPError(falcon.HTTP_400,
                                    "Query error, no schema url was provided")
@@ -51,6 +91,13 @@ class StorageEngine(object):
             return json.dumps(output, indent=4)
 
     def create_full_sem_diff(self, user_input):
+        """ Compares two networks based on their semantics values
+
+        :param user_input: a dictionary containing the network_1, network_2
+            and a mapping of all schemas to their context files
+        :type user_input: dict
+        :return: a list of siblings
+        """
         sem_diff = FullSemDiff(user_input['mapping'],
                                user_input['network_1'],
                                user_input['network_2'])
@@ -58,19 +105,33 @@ class StorageEngine(object):
         return json.dumps(sem_diff.twins, indent=4)
 
     def validate_schema(self, user_input):
+        """ Validate a schema against its draft using Draft4Validator
+
+        :param user_input: a schema URL
+        :type user_input: basestring
+        :return: a string that give information on whether the schema is valid or not
+            (should return a boolean or a dict containing both variables)
+        """
         try:
             validation = Draft4Validator.check_schema(json.loads(requests.get(user_input).text))
             if validation is not None:
                 return json.dumps(validation, indent=4)
             else:
-                return "You schema is valid"
+                return json.dumps("You schema is valid")
         except Exception as e:
-            return "Problem loading the schema: " + str(e)
+            return json.dumps("Problem loading the schema " + user_input)
 
     def validate_network(self, user_input):
+        """ Resolves a network and validates all of its schemas using Draft4Validator
+
+        :param user_input: a schema URL
+        :type user_input: basestring
+        :return: a dictionary of all schemas with a string that give information
+            on whether the schema is valid or not
+        """
 
         validation = {}
-        schema_url = user_input[0]
+        schema_url = user_input
         resolved_network = fast_resolver(schema_url)
 
         for schema in resolved_network.keys():
@@ -79,26 +140,30 @@ class StorageEngine(object):
                 validation[schema] = local_validation
             else:
                 validation[schema] = "This schema is valid"
-
         return json.dumps(validation, indent=4)
 
     def validate_instance(self, user_input):
+        """ Validates an instance against a schema
 
-        schema_url = user_input['schema_url']
-        instance_url = user_input['instance_url']
+        :param user_input: a dictionary containing the schema_url and instance_url attributes
+        :type user_input: dict
+        :return: a validation str or a list of errors
+        """
 
         try:
+            schema_url = user_input['schema_url']
+            instance_url = user_input['instance_url']
             schema = requests.get(schema_url)
             instance = requests.get(instance_url)
 
             if schema.status_code != 200:
-                return str(falcon.HTTPError(falcon.HTTP_400,
-                                            "verifiy your URL ",
-                                            schema_url))
+                raise falcon.HTTPError(falcon.HTTP_400,
+                                       "verifiy your URL ",
+                                       schema_url)
             elif instance.status_code != 200:
-                return str(falcon.HTTPError(falcon.HTTP_400,
-                                            "verifiy your URL ",
-                                            instance_url))
+                raise falcon.HTTPError(falcon.HTTP_400,
+                                       "verifiy your URL ",
+                                       instance_url)
 
             else:
                 try:
@@ -107,20 +172,27 @@ class StorageEngine(object):
                     errors_array = sorted(drafter.iter_errors(json.loads(instance.text)),
                                           key=lambda e: e.path)
                     errors = {}
+
                     for i in range(len(errors_array)):
                         errors[i] = errors_array[i].message
 
                     if len(errors) > 0:
                         return json.dumps(errors, indent=4)
                     else:
-                        return "Your json is valid"
-                except Exception as e:
-                    return str(e)
+                        return json.dumps("Your json is valid")
+
+                except Exception:
+                    raise falcon.HTTPError(falcon.HTTP_400,
+                                           "Malformed JSON, "
+                                           "please verify your schema and your instance")
 
         except requests.RequestException as e:
-            return "Problem loading your schema or your instance: " + str(e)
+            raise falcon.HTTPError(falcon.HTTP_400,
+                                   "Problem loading your schema or your instance: ",
+                                   str(e))
 
 
+"""
 class StorageError(Exception):
 
     @staticmethod
@@ -132,8 +204,6 @@ class StorageError(Exception):
                                'Database Error',
                                description)
 
-
-"""
 class SinkAdapter(object):
 
     engines = {
@@ -201,6 +271,7 @@ class JSONTranslator(object):
     # use req.media and resp.media for this instead.
 
     def process_request(self, req, resp):
+        print(req.media)
         # req.stream corresponds to the WSGI wsgi.input environ variable,
         # and allows you to read bytes from the request body.
         #
@@ -224,9 +295,16 @@ class JSONTranslator(object):
                                    'JSON was incorrect or not encoded as '
                                    'UTF-8.')
 
+
+
+    '''
     def process_response(self, req, resp, resource):
+        print(resp)
+        print(req)
+        print(resource)
         if 'result' not in resp.context:
             return
 
         resp.body = json.dumps(resp.context['result'])
+    '''
 """

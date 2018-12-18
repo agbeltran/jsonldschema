@@ -97,7 +97,7 @@ class MircatClient:
 
     def validate_network(self):
         extra_url = "/validate/network"
-        schema_url = "https://w3id.org/dats/schema/activity_schema.json",
+        schema_url = "https://w3id.org/dats/schema/activity_schema.json"
         response = requests.get(self.request_base_url + extra_url,
                                 data=json.dumps(schema_url),
                                 headers=self.headers)

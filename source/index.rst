@@ -14,6 +14,7 @@ Welcome to jsonldschema's documentation!
    schemaUtilities
    validationUtilities
    cedarUtilities
+   apiClient
 
 
 Indices and tables
