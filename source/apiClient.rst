@@ -8,3 +8,8 @@ The API client provides most of the library functionality through a restful serv
     :members:
 
 
+---------------
+
+
+.. automodule:: utility
+    :members:

@@ -12,6 +12,9 @@ from semDiff.fullDiff import FullSemDiff
 
 
 class StorageEngine(object):
+    """ This class is the middle layer that binds the API calls to the actual python code
+
+    """
 
     def __init__(self):
         self.cached_requests = {
@@ -24,6 +27,13 @@ class StorageEngine(object):
         }
 
     def resolve_network(self, schema):
+        """ Resolves all references of a given schema
+
+        :param schema: a json containing the schema_url attribute
+        :type schema: dict
+        :return: the resolved network
+        """
+
         processed_schemas = {}
         schema_url = schema['schema_url']
 
@@ -44,6 +54,15 @@ class StorageEngine(object):
                                   schema_url]['schema'], indent=4)
 
     def create_context(self, user_input):
+        """ Resolve a network a creates the associated context files templates
+
+        :param user_input: a dict that should contain a "schema_url" and a "vocab" attributes.
+            vocab should contain the ontology names as keys and their base URL as value
+        :type user_input: dict
+        :return: a dict containing the context files of all schema in the network and
+            for all given vocabulary
+        """
+
         if 'schema_url' not in user_input.keys():
             raise falcon.HTTPError(falcon.HTTP_400,
                                    "Query error, no schema url was provided")
@@ -72,6 +91,13 @@ class StorageEngine(object):
             return json.dumps(output, indent=4)
 
     def create_full_sem_diff(self, user_input):
+        """ Compares two networks based on their semantics values
+
+        :param user_input: a dictionary containing the network_1, network_2
+            and a mapping of all schemas to their context files
+        :type user_input: dict
+        :return: a list of siblings
+        """
         sem_diff = FullSemDiff(user_input['mapping'],
                                user_input['network_1'],
                                user_input['network_2'])
@@ -79,6 +105,13 @@ class StorageEngine(object):
         return json.dumps(sem_diff.twins, indent=4)
 
     def validate_schema(self, user_input):
+        """ Validate a schema against its draft using Draft4Validator
+
+        :param user_input: a schema URL
+        :type user_input: basestring
+        :return: a string that give information on whether the schema is valid or not
+            (should return a boolean or a dict containing both variables)
+        """
         try:
             validation = Draft4Validator.check_schema(json.loads(requests.get(user_input).text))
             if validation is not None:
@@ -89,6 +122,13 @@ class StorageEngine(object):
             return json.dumps("Problem loading the schema " + user_input)
 
     def validate_network(self, user_input):
+        """ Resolves a network and validates all of its schemas using Draft4Validator
+
+        :param user_input: a schema URL
+        :type user_input: basestring
+        :return: a dictionary of all schemas with a string that give information
+            on whether the schema is valid or not
+        """
 
         validation = {}
         schema_url = user_input
@@ -103,6 +143,12 @@ class StorageEngine(object):
         return json.dumps(validation, indent=4)
 
     def validate_instance(self, user_input):
+        """ Validates an instance against a schema
+
+        :param user_input: a dictionary containing the schema_url and instance_url attributes
+        :type user_input: dict
+        :return: a validation str or a list of errors
+        """
 
         try:
             schema_url = user_input['schema_url']
