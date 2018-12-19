@@ -104,6 +104,23 @@ class MircatClient:
 
         return response.text
 
+    def merge_entities(self):
+        extra_url = '/merge'
+        urls = {
+            "schema_url_1": "https://w3id.org/dats/schema/person_schema.json",
+            "schema_url_2": "https://w3id.org/dats/schema/person_schema.json",
+            "context_url_1": "https://raw.githubusercontent.com/"
+                             "datatagsuite/context/master/obo/person_obo_context.jsonld",
+            "context_url_2": "https://raw.githubusercontent.com/"
+                             "FAIRsharing/mircat/master/miaca/context/"
+                             "obo/source_obo_context.jsonld"
+        }
+        response = requests.get(self.request_base_url + extra_url,
+                                data=json.dumps(urls),
+                                headers=self.headers)
+
+        return response.text
+
 
 if __name__ == '__main__':
     client = MircatClient("http://localhost", 8001)
@@ -112,4 +129,5 @@ if __name__ == '__main__':
     # print(client.make_full_sem_diff())
     # print(client.validate_schema())
     # print(client.validate_instance())
-    print(client.validate_network())
+    # print(client.validate_network())
+    print(client.merge_entities())

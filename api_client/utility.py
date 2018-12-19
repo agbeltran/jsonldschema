@@ -9,6 +9,7 @@ from utils.compile_schema import resolve_schema_references, get_name, resolve_re
 from utils.schema2context import resolve_network, process_schema_name, create_context_template
 from utils.prepare_fulldiff_input import resolve_network as fast_resolver
 from semDiff.fullDiff import FullSemDiff
+from semDiff.mergeEntities import EntityMerge
 
 
 class StorageEngine(object):
@@ -118,7 +119,7 @@ class StorageEngine(object):
                 return json.dumps(validation, indent=4)
             else:
                 return json.dumps("You schema is valid")
-        except Exception as e:
+        except Exception:
             return json.dumps("Problem loading the schema " + user_input)
 
     def validate_network(self, user_input):
@@ -190,6 +191,27 @@ class StorageEngine(object):
             raise falcon.HTTPError(falcon.HTTP_400,
                                    "Problem loading your schema or your instance: ",
                                    str(e))
+
+    def merge_entities(self, user_input):
+        """ Merge two given schemas
+
+        :param user_input: contains the two schemas URL to merge
+        :type user_input: dict ({schema_ulr_1; schema_url_2})
+        :return: a merged schema
+        """
+        try:
+            # TODO: HANDLE 404
+            schema_1 = json.loads(requests.get(user_input["schema_url_1"]).text)
+            schema_2 = json.loads(requests.get(user_input["schema_url_2"]).text)
+            context_1 = json.loads(requests.get(user_input["context_url_1"]).text)
+            context_2 = json.loads(requests.get(user_input["context_url_2"]).text)
+            merged_schema = EntityMerge(schema_1, context_1, schema_2, context_2)
+            return json.dumps({
+                "mergedSchema": merged_schema.output_schema,
+                "mergedContext": merged_schema.output_context
+            })
+        except Exception as e:
+            return json.dumps("There is a problem with one of your schema or context: " + str(e))
 
 
 """

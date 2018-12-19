@@ -11,6 +11,13 @@ from api_client.client import (
 from api_client.utility import StorageEngine
 
 
+class MockedRequest:
+
+    def __init__(self, return_value, status_code):
+        self.text = json.dumps(return_value)
+        self.status_code = status_code
+
+
 class APIClientTestCase(testing.TestCase):
     def setUp(self):
         super(APIClientTestCase, self).setUp()
@@ -183,12 +190,6 @@ class APIAppTest(APIClientTestCase):
             "instance_url": "https://w3id.org/mircat/miflowcyt/schema/sample_schema.json"
         }
 
-        class MockedRequest:
-
-            def __init__(self, return_value, status_code):
-                self.text = json.dumps(return_value)
-                self.status_code = status_code
-
         # Testing with correct input
         side_effect = [
             MockedRequest({"abc": "def"}, 200),
@@ -285,3 +286,65 @@ class APIAppTest(APIClientTestCase):
                                         'description':
                                         'The size of the request is too large.'
                                         ' The body must not exceed 65536 bytes in length.'})
+
+    def test_merge_entities(self):
+        user_input = {
+            "schema_url_1": "https://w3id.org/dats/schema/person_schema.json",
+            "schema_url_2": "https://w3id.org/dats/schema/person_schema.json",
+            "context_url_1": "https://raw.githubusercontent.com/"
+                             "datatagsuite/context/master/obo/person_obo_context.jsonld",
+            "context_url_2": "https://raw.githubusercontent.com/"
+                             "FAIRsharing/mircat/master/miaca/context/"
+                             "obo/source_obo_context.jsonld"
+        }
+
+        path = os.path.join(os.path.dirname(__file__), "./data")
+        with open(os.path.join(path, "person_schema.json"), 'r') as input_file:
+            # Load the JSON schema and close the file
+            schema1 = json.load(input_file)
+            input_file.close()
+        with open(os.path.join(path, "source_schema.json"), 'r') as input_file:
+            # Load the JSON schema and close the file
+            schema2 = json.load(input_file)
+            input_file.close()
+        with open(os.path.join(path, "person_obo_context.json"), 'r') as input_file:
+            # Load the JSON schema and close the file
+            context1 = json.load(input_file)
+            input_file.close()
+        with open(os.path.join(path, "source_obo_context.json"), 'r') as input_file:
+            # Load the JSON schema and close the file
+            context2 = json.load(input_file)
+            input_file.close()
+
+        side_effect = [
+            MockedRequest(schema1, 200),
+            MockedRequest(schema2, 200),
+            MockedRequest(context1, 200),
+            MockedRequest(context2, 200)
+        ]
+
+        with open(os.path.join(path, "merge_source_in_person.json"), 'r') as input_file:
+            # Load the JSON schema and close the file
+            expected_output = json.load(input_file)
+            input_file.close()
+
+        mock_request_patcher = patch("api_client.utility.requests.get", side_effect=side_effect)
+        mock_request_patcher.start()
+
+        result = self.simulate_get("/merge", body=json.dumps(user_input))
+        self.assertTrue(result.json == expected_output)
+        mock_request_patcher.stop()
+
+        user_input_error = {
+            "schema_url_1": "https://w3id.org/dats/schema/person.json",
+            "schema_url_2": "https://w3id.org/dats/schema/person_schema.json",
+            "context_url_1": "https://raw.githubusercontent.com/"
+                             "datatagsuite/context/master/obo/person_obo_context.jsonld",
+            "context_url_2": "https://raw.githubusercontent.com/"
+                             "FAIRsharing/mircat/master/miaca/context/"
+                             "obo/source_obo_context.jsonld"
+        }
+        result = self.simulate_get("/merge", body=json.dumps(user_input_error))
+        self.assertTrue(result.json == "There is a problem with one of your "
+                                       "schema or context: Expecting value: "
+                                       "line 1 column 1 (char 0)")
