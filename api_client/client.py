@@ -155,6 +155,23 @@ class NetworkValidatorClient(ClientBase):
         resp.body = proper_thing
 
 
+class MergeEntitiesClient(ClientBase):
+    """ Resolves a network from given URL and validates each schema
+    """
+
+    @falcon.before(max_body(64 * 1024))
+    def on_get(self, req, resp):
+        """ Process the get request
+
+        :param req: the user request
+        :param resp: the server response
+        """
+        doc = self.get_request_body(req)
+        proper_thing = self.db.merge_entities(doc)
+        resp.status = falcon.HTTP_201
+        resp.body = proper_thing
+
+
 """
 # Configure your WSGI server to load "things.app" (app is a WSGI callable)
 app = falcon.API(middleware=[
@@ -180,6 +197,7 @@ def create_client():
     schema_validator = SchemaValidatorClient(database)
     instance_validator = InstanceValidatorClient(database)
     network_validator = NetworkValidatorClient(database)
+    merge_processor = MergeEntitiesClient(database)
 
     application.add_route('/resolve_network', network_resolver)
     application.add_route('/create_context', context_creator)
@@ -187,6 +205,7 @@ def create_client():
     application.add_route('/validate/schema', schema_validator)
     application.add_route('/validate/instance', instance_validator)
     application.add_route('/validate/network', network_validator)
+    application.add_route('/merge', merge_processor)
 
     # application.add_error_handler(StorageError, StorageError.handle)
 
