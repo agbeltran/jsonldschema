@@ -7,7 +7,9 @@ from utils.schema2context import (
     create_context_template_from_url,
     create_network_context,
     prepare_input,
-    create_and_save_contexts
+    create_and_save_contexts,
+    generate_contexts_from_regex,
+    generate_context_mapping
 )
 
 
@@ -46,6 +48,12 @@ base = {
     "sdo": "https://schema.org",
     "obo": "http://purl.obolibrary.org/obo/"
 }
+schema_url = "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
+regexes = {
+    "/schema": "/context/obo",
+    "schema": "context_obo"
+}
+regex_error = "thisisastring"
 
 
 class TestSchema2Context(unittest.TestCase):
@@ -422,3 +430,41 @@ class TestSchema2Context(unittest.TestCase):
             prepare_input(second_url, network_name)
             self.assertTrue("Error with one or more schemas"
                             in context.exception)
+
+    def test_generate_contexts_from_regex(self):
+        context = generate_contexts_from_regex(schema_url, regexes)
+        self.assertTrue(context ==
+                        "https://w3id.org/mircat/miaca/context/obo/miaca_context_obo.json")
+
+        with self.assertRaises(Exception) as context:
+            generate_contexts_from_regex(schema_url, regex_error)
+            self.assertTrue("There is a problem with your input"
+                            in context.exception)
+
+    def test_generate_context_mapping(self):
+        mock_resolver_patcher = patch("utils.schema2context.resolve_network")
+        mock_resolver = mock_resolver_patcher.start()
+        mock_resolver.return_value = {
+            "miaca_schema.json": {
+                "id": "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
+            },
+            "test_schema.json": {
+                "id": "https://w3id.org/mircat/miaca/schema/test_schema.json"
+            }
+        }
+        context_mapping = generate_context_mapping(schema_url, regexes)
+
+        expected_output = {
+            "miaca_schema.json":
+                'https://w3id.org/mircat/miaca/context/obo/miaca_context_obo.json',
+            "test_schema.json": 'https://w3id.org/mircat/miaca/context/obo/test_context_obo.json'
+        }
+
+        self.assertTrue(context_mapping == expected_output)
+
+        with self.assertRaises(Exception) as context:
+            generate_context_mapping(schema_url, regex_error)
+            self.assertTrue("There is a problem with your input"
+                            in context.exception)
+
+        mock_resolver_patcher.stop()

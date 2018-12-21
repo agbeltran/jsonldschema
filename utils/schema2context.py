@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import requests
 import json
+import re
 import os
 from utils.prepare_fulldiff_input import resolve_network
 
@@ -168,3 +169,46 @@ def prepare_input(schema_url, network_name):
         return output
     except Exception as e:
         raise Exception("Error with one or more schemas", e)
+
+
+def generate_contexts_from_regex(schema_url, regex_input):
+    """ Creates the context URL for the given schema url based
+    on given regex
+
+    :param schema_url: a schema URL
+    :type schema_url: basestring
+    :param regex_input: keys are the regex to locate and value the replace value
+    :type regex_input: dict
+    :return: a context URL
+    """
+    try:
+        context_url = schema_url
+
+        for regex in regex_input.keys():
+            context_url = re.sub(regex, regex_input[regex], context_url)
+
+        return context_url
+    except Exception:
+        raise Exception("There is a problem with your input")
+
+
+def generate_context_mapping(schema_url, regex_input):
+    """ Resolves all schemas from given schema URL and creates the context mapping
+
+        :param schema_url: a schema URL
+        :type schema_url: basestring
+        :param regex_input: keys are the regex to locate and value the replace value
+        :type regex_input: dict
+        :return: a context mapping
+        """
+    try:
+        resolved_network = resolve_network(schema_url)
+        context_mapping = {}
+
+        for schema in resolved_network.keys():
+            context_mapping[schema] = generate_contexts_from_regex(resolved_network[schema]["id"],
+                                                                   regex_input)
+
+        return context_mapping
+    except Exception as e:
+        raise e
