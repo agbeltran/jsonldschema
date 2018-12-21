@@ -188,8 +188,8 @@ def generate_contexts_from_regex(schema_url, regex_input):
             context_url = re.sub(regex, regex_input[regex], context_url)
 
         return context_url
-    except Exception as e:
-        raise e
+    except Exception:
+        raise Exception("There is a problem with your input")
 
 
 def generate_context_mapping(schema_url, regex_input):
@@ -212,15 +212,3 @@ def generate_context_mapping(schema_url, regex_input):
         return context_mapping
     except Exception as e:
         raise e
-
-
-if __name__ == '__main__':
-    schema_url = "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
-    regexes = {
-        "/schema": "/context/obo",
-        "schema": "context_obo"
-    }
-    c1 = generate_contexts_from_regex(schema_url, regexes)
-    print(c1)
-    c = generate_context_mapping(schema_url, regexes)
-    print(json.dumps(c, indent=4))
