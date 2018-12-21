@@ -51,7 +51,7 @@ base = {
 schema_url = "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
 regexes = {
     "/schema": "/context/obo",
-    "schema": "context_obo"
+    "_schema": "_context_obo"
 }
 regex_error = "thisisastring"
 
@@ -433,7 +433,6 @@ class TestSchema2Context(unittest.TestCase):
 
     def test_generate_contexts_from_regex(self):
         context = generate_contexts_from_regex(schema_url, regexes)
-        print(context)
         self.assertTrue(context ==
                         "https://w3id.org/mircat/miaca/context/obo/miaca_context_obo.json")
 
