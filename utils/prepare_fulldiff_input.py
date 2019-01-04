@@ -67,8 +67,8 @@ def load_context(context):
         try:
             context_content = requests.get(context['contexts'][schema])
             full_context[schema+'.json'] = json.loads(context_content.text)['@context']
-        except Exception as e:
-            raise e
+        except Exception:
+            pass
 
     return full_context
 

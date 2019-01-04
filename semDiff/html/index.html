@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html lang="en" ng-app="generatorApp">
+    <head>
+        <meta charset="UTF-8">
+        <title>MIACA VS DATS</title>
+        <link rel="stylesheet" href="lib/sandstorm.min.css">
+        <link rel="stylesheet" href="app2.css">
+        <link rel="stylesheet"
+              href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+              integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+              crossorigin="anonymous">
+        <script type="text/javascript" src="lib/angular.js"></script>
+        <script type="text/javascript" src="app.js"></script>
+    </head>
+
+    <body class="JSONSchemaComp">
+        <div class="main" ng-controller="viewerCtrl as main">
+
+            <div class="card bg-light mb-3">
+
+                <div class="card-header">
+                    Overlap between {{output.header[1]}} and {{output.header[2]}} checklists
+                </div>
+
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr class="">
+                            <th scope="col" ng-repeat="title in output.header"> {{title}} </th>
+                        </tr>
+                        </thead>
+                        <tbody ng-repeat="schemaOverlap in output.content.overlapped_schemas" schema-overlap="schemaOverlap"> </tbody>
+                        <tbody ng-repeat="isolatedSchema in output.content.isolated_schemas" isolated-schema="isolatedSchema"> </tbody>
+
+
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </body>
+</html>

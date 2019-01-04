@@ -207,6 +207,6 @@ def generate_context_mapping(schema_url, regex_input):
             context_mapping[schema] = generate_contexts_from_regex(resolved_network[schema]["id"],
                                                                    regex_input)
 
-        return context_mapping
+        return context_mapping, resolved_network
     except Exception as e:
         raise e
