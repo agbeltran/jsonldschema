@@ -1,4 +1,6 @@
 from collections import OrderedDict
+from urllib.parse import urlparse, quote_plus
+from copy import deepcopy
 import requests
 import json
 import re
@@ -210,3 +212,47 @@ def generate_context_mapping(schema_url, regex_input):
         return context_mapping, resolved_network
     except Exception as e:
         raise e
+
+
+def generate_labels_from_contexts(contexts, labels):
+    ignored_keys = ["@language"]
+    for schemaName in contexts:
+        local_context = deepcopy(contexts[schemaName])
+
+        for term in local_context:
+            base_request_url = "https://www.ebi.ac.uk/ols/api/ontologies/"
+
+            if term not in ignored_keys:
+
+                if local_context[term] not in labels.keys():
+
+                    if urlparse(deepcopy(local_context[term])).scheme in ['http', 'https']:
+                        term_url = local_context[term]
+
+                    else:
+                        url_param = deepcopy(local_context[term]).split(":")
+
+                        # IS EDAM
+                        if url_param[0] == "edam":
+                            base_request_url = "https://www.ebi.ac.uk/ols/api/ontologies/edam/terms/"
+
+                        # IS NOT EDAM
+                        else:
+                            url_sub_params = url_param[1].split("_")[0]
+                            base_request_url += url_sub_params + "/terms/"
+                        term_url = contexts[schemaName][url_param[0]] + url_param[1]
+
+                    term_safe_url = quote_plus(quote_plus(term_url))
+                    local_request_url = base_request_url + term_safe_url
+                    resp = requests.get(local_request_url)
+
+                    if resp.status_code == 200:
+                        if "label" in json.loads(resp.text).keys():
+                            labels[local_context[term]] = json.loads(resp.text)["label"]
+                        else:
+                            labels[local_context[term]] = None
+
+                    else:
+                        labels[local_context[term]] = None
+                        print(term, "(" + schemaName + ")", local_request_url)
+    return labels

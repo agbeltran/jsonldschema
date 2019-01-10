@@ -1,12 +1,10 @@
 from collections import namedtuple
 from copy import deepcopy
 from semDiff import compareNetwork, compareEntities
-from utils.schema2context import generate_context_mapping
+from utils.schema2context import generate_context_mapping, generate_labels_from_contexts
 from utils.prepare_fulldiff_input import load_context
 
 import json
-import webbrowser
-import os
 
 
 class FullSemDiff:
@@ -33,7 +31,6 @@ class FullSemDiff:
 
         # Compute the comparison of entities based on their semantic type
         entity_coverage = compareNetwork.NetworkCoverage(contexts)
-        print(entity_coverage.covered_entities)
 
         # for each mapped entity
         for entity_name in entity_coverage.covered_entities:
@@ -91,7 +88,6 @@ class FullSemDiffMultiple:
             coverage = FullSemDiff(contexts,
                                    self.networks[start_position]["schemas"],
                                    self.networks[i]["schemas"])
-            print(coverage.twins)
             local_overlap.append(coverage.twins)
 
         if len(local_overlap) > 0:
@@ -101,54 +97,24 @@ class FullSemDiffMultiple:
             self.compute_overlap(start_position + 1)
 
 
-class HTMLGenerator:
+class FullDiffGenerator:
 
-    def __init__(self):
-        """ Output overlaps as an HTML file
-        """
-
-        """
-        self.output_dir = os.path.join(os.path.dirname(__file__), "html")
-        self.diff = diff
-
-        network1 = deepcopy(self.diff.networks[0])
-        network2 = deepcopy(self.diff.networks[1])
-        del network1['name']
-        del network2['name']
-
-        overlaps = {
-            "network1": {
-                "name": self.diff.networks[0]['name'],
-                "schemas": network1['schemas'],
-                "contexts": network1['contexts']
-            },
-            "network2": {
-                "name": self.diff.networks[1]['name'],
-                "schemas": network2['schemas'],
-                "contexts": network2['contexts']
-            },
-            "overlaps": self.diff.output
-        }
-
-        with open(output_file, "w") as outputFile:
-            outputFile.write(json.dumps(overlaps, indent=4))
-            outputFile.close()
-        """
-
-    def generate_contexts(self, first_network, second_network):
+    def __init__(self, first_network, second_network):
 
         network_1_resolved = generate_context_mapping(first_network['url'], first_network['regex'])
-        network_2_resolved = generate_context_mapping(second_network['url'], second_network['regex'])
-
         raw_context_1 = {
             'contexts': network_1_resolved[0]
         }
+        context_1 = load_context(raw_context_1)
+
+        network_2_resolved = generate_context_mapping(second_network['url'], second_network['regex'])
         raw_context_2 = {
             'contexts': network_2_resolved[0]
         }
-
-        context_1 = load_context(raw_context_1)
         context_2 = load_context(raw_context_2)
+
+        labels = generate_labels_from_contexts(context_1, {})
+        labels = generate_labels_from_contexts(context_2, labels)
 
         prepared_input = [
             {
@@ -164,7 +130,14 @@ class HTMLGenerator:
         ]
 
         overlaps = FullSemDiffMultiple(prepared_input)
-        return 1
+        final_output = {
+            "network1": overlaps.networks[0],
+            "network2": overlaps.networks[1],
+            "overlaps": overlaps.output[0][0],
+            "labels": labels
+        }
+
+        self.json = final_output
 
 
 if __name__ == '__main__':
@@ -185,5 +158,14 @@ if __name__ == '__main__':
         "regex": regex_1,
         "name": "MIACA"
     }
+    network_3 = {
+        "url": "https://w3id.org/mircat/miacme/schema/miacme_schema.json",
+        "regex": regex_1,
+        "name": "MIACME"
+    }
 
-    report = HTMLGenerator().generate_contexts(network_1, network_2)
+    report = FullDiffGenerator(network_1, network_3)
+
+    with open("outputfile.json", "w") as writter:
+        writter.write(json.dumps(report.json, indent=4))
+        writter.close()
