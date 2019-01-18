@@ -12,6 +12,7 @@ from utils.schema2context import (
     generate_context_mapping
 )
 
+import json
 
 person_schema = {
     "id": "https://w3id.org/dats/schema/person_schema.json",
@@ -454,13 +455,22 @@ class TestSchema2Context(unittest.TestCase):
         }
         context_mapping = generate_context_mapping(schema_url, regexes)
 
-        expected_output = {
-            "miaca_schema.json":
-                'https://w3id.org/mircat/miaca/context/obo/miaca_context_obo.json',
-            "test_schema.json": 'https://w3id.org/mircat/miaca/context/obo/test_context_obo.json'
-        }
+        expected_output = [
+            {
+                "miaca_schema.json": "https://w3id.org/mircat/miaca/context/obo/miaca_context_obo.json",
+                "test_schema.json": "https://w3id.org/mircat/miaca/context/obo/test_context_obo.json"
+            },
+            {
+                "miaca_schema.json": {
+                    "id": "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
+                },
+                "test_schema.json": {
+                    "id": "https://w3id.org/mircat/miaca/schema/test_schema.json"
+                }
+            }
+        ]
 
-        self.assertTrue(context_mapping == expected_output)
+        self.assertTrue(json.dumps(context_mapping) == json.dumps(expected_output))
 
         with self.assertRaises(Exception) as context:
             generate_context_mapping(schema_url, regex_error)

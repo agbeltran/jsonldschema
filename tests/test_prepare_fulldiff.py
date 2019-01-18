@@ -48,7 +48,7 @@ class TestCasePrepareFullDiffInput(unittest.TestCase):
         class RequestMockResponse:
             text = json.dumps(context)
 
-        expected_output = {'test_schema.json': {'test': 'sdo:test'}}
+        expected_output = {'test_schema': {'test': 'sdo:test'}}
         mock_request.return_value = RequestMockResponse
         tested_output = self.pre_process.load_context(contexts_mapping)
         eq_(tested_output, expected_output)
