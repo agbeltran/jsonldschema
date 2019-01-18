@@ -457,8 +457,10 @@ class TestSchema2Context(unittest.TestCase):
 
         expected_output = [
             {
-                "miaca_schema.json": "https://w3id.org/mircat/miaca/context/obo/miaca_context_obo.json",
-                "test_schema.json": "https://w3id.org/mircat/miaca/context/obo/test_context_obo.json"
+                "miaca_schema.json": "https://w3id.org/mircat/miaca/context/obo/"
+                                     "miaca_context_obo.json",
+                "test_schema.json": "https://w3id.org/mircat/miaca/context/obo/"
+                                    "test_context_obo.json"
             },
             {
                 "miaca_schema.json": {

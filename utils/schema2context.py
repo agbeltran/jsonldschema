@@ -234,7 +234,8 @@ def generate_labels_from_contexts(contexts, labels):
 
                         # IS EDAM
                         if url_param[0] == "edam":
-                            base_request_url = "https://www.ebi.ac.uk/ols/api/ontologies/edam/terms/"
+                            base_request_url = "https://www.ebi.ac.uk/ols/api/ontologies/" \
+                                               "edam/terms/"
 
                         # IS NOT EDAM
                         else:

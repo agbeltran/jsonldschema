@@ -107,7 +107,8 @@ class FullDiffGenerator:
         }
         context_1 = load_context(raw_context_1)
 
-        network_2_resolved = generate_context_mapping(second_network['url'], second_network['regex'])
+        network_2_resolved = generate_context_mapping(second_network['url'],
+                                                      second_network['regex'])
         raw_context_2 = {
             'contexts': network_2_resolved[0]
         }
