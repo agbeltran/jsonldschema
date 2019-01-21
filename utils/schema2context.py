@@ -215,6 +215,15 @@ def generate_context_mapping(schema_url, regex_input):
 
 
 def generate_labels_from_contexts(contexts, labels):
+    """
+    Generate labels from given context using OLS
+    :param contexts: the contexts to process
+    :type contexts: dict
+    :param labels: pre-existing labels to avoid triggering twice the same query
+    :type labels: dict
+    :return: labels
+    """
+
     ignored_keys = ["@language"]
     for schemaName in contexts:
         local_context = deepcopy(contexts[schemaName])
