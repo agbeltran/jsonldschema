@@ -224,7 +224,7 @@ def generate_labels_from_contexts(contexts, labels):
 
             if term not in ignored_keys:
 
-                if local_context[term] not in labels.keys():
+                if local_context[term] not in labels.keys() and local_context[term]:
 
                     if urlparse(deepcopy(local_context[term])).scheme in ['http', 'https']:
                         term_url = local_context[term]
@@ -255,5 +255,4 @@ def generate_labels_from_contexts(contexts, labels):
 
                     else:
                         labels[local_context[term]] = None
-                        print(term, "(" + schemaName + ")", local_request_url)
     return labels

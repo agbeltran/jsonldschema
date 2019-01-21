@@ -9,7 +9,8 @@ from utils.schema2context import (
     prepare_input,
     create_and_save_contexts,
     generate_contexts_from_regex,
-    generate_context_mapping
+    generate_context_mapping,
+    generate_labels_from_contexts
 )
 
 import json
@@ -480,3 +481,46 @@ class TestSchema2Context(unittest.TestCase):
                             in context.exception)
 
         mock_resolver_patcher.stop()
+
+    def test_generate_labels_from_contexts(self):
+
+        side_effect = [
+            MockedRequest(None, 200),
+            MockedRequest("minimum information standard", 200),
+            MockedRequest("planned process", 200),
+            MockedRequest(None, 400)
+        ]
+
+        mock_request_patcher = patch("utils.schema2context.requests.get", side_effect=side_effect)
+        mock_request_patcher.start()
+
+        context_1 = {
+            'miacme_schema.json': {
+                'obo': 'http://purl.obolibrary.org/obo/',
+                'Miacme': 'obo:MS_1000900',
+                '@language': 'en',
+                'investigation': 'obo:OBI_0000011',
+                "400field": "obo:OBI_pouetpouet",
+                "NoneURLField": ""
+            }
+        }
+
+        labels = generate_labels_from_contexts(context_1, {})
+        expected_output = {
+            "http://purl.obolibrary.org/obo/": None,
+            "obo:MS_1000900": "minimum information standard",
+            "obo:OBI_0000011": "planned process",
+            "obo:OBI_pouetpouet": None
+        }
+
+        print(json.dumps(labels, indent=4))
+        print(json.dumps(expected_output, indent=4))
+        self.assertTrue(labels == expected_output)
+        mock_request_patcher.stop()
+
+
+class MockedRequest:
+
+    def __init__(self, return_value, status_code):
+        self.text = json.dumps({"label": return_value})
+        self.status_code = status_code

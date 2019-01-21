@@ -4,8 +4,6 @@ from semDiff import compareNetwork, compareEntities
 from utils.schema2context import generate_context_mapping, generate_labels_from_contexts
 from utils.prepare_fulldiff_input import load_context
 
-import json
-
 
 class FullSemDiff:
     """
@@ -98,8 +96,19 @@ class FullSemDiffMultiple:
 
 
 class FullDiffGenerator:
+    """
+        A Full Diff Generator that use regex to recompose context files URLS. It then resolves
+        the two given networks of schemas and the two given networks of contexts, then
+        proceeds to the actual comparison
+    """
 
     def __init__(self, first_network, second_network):
+        """
+        :param first_network: the first network to compare from
+        :type first_network: dict
+        :param second_network:  the second network to compare against
+        :type second_network: dict
+        """
 
         network_1_resolved = generate_context_mapping(first_network['url'], first_network['regex'])
         raw_context_1 = {
@@ -141,6 +150,7 @@ class FullDiffGenerator:
         self.json = final_output
 
 
+'''
 if __name__ == '__main__':
     output_file = "html/overlap.json"
 
@@ -170,3 +180,4 @@ if __name__ == '__main__':
     with open("outputfile.json", "w") as writter:
         writter.write(json.dumps(report.json, indent=4))
         writter.close()
+'''
