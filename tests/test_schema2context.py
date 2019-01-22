@@ -513,9 +513,8 @@ class TestSchema2Context(unittest.TestCase):
             "obo:OBI_pouetpouet": None
         }
 
-        print(json.dumps(labels, indent=4))
-        print(json.dumps(expected_output, indent=4))
-        self.assertTrue(labels == expected_output)
+        for key in labels.keys():
+            self.assertTrue(labels[key] == expected_output[key])
         mock_request_patcher.stop()
 
 
