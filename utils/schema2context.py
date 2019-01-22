@@ -225,33 +225,41 @@ def generate_labels_from_contexts(contexts, labels):
     """
 
     ignored_keys = ["@language"]
+
+    # For each schema
     for schemaName in contexts:
         local_context = deepcopy(contexts[schemaName])
 
+        # For each team in that schema
         for term in local_context:
             base_request_url = "https://www.ebi.ac.uk/ols/api/ontologies/"
 
+            # If the term is not to be ignored
             if term not in ignored_keys:
 
-                if local_context[term] not in labels.keys() and local_context[term]:
+                # if the terms exists (is not none or blank) and hasn't already been processed
+                if local_context[term] and local_context[term] not in labels.keys():
 
+                    # if we have a direct URL
                     if urlparse(deepcopy(local_context[term])).scheme in ['http', 'https']:
                         term_url = local_context[term]
 
+                    # if we have an identifier
                     else:
                         url_param = deepcopy(local_context[term]).split(":")
 
-                        # IS EDAM
+                        # the identifier is an EDAM term
                         if url_param[0] == "edam":
                             base_request_url = "https://www.ebi.ac.uk/ols/api/ontologies/" \
                                                "edam/terms/"
 
-                        # IS NOT EDAM
+                        # the identifier is not an EDAM term
                         else:
                             url_sub_params = url_param[1].split("_")[0]
                             base_request_url += url_sub_params + "/terms/"
                         term_url = contexts[schemaName][url_param[0]] + url_param[1]
 
+                    # Double quote plus the URL or OLS won't work (??)
                     term_safe_url = quote_plus(quote_plus(term_url))
                     local_request_url = base_request_url + term_safe_url
                     resp = requests.get(local_request_url)
@@ -264,4 +272,5 @@ def generate_labels_from_contexts(contexts, labels):
 
                     else:
                         labels[local_context[term]] = None
+
     return labels

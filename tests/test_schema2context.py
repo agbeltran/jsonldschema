@@ -490,7 +490,8 @@ class TestSchema2Context(unittest.TestCase):
             MockedRequest(None, 400),
             MockedRequest("minimum information standard", 200),
             MockedRequest("planned process", 200),
-            MockedRequest("Raw Image", 200)
+            MockedRequest("Raw Image", 200),
+            MockErrorRequest()
 
         ]
 
@@ -542,6 +543,15 @@ class TestSchema2Context(unittest.TestCase):
         labels = generate_labels_from_contexts(context_step_4, labels)
         self.assertTrue(labels['edam:data_3424'] == "Raw Image")
 
+        context_step_4 = {
+            'miacme_schema.json': {
+                'obo': 'http://purl.obolibrary.org/obo/',
+                'errorTest': 'obo:OBI_errorTest',
+            }
+        }
+        labels = generate_labels_from_contexts(context_step_4, labels)
+        self.assertTrue(labels['obo:OBI_errorTest'] is None)
+
         mock_request_patcher.stop()
 
 
@@ -550,3 +560,10 @@ class MockedRequest:
     def __init__(self, return_value, status_code):
         self.text = json.dumps({"label": return_value})
         self.status_code = status_code
+
+
+class MockErrorRequest:
+
+    def __init__(self):
+        self.text = json.dumps({"123": "456"})
+        self.status_code = 200
