@@ -486,9 +486,13 @@ class TestSchema2Context(unittest.TestCase):
 
         side_effect = [
             MockedRequest(None, 200),
+            MockedRequest(None, 200),
             MockedRequest("minimum information standard", 200),
             MockedRequest("planned process", 200),
+            MockedRequest("Raw Image", 200),
+            MockedRequest(None, 400),
             MockedRequest(None, 400)
+
         ]
 
         mock_request_patcher = patch("utils.schema2context.requests.get", side_effect=side_effect)
@@ -497,22 +501,28 @@ class TestSchema2Context(unittest.TestCase):
         context_1 = {
             'miacme_schema.json': {
                 'obo': 'http://purl.obolibrary.org/obo/',
+                "edam": "http://edamontology.org/",
                 'Miacme': 'obo:MS_1000900',
                 '@language': 'en',
                 'investigation': 'obo:OBI_0000011',
-                "400field": "obo:OBI_pouetpouet",
-                "NoneURLField": ""
+                'anEDAMTerm': 'edam:data_3424',
+                "400field": "obo:OBI_noID",
+                "BlankField": "",
+                "NoneField": None
             }
         }
 
         labels = generate_labels_from_contexts(context_1, {})
         expected_output = {
             "http://purl.obolibrary.org/obo/": None,
+            "http://edamontology.org/": None,
             "obo:MS_1000900": "minimum information standard",
             "obo:OBI_0000011": "planned process",
-            "obo:OBI_pouetpouet": None
+            "obo:OBI_noID": None,
+            "edam:data_3424": "Raw Image"
         }
 
+        print("--------")
         for key in labels.keys():
             print(key, ": ", labels[key], " - ", expected_output[key])
             self.assertTrue(labels[key] == expected_output[key])
