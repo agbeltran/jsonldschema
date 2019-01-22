@@ -1,6 +1,8 @@
 import unittest
 from mock import patch, mock_open
 import os
+import json
+from collections import OrderedDict
 from utils.schema2context import (
     create_context_template,
     process_schema_name,
@@ -13,7 +15,6 @@ from utils.schema2context import (
     generate_labels_from_contexts
 )
 
-import json
 
 person_schema = {
     "id": "https://w3id.org/dats/schema/person_schema.json",
@@ -498,18 +499,20 @@ class TestSchema2Context(unittest.TestCase):
         mock_request_patcher = patch("utils.schema2context.requests.get", side_effect=side_effect)
         mock_request_patcher.start()
 
+        miaca_context = {
+            'obo': 'http://purl.obolibrary.org/obo/',
+            "edam": "http://edamontology.org/",
+            'Miacme': 'obo:MS_1000900',
+            '@language': 'en',
+            'investigation': 'obo:OBI_0000011',
+            'anEDAMTerm': 'edam:data_3424',
+            "400field": "obo:OBI_noID",
+            "BlankField": "",
+            "NoneField": None
+        }
+
         context_1 = {
-            'miacme_schema.json': {
-                'obo': 'http://purl.obolibrary.org/obo/',
-                "edam": "http://edamontology.org/",
-                'Miacme': 'obo:MS_1000900',
-                '@language': 'en',
-                'investigation': 'obo:OBI_0000011',
-                'anEDAMTerm': 'edam:data_3424',
-                "400field": "obo:OBI_noID",
-                "BlankField": "",
-                "NoneField": None
-            }
+            'miacme_schema.json': OrderedDict(miaca_context)
         }
 
         labels = generate_labels_from_contexts(context_1, {})
@@ -522,7 +525,6 @@ class TestSchema2Context(unittest.TestCase):
             "edam:data_3424": "Raw Image"
         }
 
-        print("--------")
         for key in labels.keys():
             print(key, ": ", labels[key], " - ", expected_output[key])
             self.assertTrue(labels[key] == expected_output[key])
