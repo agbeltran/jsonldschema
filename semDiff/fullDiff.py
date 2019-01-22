@@ -4,6 +4,7 @@ from semDiff import compareNetwork, compareEntities
 from utils.schema2context import generate_context_mapping, generate_labels_from_contexts
 from utils.prepare_fulldiff_input import load_context
 
+import json
 
 class FullSemDiff:
     """
@@ -114,6 +115,7 @@ class FullDiffGenerator:
         raw_context_1 = {
             'contexts': network_1_resolved[0]
         }
+
         context_1 = load_context(raw_context_1)
 
         network_2_resolved = generate_context_mapping(second_network['url'],
@@ -140,14 +142,12 @@ class FullDiffGenerator:
         ]
 
         overlaps = FullSemDiffMultiple(prepared_input)
-        final_output = {
+        self.json = {
             "network1": overlaps.networks[0],
             "network2": overlaps.networks[1],
             "overlaps": overlaps.output[0][0],
             "labels": labels
         }
-
-        self.json = final_output
 
 
 '''
