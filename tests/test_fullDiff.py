@@ -288,9 +288,15 @@ class FullDiffGeneratorTestCase(unittest.TestCase):
         self.assertTrue(report.json["overlaps"][0].twins.first_entity ==
                         report.json["overlaps"][0].twins.second_entity)
         self.assertTrue(report.json["overlaps"][0].twins.first_entity == "Miacme")
-        self.assertTrue(report.json["overlaps"][0].overlap['coverage'].relative_coverage == "100.0")
-        self.assertTrue(report.json["overlaps"][0].overlap['coverage'].absolute_coverage.overlap_number == "1")
-        self.assertTrue(report.json["overlaps"][0].overlap['coverage'].absolute_coverage.total_fields == "1")
-        self.assertTrue(report.json["overlaps"][0].overlap['overlapping fields'][0].first_field == "investigation")
-        self.assertTrue(report.json["overlaps"][0].overlap['overlapping fields'][0].first_field ==
-                        report.json["overlaps"][0].overlap['overlapping fields'][0].second_field)
+        self.assertTrue(report.json["overlaps"][0].overlap['coverage'].relative_coverage
+                        == "100.0")
+        self.assertTrue(report.json["overlaps"][0].overlap['coverage']
+                        .absolute_coverage.overlap_number == "1")
+        self.assertTrue(report.json["overlaps"][0].overlap['coverage']
+                        .absolute_coverage.total_fields == "1")
+        self.assertTrue(report.json["overlaps"][0].overlap['overlapping fields'][0]
+                        .first_field == "investigation")
+        self.assertTrue(report.json["overlaps"][0].overlap['overlapping fields'][0]
+                        .first_field ==
+                        report.json["overlaps"][0].overlap['overlapping fields'][0]
+                        .second_field)

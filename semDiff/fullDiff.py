@@ -4,7 +4,6 @@ from semDiff import compareNetwork, compareEntities
 from utils.schema2context import generate_context_mapping, generate_labels_from_contexts
 from utils.prepare_fulldiff_input import load_context
 
-import json
 
 class FullSemDiff:
     """
