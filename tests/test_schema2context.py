@@ -488,11 +488,10 @@ class TestSchema2Context(unittest.TestCase):
         side_effect = [
             MockedRequest(None, 200),
             MockedRequest(None, 200),
+            MockedRequest(None, 400),
             MockedRequest("minimum information standard", 200),
             MockedRequest("planned process", 200),
-            MockedRequest("Raw Image", 200),
-            MockedRequest(None, 400),
-            MockedRequest(None, 400)
+            MockedRequest("Raw Image", 200)
 
         ]
 
@@ -500,20 +499,24 @@ class TestSchema2Context(unittest.TestCase):
         mock_request_patcher.start()
 
         context = {
-            'miacme_schema.json': OrderedDict({
+            'miacme_schema.json': {
                 'obo': 'http://purl.obolibrary.org/obo/',
                 "edam": "http://edamontology.org/",
-                'Miacme': 'obo:MS_1000900',
                 '@language': 'en',
-                'investigation': 'obo:OBI_0000011',
-                'anEDAMTerm': 'edam:data_3424',
                 "400field": "obo:OBI_noID",
                 "BlankField": "",
                 "NoneField": None
-            })
+            }
         }
 
         labels = generate_labels_from_contexts(context, {})
+        self.assertTrue(labels == {
+            "http://purl.obolibrary.org/obo/": None,
+            "http://edamontology.org/": None,
+            "obo:OBI_noID": None
+        })
+
+        """
         expected_output = {
             "http://purl.obolibrary.org/obo/": None,
             "http://edamontology.org/": None,
@@ -522,12 +525,35 @@ class TestSchema2Context(unittest.TestCase):
             "obo:OBI_noID": None,
             "edam:data_3424": "Raw Image"
         }
+        """
 
-        for key in labels.keys():
-            print(key, ": ", labels[key], " - ", expected_output[key])
-            print(labels)
-            print(expected_output)
-            self.assertTrue(labels[key] == expected_output[key])
+        context_step_2 = {
+            'miacme_schema.json': {
+                'obo': 'http://purl.obolibrary.org/obo/',
+                'Miacme': 'obo:MS_1000900',
+            }
+        }
+        labels = generate_labels_from_contexts(context_step_2, labels)
+        self.assertTrue(labels['obo:MS_1000900'] == "minimum information standard")
+
+        context_step_3 = {
+            'miacme_schema.json': {
+                'obo': 'http://purl.obolibrary.org/obo/',
+                'investigation': 'obo:OBI_0000011',
+            }
+        }
+        labels = generate_labels_from_contexts(context_step_3, labels)
+        self.assertTrue(labels['obo:OBI_0000011'] == "planned process")
+
+        context_step_4 = {
+            'miacme_schema.json': {
+                'edam': 'http://edamontology.org/',
+                'image': "edam:data_3424",
+            }
+        }
+        labels = generate_labels_from_contexts(context_step_4, labels)
+        self.assertTrue(labels['edam:data_3424'] == "Raw Image")
+
         mock_request_patcher.stop()
 
 
