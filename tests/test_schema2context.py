@@ -2,7 +2,6 @@ import unittest
 from mock import patch, mock_open
 import os
 import json
-from collections import OrderedDict
 from utils.schema2context import (
     create_context_template,
     process_schema_name,
@@ -515,17 +514,6 @@ class TestSchema2Context(unittest.TestCase):
             "http://edamontology.org/": None,
             "obo:OBI_noID": None
         })
-
-        """
-        expected_output = {
-            "http://purl.obolibrary.org/obo/": None,
-            "http://edamontology.org/": None,
-            "obo:MS_1000900": "minimum information standard",
-            "obo:OBI_0000011": "planned process",
-            "obo:OBI_noID": None,
-            "edam:data_3424": "Raw Image"
-        }
-        """
 
         context_step_2 = {
             'miacme_schema.json': {
