@@ -514,6 +514,7 @@ class TestSchema2Context(unittest.TestCase):
         }
 
         for key in labels.keys():
+            print(key, ": ", labels[key], " - ", expected_output[key])
             self.assertTrue(labels[key] == expected_output[key])
         mock_request_patcher.stop()
 
