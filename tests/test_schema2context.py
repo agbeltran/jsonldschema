@@ -1,6 +1,7 @@
 import unittest
 from mock import patch, mock_open
 import os
+import json
 from utils.schema2context import (
     create_context_template,
     process_schema_name,
@@ -9,7 +10,8 @@ from utils.schema2context import (
     prepare_input,
     create_and_save_contexts,
     generate_contexts_from_regex,
-    generate_context_mapping
+    generate_context_mapping,
+    generate_labels_from_contexts
 )
 
 
@@ -454,13 +456,24 @@ class TestSchema2Context(unittest.TestCase):
         }
         context_mapping = generate_context_mapping(schema_url, regexes)
 
-        expected_output = {
-            "miaca_schema.json":
-                'https://w3id.org/mircat/miaca/context/obo/miaca_context_obo.json',
-            "test_schema.json": 'https://w3id.org/mircat/miaca/context/obo/test_context_obo.json'
-        }
+        expected_output = [
+            {
+                "miaca_schema.json": "https://w3id.org/mircat/miaca/context/obo/"
+                                     "miaca_context_obo.json",
+                "test_schema.json": "https://w3id.org/mircat/miaca/context/obo/"
+                                    "test_context_obo.json"
+            },
+            {
+                "miaca_schema.json": {
+                    "id": "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
+                },
+                "test_schema.json": {
+                    "id": "https://w3id.org/mircat/miaca/schema/test_schema.json"
+                }
+            }
+        ]
 
-        self.assertTrue(context_mapping == expected_output)
+        self.assertTrue(json.dumps(context_mapping) == json.dumps(expected_output))
 
         with self.assertRaises(Exception) as context:
             generate_context_mapping(schema_url, regex_error)
@@ -468,3 +481,89 @@ class TestSchema2Context(unittest.TestCase):
                             in context.exception)
 
         mock_resolver_patcher.stop()
+
+    def test_generate_labels_from_contexts(self):
+
+        side_effect = [
+            MockedRequest(None, 200),
+            MockedRequest(None, 200),
+            MockedRequest(None, 400),
+            MockedRequest("minimum information standard", 200),
+            MockedRequest("planned process", 200),
+            MockedRequest("Raw Image", 200),
+            MockErrorRequest()
+
+        ]
+
+        mock_request_patcher = patch("utils.schema2context.requests.get", side_effect=side_effect)
+        mock_request_patcher.start()
+
+        context = {
+            'miacme_schema.json': {
+                'obo': 'http://purl.obolibrary.org/obo/',
+                "edam": "http://edamontology.org/",
+                '@language': 'en',
+                "400field": "obo:OBI_noID",
+                "BlankField": "",
+                "NoneField": None
+            }
+        }
+
+        labels = generate_labels_from_contexts(context, {})
+        self.assertTrue(labels == {
+            "http://purl.obolibrary.org/obo/": None,
+            "http://edamontology.org/": None,
+            "obo:OBI_noID": None
+        })
+
+        context_step_2 = {
+            'miacme_schema.json': {
+                'obo': 'http://purl.obolibrary.org/obo/',
+                'Miacme': 'obo:MS_1000900',
+            }
+        }
+        labels = generate_labels_from_contexts(context_step_2, labels)
+        self.assertTrue(labels['obo:MS_1000900'] == "minimum information standard")
+
+        context_step_3 = {
+            'miacme_schema.json': {
+                'obo': 'http://purl.obolibrary.org/obo/',
+                'investigation': 'obo:OBI_0000011',
+            }
+        }
+        labels = generate_labels_from_contexts(context_step_3, labels)
+        self.assertTrue(labels['obo:OBI_0000011'] == "planned process")
+
+        context_step_4 = {
+            'miacme_schema.json': {
+                'edam': 'http://edamontology.org/',
+                'image': "edam:data_3424",
+            }
+        }
+        labels = generate_labels_from_contexts(context_step_4, labels)
+        self.assertTrue(labels['edam:data_3424'] == "Raw Image")
+
+        context_step_4 = {
+            'miacme_schema.json': {
+                'obo': 'http://purl.obolibrary.org/obo/',
+                'errorTest': 'obo:OBI_errorTest',
+            }
+        }
+        labels = generate_labels_from_contexts(context_step_4, labels)
+        self.assertTrue(labels['obo:OBI_errorTest'] is None)
+
+        mock_request_patcher.stop()
+
+
+class MockedRequest:
+
+    def __init__(self, return_value, status_code):
+        self.text = json.dumps({"label": return_value})
+        self.status_code = status_code
+
+
+class MockErrorRequest:
+
+    def __init__(self):
+        self.text = json.dumps({"123": "456"})
+        self.status_code = 200

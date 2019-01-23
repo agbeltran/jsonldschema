@@ -11,18 +11,6 @@ class TestCasePrepareFullDiffInput(unittest.TestCase):
         super(TestCasePrepareFullDiffInput, self).__init__(*args, **kwargs)
         self.pre_process = prepare_fulldiff_input
 
-    """
-    @classmethod
-    def setup_class(cls):
-        cls.mock_resolver_patcher = patch('utils.prepare_fulldiff_input.RefResolver.resolve')
-        cls.mock_resolver = cls.mock_resolver_patcher.start()
-
-        cls.mock_request_patcher = patch('utils.prepare_fulldiff_input.requests.get')
-        cls.mock_request = cls.mock_request_patcher.start()
-
-        cls.pre_process = prepare_fulldiff_input
-    """
-
     @classmethod
     def teardown_class(cls):
         print("BYE")
@@ -48,7 +36,7 @@ class TestCasePrepareFullDiffInput(unittest.TestCase):
         class RequestMockResponse:
             text = json.dumps(context)
 
-        expected_output = {'test_schema.json': {'test': 'sdo:test'}}
+        expected_output = {'test_schema': {'test': 'sdo:test'}}
         mock_request.return_value = RequestMockResponse
         tested_output = self.pre_process.load_context(contexts_mapping)
         eq_(tested_output, expected_output)

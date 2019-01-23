@@ -2,7 +2,8 @@ import unittest
 import json
 import os
 from collections import OrderedDict
-from semDiff.fullDiff import FullSemDiff, FullSemDiffMultiple
+from mock import patch
+from semDiff.fullDiff import FullSemDiff, FullSemDiffMultiple, FullDiffGenerator
 
 DATS_contexts = {
     "person_schema.json": {
@@ -184,3 +185,118 @@ class FellSemDiffMultipleTestCase(unittest.TestCase):
         self.assertTrue(len(self.full_diff.output[1]) == 1)
         self.assertTrue(len(self.full_diff.output[1][0]) == 0)
         self.assertTrue(len(self.full_diff.output) == 2)
+
+
+class FullDiffGeneratorTestCase(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(FullDiffGeneratorTestCase, self).__init__(*args, **kwargs)
+
+    def test__init_(self):
+
+        mock_resolver_patcher = patch('semDiff.fullDiff.generate_context_mapping')
+        mock_resolver = mock_resolver_patcher.start()
+        mock_resolver.return_value = [
+            {
+                "miacme_schema.json": "https://w3id.org/mircat/miacme/"
+                                      "context/obo/miacme_obo_context.jsonld"
+            },
+            {
+                "miacme_schema.json": {
+                    "id": "https://w3id.org/mircat/miacme/schema/miacme_schema.json",
+                    "$schema": "http://json-schema.org/draft-04/schema",
+                    "title": "MIACME schema",
+                    "version": "1.0",
+                    "description": "JSON-schema representing MIACME reporting guideline.",
+                    "type": "object",
+                    "properties": {
+                        "@context": {
+                            "description": "The JSON-LD context",
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "array"
+                                }
+                            ]
+                        },
+                        "@id": {
+                            "description": "The JSON-LD identifier",
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "@type": {
+                            "description": "The JSON-LD type",
+                            "type": "string",
+                            "enum": [
+                                "Miacme"
+                            ]
+                        },
+                        "investigation": {
+                            "$ref": "investigation_schema.json#"
+                        }
+                    }
+                }
+            }
+        ]
+
+        mock_context_loader_patcher = patch('semDiff.fullDiff.load_context')
+        mock_context_loader = mock_context_loader_patcher.start()
+        mock_context_loader.return_value = {
+            'miacme_schema.json': {
+                'obo': 'http://purl.obolibrary.org/obo/',
+                'Miacme': 'obo:MS_1000900',
+                '@language': 'en',
+                'investigation': 'obo:OBI_0000011'
+            }
+        }
+
+        mock_label_loader_patcher = patch('semDiff.fullDiff.generate_labels_from_contexts')
+        mock_label_loader = mock_label_loader_patcher.start()
+        mock_label_loader.return_value = {
+            'http://purl.obolibrary.org/obo/': None,
+            'obo:MS_1000900': 'minimum information standard',
+            'obo:OBI_0000011': 'planned process'
+        }
+
+        regex = {
+            "/schema": "/context/obo",
+            "_schema.json": "_obo_context.jsonld"
+        }
+        network = {
+            "url": "https://w3id.org/mircat/miacme/schema/miacme_schema.json",
+            "regex": regex,
+            "name": "MIACME"
+        }
+        report = FullDiffGenerator(network, network)
+
+        # Testing networks
+        self.assertTrue(report.json["network1"]["name"] == "MIACME")
+        self.assertTrue(report.json["network1"]["schemas"] == mock_resolver.return_value[1])
+        self.assertTrue(report.json["network1"]["contexts"] == mock_context_loader.return_value)
+        self.assertTrue(report.json["network1"] == report.json["network2"])
+
+        # Testing labels
+        self.assertTrue(report.json["labels"] == mock_label_loader.return_value)
+
+        # Testing overlaps
+        self.assertTrue(report.json["overlaps"][0].twins.first_entity == "Miacme")
+        self.assertTrue(report.json["overlaps"][0].twins.first_entity ==
+                        report.json["overlaps"][0].twins.second_entity)
+        self.assertTrue(report.json["overlaps"][0].twins.first_entity == "Miacme")
+        self.assertTrue(report.json["overlaps"][0].overlap['coverage'].relative_coverage
+                        == "100.0")
+        self.assertTrue(report.json["overlaps"][0].overlap['coverage']
+                        .absolute_coverage.overlap_number == "1")
+        self.assertTrue(report.json["overlaps"][0].overlap['coverage']
+                        .absolute_coverage.total_fields == "1")
+        self.assertTrue(report.json["overlaps"][0].overlap['overlapping fields'][0]
+                        .first_field == "investigation")
+        self.assertTrue(report.json["overlaps"][0].overlap['overlapping fields'][0]
+                        .first_field ==
+                        report.json["overlaps"][0].overlap['overlapping fields'][0]
+                        .second_field)

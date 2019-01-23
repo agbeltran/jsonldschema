@@ -1,13 +1,8 @@
 from collections import namedtuple
 from copy import deepcopy
 from semDiff import compareNetwork, compareEntities
-
-'''
-from json2html import json2html
-import json
-import webbrowser
-import os
-'''
+from utils.schema2context import generate_context_mapping, generate_labels_from_contexts
+from utils.prepare_fulldiff_input import load_context
 
 
 class FullSemDiff:
@@ -100,41 +95,88 @@ class FullSemDiffMultiple:
             self.compute_overlap(start_position + 1)
 
 
-'''
-class HTMLGenerator:
+class FullDiffGenerator:
+    """
+        A Full Diff Generator that use regex to recompose context files URLS. It then resolves
+        the two given networks of schemas and the two given networks of contexts, then
+        proceeds to the actual comparison
+    """
 
-    def __init__(self, diff):
-        """ Output overlaps as an HTML file
-        :param diff: a FullSemDiffMultiple object
-        :type diff: FullSemDiffMultiple
+    def __init__(self, first_network, second_network):
+        """
+        :param first_network: the first network to compare from
+        :type first_network: dict
+        :param second_network:  the second network to compare against
+        :type second_network: dict
         """
 
-        self.output_dir = os.path.join(os.path.dirname(__file__), "html")
-        self.diff = diff
-        self.htmlCode = "<HTML>"
-        for overlap in self.diff.output:
-            self.htmlCode += json2html.convert(json=overlap)
-            self.htmlCode += "<HR>"
-        self.htmlCode += "</HTML>"
+        network_1_resolved = generate_context_mapping(first_network['url'], first_network['regex'])
+        raw_context_1 = {
+            'contexts': network_1_resolved[0]
+        }
 
-    def generate_html(self):
-        file_name = os.path.join(self.output_dir, "test.html")
-        with open(file_name, "w") as html_file:
-            html_file.write(self.htmlCode)
-            html_file.close()
-        webbrowser.get('firefox').open_new_tab(file_name)
+        context_1 = load_context(raw_context_1)
 
-    def convert_to_html(self):
-        for overlap in self.diff.output:
-            print(overlap)
+        network_2_resolved = generate_context_mapping(second_network['url'],
+                                                      second_network['regex'])
+        raw_context_2 = {
+            'contexts': network_2_resolved[0]
+        }
+        context_2 = load_context(raw_context_2)
+
+        labels = generate_labels_from_contexts(context_1, {})
+        labels = generate_labels_from_contexts(context_2, labels)
+
+        prepared_input = [
+            {
+                "name": first_network['name'],
+                "schemas": network_1_resolved[1],
+                "contexts": context_1
+            },
+            {
+                "name": second_network['name'],
+                "schemas": network_2_resolved[1],
+                "contexts": context_2
+            }
+        ]
+
+        overlaps = FullSemDiffMultiple(prepared_input)
+        self.json = {
+            "network1": overlaps.networks[0],
+            "network2": overlaps.networks[1],
+            "overlaps": overlaps.output[0][0],
+            "labels": labels
+        }
 
 
+'''
 if __name__ == '__main__':
-    with open("../tests/data/fullDiff_input_example.json") as input_file:
-        data = json.load(input_file)
-        input_file.close()
+    output_file = "html/overlap.json"
 
-    report = HTMLGenerator(FullSemDiffMultiple(data['networks']))
-    report.generate_html()
-    report.convert_to_html()
+    regex_1 = {
+        "/schema": "/context/obo",
+        "_schema.json": "_obo_context.jsonld"
+    }
+
+    network_1 = {
+        "url": "https://w3id.org/mircat/miacme/schema/miacme_schema.json",
+        "regex": regex_1,
+        "name": "MIACME"
+    }
+    network_2 = {
+        "url": "https://w3id.org/mircat/miaca/schema/miaca_schema.json",
+        "regex": regex_1,
+        "name": "MIACA"
+    }
+    network_3 = {
+        "url": "https://w3id.org/mircat/miacme/schema/miacme_schema.json",
+        "regex": regex_1,
+        "name": "MIACME"
+    }
+
+    report = FullDiffGenerator(network_1, network_3)
+
+    with open("outputfile.json", "w") as writter:
+        writter.write(json.dumps(report.json, indent=4))
+        writter.close()
 '''
