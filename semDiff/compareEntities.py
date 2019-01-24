@@ -107,11 +107,19 @@ class EntityCoverage:
 
         # replacing semantic base to form an absolute IRI
         else:
-            processed_semantic_value = field_value.replace(base_url + ":", context[base_url])
-            if processed_semantic_value not in comparator:
-                comparator[processed_semantic_value] = [field_name]
-            else:
-                comparator[processed_semantic_value].append(field_name)
+            to_be_processed = True
+
+            if ":" in field_value:
+                if copy.deepcopy(field_value).split(":")[1] == "":
+                    to_be_processed = False
+
+            if to_be_processed is not False:
+                processed_semantic_value = field_value.replace(base_url + ":", context[base_url])
+
+                if processed_semantic_value not in comparator:
+                    comparator[processed_semantic_value] = [field_name]
+                else:
+                    comparator[processed_semantic_value].append(field_name)
 
         return comparator
 
@@ -137,6 +145,7 @@ class EntityCoverage:
         processed_field = 0
 
         for field in context1:
+
             processed_field += 1
             if field in context2:
                 overlap_number += len(context1[field])
@@ -150,7 +159,10 @@ class EntityCoverage:
 
         absolute_coverage = namedtuple('AbsoluteCoverage', ['overlap_number', 'total_fields'])
         local_coverage = absolute_coverage(str(overlap_number), str(processed_field))
-        local_overlap_value = OverlapValue(str(round((overlap_number * 100) / len(context1), 2)),
-                                           local_coverage)
+        try:
+            local_overlap_value = OverlapValue(str(round((overlap_number * 100) / len(context1), 2)),
+                                               local_coverage)
+        except ZeroDivisionError:
+            local_overlap_value = OverlapValue(0, 0)
 
         return local_overlap_value, overlap_output, unmatched_fields

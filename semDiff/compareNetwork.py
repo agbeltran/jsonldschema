@@ -28,11 +28,17 @@ class NetworkCoverage:
         """
         network_output = {}
         for schema in network:
-            schema_name = schema.replace("_schema.json", "").capitalize()
+            schema_name = copy.deepcopy(schema).replace("_schema.json", "").capitalize()
+            schema_name_in_context = copy.deepcopy(schema_name)
+
+            if "_" in schema_name:
+                schema_name_in_context = schema_name_in_context.replace("_", " ").title().replace(" ", "")
+
             schema_type = None
             schema_context = network[schema]
-            if schema_name in schema_context.keys():
-                schema_type = schema_context[schema_name]
+
+            if schema_name_in_context in schema_context.keys():
+                schema_type = schema_context[schema_name_in_context]
 
             schema_type_base_url = urlparse(schema_type).scheme
             if schema_type is not None and schema_type_base_url not in ('http', 'https'):
@@ -63,11 +69,18 @@ class NetworkCoverage:
             context_type = network_a[schema]
             matched = False
 
+            subtype = "true"
+            if context_type is not None \
+                    and ":" in context_type \
+                    and urlparse(context_type).scheme not in ["http", "https"]:
+                subtype = context_type.split(":")[1]
+
             if context_type is not None:
 
                 for schema2 in list(network__b.keys()):
                     context_type2 = network_b[schema2]
-                    if context_type == context_type2:
+
+                    if context_type == context_type2 and subtype is not "":
                         matched = True
                         del network__b[schema2]
                         if schema in coverage.keys():
