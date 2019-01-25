@@ -110,10 +110,10 @@ class TestSchema2Context(unittest.TestCase):
         self.mock_request.return_value.status_code = 400
         context_error_1 = create_context_template_from_url(url, base)
         self.assertTrue(isinstance(context_error_1, Exception))
-        self.mock_request_patcher.stop()
 
         context_error_2 = create_context_template_from_url("123", base)
         self.assertTrue(isinstance(context_error_2, Exception))
+        self.mock_request_patcher.stop()
         self.mock_json_load_patcher.stop()
 
     def test_create_network_context(self):
