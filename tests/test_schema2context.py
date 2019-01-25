@@ -118,8 +118,6 @@ class TestSchema2Context(unittest.TestCase):
         self.mock_request.return_value.status_code = 200
         self.mock_request.return_value.text = {}
         context_error_3 = create_context_template_from_url("123", base)
-        print(context_error_3)
-        self.assertTrue(12 == 34)
 
         self.mock_request_patcher.stop()
         self.mock_json_load_patcher.stop()
@@ -531,6 +529,7 @@ class TestSchema2Context(unittest.TestCase):
             }
         }
         labels = generate_labels_from_contexts(context_step_2, labels)
+        print(labels)
         self.assertTrue(labels['obo:MS_1000900'] == "minimum information standard")
 
         context_step_3 = {
