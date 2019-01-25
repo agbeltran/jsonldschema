@@ -12,9 +12,7 @@ class SemDiffTestCase(unittest.TestCase):
     def setUp(self):
         data_path = os.path.join(os.path.dirname(__file__), "./data")
         self.schema_1 = json.load(open(os.path.join(data_path, "schema1.json")))
-        open(os.path.join(data_path, "schema1.json"))
         self.schema_2 = json.load(open(os.path.join(data_path, "schema2.json")))
-        open(os.path.join(data_path, "schema1.json"))
         self.context_1 = json.load(open(os.path.join(data_path, "context1.json")))
         self.context_2 = json.load(open(os.path.join(data_path, "context2.json")))
 
@@ -100,5 +98,7 @@ class SemDiffTestCase(unittest.TestCase):
         }
         comparator3 = self.semantic_comparator. \
             _EntityCoverage__build_context_dict(schema_input_3)
-        coverage = self.semantic_comparator. \
-            _EntityCoverage__compute_context_coverage(comparator1[0], comparator3[0])
+        coverage3 = self.semantic_comparator. \
+            _EntityCoverage__compute_context_coverage(comparator3[0], comparator1[0])
+        self.assertTrue(coverage3[0][0] == 0)
+        self.assertTrue(coverage3[0][1] == 0)
