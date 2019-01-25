@@ -567,7 +567,8 @@ class TestSchema2Context(unittest.TestCase):
         generate_mapping = generate_mapping_patcher.start()
         generate_mapping.return_value = [
             {
-                "miaca_schema.json": "https://w3id.org/mircat/miaca/context/obo/miaca_context_obo.json",
+                "miaca_schema.json": "https://w3id.org/mircat/miaca/context/"
+                                     "obo/miaca_context_obo.json",
             },
             {
                 "miaca_schema.json": {
@@ -607,7 +608,7 @@ class TestSchema2Context(unittest.TestCase):
                             ]
                         },
                         "project": {
-                            "description": "Conditions that have been established to measure effects which are induced in cells in response to a perturbation, together with data that have been acquired in these measurements in order to address the biological question this project was designed for.",
+                            "description": "Conditions that have been established to  ...",
                             "$ref": "project_schema.json#"
                         }
                     }
@@ -618,7 +619,8 @@ class TestSchema2Context(unittest.TestCase):
         expected_output = {
             'networkName': 'MIACA',
             'contexts': {
-                'miaca_schema.json': 'https://w3id.org/mircat/miaca/context/obo/miaca_context_obo.json'
+                'miaca_schema.json': 'https://w3id.org/mircat/miaca/context/'
+                                     'obo/miaca_context_obo.json'
             },
             'schemas': {
                 'miaca_schema.json': 'https://w3id.org/mircat/miaca/schema/miaca_schema.json'

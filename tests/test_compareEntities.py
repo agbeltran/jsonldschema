@@ -92,7 +92,6 @@ class SemDiffTestCase(unittest.TestCase):
         self.assertTrue(coverage[0].absolute_coverage[1] == "4")
         self.assertTrue(len(coverage[1]) == 2)
 
-
         schema_input_3 = {
             "schema": self.schema_1,
             "context": {
@@ -103,4 +102,3 @@ class SemDiffTestCase(unittest.TestCase):
             _EntityCoverage__build_context_dict(schema_input_3)
         coverage = self.semantic_comparator. \
             _EntityCoverage__compute_context_coverage(comparator1[0], comparator3[0])
-
