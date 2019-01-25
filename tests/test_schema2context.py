@@ -118,6 +118,7 @@ class TestSchema2Context(unittest.TestCase):
         self.mock_request.return_value.status_code = 200
         self.mock_request.return_value.text = {}
         context_error_3 = create_context_template_from_url("123", base)
+        self.assertTrue(context_error_3)
 
         self.mock_request_patcher.stop()
         self.mock_json_load_patcher.stop()
