@@ -30,7 +30,7 @@ class Coverage:
         """ Static method to retrieve the mapping between a schema and multiple context files
 
         :param schema: the content of a JSON schema
-        :param context: one or more JSON-LD context contexts associated with the schema
+        :param contexts: one or more JSON-LD context contexts associated with the schema
         :return: an mapping dictionary
         """
         mappings = {}

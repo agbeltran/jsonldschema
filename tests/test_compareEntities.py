@@ -12,7 +12,9 @@ class SemDiffTestCase(unittest.TestCase):
     def setUp(self):
         data_path = os.path.join(os.path.dirname(__file__), "./data")
         self.schema_1 = json.load(open(os.path.join(data_path, "schema1.json")))
+        open(os.path.join(data_path, "schema1.json"))
         self.schema_2 = json.load(open(os.path.join(data_path, "schema2.json")))
+        open(os.path.join(data_path, "schema1.json"))
         self.context_1 = json.load(open(os.path.join(data_path, "context1.json")))
         self.context_2 = json.load(open(os.path.join(data_path, "context2.json")))
 
@@ -90,9 +92,15 @@ class SemDiffTestCase(unittest.TestCase):
         self.assertTrue(coverage[0].absolute_coverage[1] == "4")
         self.assertTrue(len(coverage[1]) == 2)
 
-        """
-        self.assertTrue(coverage[1][0].first_field == 'identifier')
-        self.assertTrue(coverage[1][0].second_field == 'identifier')
-        self.assertTrue(coverage[1][1].first_field == 'lastName')
-        self.assertTrue(coverage[1][1].second_field == 'familyName')
-        """
+
+        schema_input_3 = {
+            "schema": self.schema_1,
+            "context": {
+                "@context": {}
+            }
+        }
+        comparator3 = self.semantic_comparator. \
+            _EntityCoverage__build_context_dict(schema_input_3)
+        coverage = self.semantic_comparator. \
+            _EntityCoverage__compute_context_coverage(comparator1[0], comparator3[0])
+
