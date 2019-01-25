@@ -121,8 +121,6 @@ class TestSchema2Context(unittest.TestCase):
         context_error_3 = create_context_template_from_url("123", base)
         self.assertTrue(context_error_3)
 
-
-
     def test_create_network_context(self):
 
         expected_output = {
