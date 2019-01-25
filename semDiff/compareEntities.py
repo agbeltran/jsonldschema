@@ -160,7 +160,8 @@ class EntityCoverage:
         absolute_coverage = namedtuple('AbsoluteCoverage', ['overlap_number', 'total_fields'])
         local_coverage = absolute_coverage(str(overlap_number), str(processed_field))
         try:
-            local_overlap_value = OverlapValue(str(round((overlap_number * 100) / len(context1), 2)),
+            local_overlap_value = OverlapValue(str(round((overlap_number * 100) / len(context1),
+                                                         2)),
                                                local_coverage)
         except ZeroDivisionError:
             local_overlap_value = OverlapValue(0, 0)

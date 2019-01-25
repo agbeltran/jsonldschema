@@ -366,7 +366,8 @@ class APIAppTest(APIClientTestCase):
                         "minLength": 1
                     },
                     "institution": {
-                        "description": "name of the institution/affiliation the researcher is working at",
+                        "description": "name of the institution/affiliation the "
+                                       "researcher is working at",
                         "type": "string",
                         "minLength": 1
                     },
@@ -417,7 +418,7 @@ class APIAppTest(APIClientTestCase):
                     "city": "http://semanticscience.org/resource/SIO_000665"
                 }
             }
-}
+        }
 
         mock_request_patcher = patch("api_client.utility.requests.get", side_effect=side_effect)
         mock_request_patcher.start()

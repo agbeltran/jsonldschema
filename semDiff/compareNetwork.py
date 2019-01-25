@@ -32,7 +32,8 @@ class NetworkCoverage:
             schema_name_in_context = copy.deepcopy(schema_name)
 
             if "_" in schema_name:
-                schema_name_in_context = schema_name_in_context.replace("_", " ").title().replace(" ", "")
+                schema_name_in_context = schema_name_in_context.replace("_", " ")\
+                    .title().replace(" ", "")
 
             schema_type = None
             schema_context = network[schema]
