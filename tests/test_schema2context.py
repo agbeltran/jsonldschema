@@ -11,7 +11,8 @@ from utils.schema2context import (
     create_and_save_contexts,
     generate_contexts_from_regex,
     generate_context_mapping,
-    generate_labels_from_contexts
+    generate_labels_from_contexts,
+    generate_context_mapping_dict
 )
 
 
@@ -110,11 +111,15 @@ class TestSchema2Context(unittest.TestCase):
         self.mock_request.return_value.status_code = 400
         context_error_1 = create_context_template_from_url(url, base)
         self.assertTrue(isinstance(context_error_1, Exception))
-        self.mock_request_patcher.stop()
 
         context_error_2 = create_context_template_from_url("123", base)
         self.assertTrue(isinstance(context_error_2, Exception))
+
+        self.mock_request_patcher.stop()
         self.mock_json_load_patcher.stop()
+
+        context_error_3 = create_context_template_from_url("123", base)
+        self.assertTrue(context_error_3)
 
     def test_create_network_context(self):
 
@@ -523,6 +528,7 @@ class TestSchema2Context(unittest.TestCase):
             }
         }
         labels = generate_labels_from_contexts(context_step_2, labels)
+        print(labels)
         self.assertTrue(labels['obo:MS_1000900'] == "minimum information standard")
 
         context_step_3 = {
@@ -553,6 +559,74 @@ class TestSchema2Context(unittest.TestCase):
         self.assertTrue(labels['obo:OBI_errorTest'] is None)
 
         mock_request_patcher.stop()
+
+    def test_generate_context_mapping_dict(self):
+        generate_mapping_patcher = patch("utils.schema2context.generate_context_mapping")
+        generate_mapping = generate_mapping_patcher.start()
+        generate_mapping.return_value = [
+            {
+                "miaca_schema.json": "https://w3id.org/mircat/miaca/context/"
+                                     "obo/miaca_context_obo.json",
+            },
+            {
+                "miaca_schema.json": {
+                    "id": "https://w3id.org/mircat/miaca/schema/miaca_schema.json",
+                    "$schema": "http://json-schema.org/draft-04/schema",
+                    "title": "MIACA (Minimum Information about a Cellular Assay) schema",
+                    "description": "JSON-schema representing MIACA reporting guideline.",
+                    "type": "object",
+                    "_provenance": {
+                        "url": "http://w3id.org/mircat/miaca/provenance.json"
+                    },
+                    "properties": {
+                        "@context": {
+                            "description": "The JSON-LD context",
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "array"
+                                }
+                            ]
+                        },
+                        "@id": {
+                            "description": "The JSON-LD identifier",
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "@type": {
+                            "description": "The JSON-LD type",
+                            "type": "string",
+                            "enum": [
+                                "Miaca"
+                            ]
+                        },
+                        "project": {
+                            "description": "Conditions that have been established to  ...",
+                            "$ref": "project_schema.json#"
+                        }
+                    }
+                }
+            }
+        ]
+
+        expected_output = {
+            'networkName': 'MIACA',
+            'contexts': {
+                'miaca_schema.json': 'https://w3id.org/mircat/miaca/context/'
+                                     'obo/miaca_context_obo.json'
+            },
+            'schemas': {
+                'miaca_schema.json': 'https://w3id.org/mircat/miaca/schema/miaca_schema.json'
+            }
+        }
+
+        mapping = generate_context_mapping_dict(schema_url, regexes, "MIACA")
+        self.assertTrue(mapping == expected_output)
 
 
 class MockedRequest:

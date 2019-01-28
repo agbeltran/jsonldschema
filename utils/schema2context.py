@@ -274,3 +274,27 @@ def generate_labels_from_contexts(contexts, labels):
                         labels[local_context[term]] = None
 
     return labels
+
+
+def generate_context_mapping_dict(schema_url, regex_input, network_name):
+    """
+    Generates the mapping dictionary used by full diff
+    :param schema_url: the url of the main schema
+    :type schema_url: basestring
+    :param regex_input: a set of regex to indicate how to transform schemas URL to contexts URL
+    :type regex_input: dict
+    :param network_name: the name of the current network
+    :type network_name: basestring
+    :return: the mapping dictionary of schemas and contexts
+    """
+    raw_mapping = generate_context_mapping(schema_url, regex_input)
+    output = {
+        "networkName": network_name,
+        "contexts": raw_mapping[0],
+        "schemas": {}
+    }
+
+    for schema in raw_mapping[1]:
+        output['schemas'][schema] = raw_mapping[1][schema]['id']
+
+    return output

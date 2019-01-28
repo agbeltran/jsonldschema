@@ -149,7 +149,7 @@ class FullDiffGenerator:
         }
 
 
-'''
+"""
 if __name__ == '__main__':
     output_file = "html/overlap.json"
 
@@ -159,19 +159,20 @@ if __name__ == '__main__':
     }
 
     network_1 = {
-        "url": "https://w3id.org/mircat/miacme/schema/miacme_schema.json",
+        "url": "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json",
         "regex": regex_1,
-        "name": "MIACME"
+        "name": "MyFlowCyt"
     }
+
     network_2 = {
         "url": "https://w3id.org/mircat/miaca/schema/miaca_schema.json",
         "regex": regex_1,
         "name": "MIACA"
     }
     network_3 = {
-        "url": "https://w3id.org/mircat/miacme/schema/miacme_schema.json",
+        "url": "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json",
         "regex": regex_1,
-        "name": "MIACME"
+        "name": "MyFlowCyt"
     }
 
     report = FullDiffGenerator(network_1, network_3)
@@ -179,4 +180,4 @@ if __name__ == '__main__':
     with open("outputfile.json", "w") as writter:
         writter.write(json.dumps(report.json, indent=4))
         writter.close()
-'''
+"""

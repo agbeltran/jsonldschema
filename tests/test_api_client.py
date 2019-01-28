@@ -323,14 +323,105 @@ class APIAppTest(APIClientTestCase):
             MockedRequest(context2, 200)
         ]
 
-        with open(os.path.join(path, "merge_source_in_person.json"), 'r') as input_file:
-            # Load the JSON schema and close the file
-            expected_output = json.load(input_file)
-            input_file.close()
+        expected_output = {
+            "mergedSchema": {
+                "id": "https://w3id.org/dats/schema/person_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "DATS person schema",
+                "description": "A human being",
+                "type": "object",
+                "properties": {
+                    "@context": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "@id": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "identifier": {
+                        "description": "Primary identifier for the person.",
+                        "$ref": "identifier_info_schema.json#"
+                    },
+                    "lastName": {
+                        "description": "The person's family name.",
+                        "type": "string"
+                    },
+                    "ID": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "name of the researcher working on the project.",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "institution": {
+                        "description": "name of the institution/affiliation the "
+                                       "researcher is working at",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "department": {
+                        "description": "department in the institution",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "address": {
+                        "description": "address of the institution",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "city": {
+                        "description": "city the institution is placed",
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "email": {
+                        "description": "email of the researcher",
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "additionalProperties": False
+            },
+            "mergedContext": {
+                "@context": {
+                    "@language": "en",
+                    "obo": "http://purl.obolibrary.org/obo/",
+                    "xsd": "http://www.w3.org/2001/XMLSchema#",
+                    "Person": "obo:OBI_0000245",
+                    "identifier": "obo:IAO_0000577",
+                    "firstName": "obo:IAO_0000302",
+                    "lastName": "obo:IAO_0000302",
+                    "fullName": "obo:IAO_0000590",
+                    "email": "http://purl.obolibrary.org/obo/IAO_0000429",
+                    "affiliations": {
+                        "@id": "obo:IAO_0000303",
+                        "@type": "obo:OBI_0000245"
+                    },
+                    "roles": "obo:BFO_0000023",
+                    "ID": "http://purl.obolibrary.org/obo/IAO_0000578",
+                    "name": "http://purl.obolibrary.org/obo/IAO_0000590",
+                    "institution": "http://purl.obolibrary.org/obo/ERO_0000066",
+                    "department": "http://semanticscience.org/resource/SIO_000686",
+                    "address": "http://purl.obolibrary.org/obo/IAO_0000422",
+                    "city": "http://semanticscience.org/resource/SIO_000665"
+                }
+            }
+        }
 
         mock_request_patcher = patch("api_client.utility.requests.get", side_effect=side_effect)
         mock_request_patcher.start()
-
         result = self.simulate_get("/merge", body=json.dumps(user_input))
         self.assertTrue(result.json == expected_output)
         mock_request_patcher.stop()
