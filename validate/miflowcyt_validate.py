@@ -4,8 +4,9 @@ import xml.etree.ElementTree as elemTree
 from json import dump, load
 import os
 import jsonbender
-from copy import deepcopy
-from validate.jsonschema_validator import validate_instance
+import json
+from collections import OrderedDict
+from validate.jsonschema_validator import validate_instance, validate_instance_from_url
 
 
 class FlowRepoClient:
@@ -28,6 +29,7 @@ class FlowRepoClient:
         self.clientID = client_id
         self.MAPPING = self.get_mapping(mapping)
         self.base_schema = base_schema
+        self.schema_url = "https://w3id.org/mircat/miflowcyt/schema/experiment_schema.json"
 
     def make_validation(self, number_of_items):
         """ Method to run the mapping for the given number of items
@@ -36,6 +38,8 @@ class FlowRepoClient:
         :return: a dictionary containing the list of errors for all processed items
         """
         content_ids = self.get_user_content_id(self.clientID)
+        valid = []
+        invalid = []
 
         if isinstance(content_ids, Exception):
             return Exception("Error with client ID " + self.clientID)
@@ -56,33 +60,65 @@ class FlowRepoClient:
                         experience_metadata = xmljson.parker.data((elemTree.fromstring(
                             response.text)))["public-experiments"]["experiment"]
                         extracted_json = jsonbender.bend(self.MAPPING, experience_metadata)
+
                         if extracted_json['organization'] == "\n   ":
-                            extracted_json['organization'] = {}
+                            extracted_json['organization'] = []
+
+                        if extracted_json['keywords'] == "\n   ":
+                            extracted_json['keywords'] = []
 
                         if 'keywords' in extracted_json.keys() and \
+                            type(extracted_json['keywords']) == OrderedDict and \
                                 'keyword' in extracted_json['keywords'].keys():
-                            extracted_json['keywords'] = extracted_json['keywords']['keyword']
+                            if type(extracted_json['keywords']['keyword']) != list:
+                                extracted_json['keywords'] = [extracted_json['keywords']['keyword']]
+                            else:
+                                extracted_json['keywords'] = extracted_json['keywords']['keyword']
 
                         if 'organization' in extracted_json.keys() and \
+                            type(extracted_json['organization']) == OrderedDict and \
                                 'organization' in extracted_json['organization'].keys():
-                            extracted_json['organization'] = extracted_json['organization'][
-                                                                            'organization']
+                            if type(extracted_json['organization']['organization']) != list:
+                                extracted_json['organization'] = [extracted_json['organization'][
+                                    'organization']]
+                            else:
+                                extracted_json['organization'] = extracted_json['organization'][
+                                    'organization']
 
                         if 'other' not in extracted_json.keys() \
                                 or extracted_json['other'] is None:
                             extracted_json['other'] = {}
 
                         if 'related-publications' in extracted_json.keys() and \
+                            type(extracted_json['related-publications']) == OrderedDict and \
                                 'publication' in extracted_json['related-publications'].keys():
-                            extracted_json['other']['related-publications'] = deepcopy(
-                                extracted_json['related-publications']['publication'])
+                            if type(extracted_json['related-publications']['publication']) != list:
+                                extracted_json['other']['related-publications'] = [extracted_json['related-publications']['publication']]
+                            else:
+                                extracted_json['other']['related-publications'] = extracted_json['related-publications']['publication']
 
-                        validation = self.validate_instance_from_file(extracted_json,
+                        '''validation = self.validate_instance_from_file(extracted_json,
                                                                       content_ids[i],
-                                                                      self.base_schema)
-                        self.errors[content_ids[i]] = validation
+                                                                      self.base_schema)'''
 
-                return self.errors
+                        for field in extracted_json:
+                            if extracted_json[field] is None:
+                                extracted_json[field] = ""
+
+                        try:
+                            validation = validate_instance_from_url(self.schema_url, extracted_json)
+                            print("Validated instance %s" % content_ids[i])
+                            self.errors[content_ids[i]] = validation
+                            if len(validation) == 0:
+                                valid.append(content_ids[i])
+                            else:
+                                invalid.append(content_ids[i])
+                        except Exception:
+                            print("Problem with item %s" % content_ids[i])
+                            print(json.dumps(extracted_json, indent=4))
+                            invalid.append(content_ids[i])
+
+                return self.errors, valid, invalid
             except IndexError:
                 return Exception("The number of available items is inferior to the number you "
                                  "ask for")
