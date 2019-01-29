@@ -54,7 +54,7 @@ base = {
 schema_url = "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
 regexes = {
     "/schema": "/context/obo",
-    "_schema": "_context_obo"
+    "_schema": "_obo_context"
 }
 regex_error = "thisisastring"
 
