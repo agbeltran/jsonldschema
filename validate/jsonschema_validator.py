@@ -66,22 +66,22 @@ def validate_instance(schemapath, schemafile, instancepath, instancefile, error_
     return validate_instance_against_schema(instance,resolver, schema, error_printing)
 
 
-def validate_instance_from_url(schema_url, instance):
+def validate_instance_from_url(schema_url, instance, error_printing):
     try:
         schema = json.loads(requests.get(schema_url).text)
         resolver = RefResolver(schema_url, schema, {})
-        return validate_instance_against_schema(instance, resolver, schema, 1)
+        return validate_instance_against_schema(instance, resolver, schema, error_printing)
     except Exception as e:
         raise e
 
 
 def validate_instance_against_schema(instance, resolver, schema, error_printing):
     validator = Draft4Validator(schema, resolver=resolver)
-    if error_printing == 0:
+    if error_printing == 1:
         errors = sorted(validator.iter_errors(instance), key=lambda e: e.path)
         for error in errors:
             print(error.message)
-    elif error_printing == 1:
+    elif error_printing == 0:
         errors = sorted(validator.iter_errors(instance), key=lambda e: e.path)
 
     for error in errors:

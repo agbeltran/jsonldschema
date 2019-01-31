@@ -91,7 +91,7 @@ class FlowRepoClientTestCase(unittest.TestCase):
         self.assertTrue(validation == [])
 
     def test_make_validation(self):
-        error_validation = self.client.make_validation(50)
+        error_validation = self.client.make_validation(10, 1)
         errors = error_validation[0]
 
         print("----------------------------------------------")

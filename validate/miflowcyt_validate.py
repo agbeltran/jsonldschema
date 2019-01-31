@@ -31,10 +31,11 @@ class FlowRepoClient:
         self.base_schema = base_schema
         self.schema_url = "https://w3id.org/mircat/miflowcyt/schema/experiment_schema.json"
 
-    def make_validation(self, number_of_items):
+    def make_validation(self, number_of_items, error_printing):
         """ Method to run the mapping for the given number of items
 
         :param number_of_items: the number of items to process
+        :param error_printing: 0 or 1 to determine not to show or to show the errors
         :return: a dictionary containing the list of errors for all processed items
         """
         content_ids = self.get_user_content_id(self.clientID)
@@ -106,7 +107,7 @@ class FlowRepoClient:
                                 extracted_json[field] = ""
 
                         try:
-                            validation = validate_instance_from_url(self.schema_url, extracted_json)
+                            validation = validate_instance_from_url(self.schema_url, extracted_json, error_printing)
                             print("Validated instance %s" % content_ids[i])
                             self.errors[content_ids[i]] = validation
                             if len(validation) == 0:
