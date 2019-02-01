@@ -1,20 +1,21 @@
 import unittest
 import os
-from utils.schema2context import create_network_context, prepare_input, create_and_save_contexts, generate_context_mapping_dict
+from utils.schema2context import create_network_context, \
+    prepare_input, create_and_save_contexts, generate_context_mapping_dict
 
 
 class TestSchema2Context(unittest.TestCase):
 
     input = dict({
-        "MIACME": {
-            "schema_url": "https://w3id.org/mircat/miacme/schema/miacme_schema.json"
-        },
-        "MIACA": {
-            "schema_url": "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
-        },
-        "MIFlowCyt": {
-            "schema_url": "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json"
-        }
+      "MIACME": {
+        "schema_url": "https://w3id.org/mircat/miacme/schema/miacme_schema.json"
+      },
+      "MIACA": {
+        "schema_url": "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
+      },
+      "MIFlowCyt": {
+        "schema_url": "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json"
+      }
     })
 
     base = {
@@ -37,10 +38,11 @@ class TestSchema2Context(unittest.TestCase):
             mapping = prepare_input(self.input[key]["schema_url"], key)
             output_directory = os.path.join(os.path.dirname(__file__), "../data/contexts")
             context = create_and_save_contexts(mapping, self.base, output_directory)
-            print(context)
+            self.assertTrue(not context)
 
     def test_generate_mapping_dict(self):
         for key in self.input:
-            mapping = generate_context_mapping_dict(self.input[key]["schema_url"], self.regexes, key)
-            print(mapping)
-
+            mapping = generate_context_mapping_dict(
+                        self.input[key]["schema_url"],
+                        self.regexes, key)
+            self.assertTrue(mapping["networkName"] == key)
