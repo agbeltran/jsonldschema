@@ -68,3 +68,4 @@ def validate_instance(schemapath, schemafile, instancepath, instancefile, error_
 def validate_instance_against_schema(instance, resolver, schema):
     validator = Draft4Validator(schema, resolver=resolver)
     return validator.validate(instance, schema)
+

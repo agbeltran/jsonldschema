@@ -39,10 +39,11 @@ class FlowRepoClient:
 
         self.user_accessible_ids = self.get_user_content_id()
 
-    def make_validation(self, number_of_items):
+    def make_validation(self, number_of_items, error_printing):
         """ Method to run the mapping for the given number of items
 
         :param number_of_items: the number of items to process
+        :param error_printing: 0 or 1 to determine not to show or to show the errors
         :return: a dictionary containing the list of errors for all processed items
         """
         valid = []
