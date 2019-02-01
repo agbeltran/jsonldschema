@@ -52,12 +52,8 @@ class FlowRepoClientTestCase(unittest.TestCase):
              'FR-FCM-ZZYZ', 'FR-FCM-ZZYY', 'FR-FCM-ZZY2', 'FR-FCM-ZZY3', 'FR-FCM-ZZY6'
         ]
 
-    def test_grab_user_content(self):
-        user_content = self.client.grab_user_content(self.api_key)
-        self.assertTrue(user_content.status_code == 200)
-
     def test_get_user_content_id(self):
-        user_content = self.client.get_user_content_id(self.api_key)
+        user_content = self.client.get_user_content_id()
         for _id in self.user_ids:
             self.assertTrue(_id in user_content)
 
@@ -67,12 +63,11 @@ class FlowRepoClientTestCase(unittest.TestCase):
             self.assertTrue(mapKey in mapping.keys())
 
     def test_grab_experiment_from_api(self):
-        experiment = self.client.grab_experiment_from_api(self.api_key, 'FR-FCM-ZZZ3')
-        self.assertTrue(experiment.status_code == 200)
+        experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZ3')
+        print(experiment_xml_string)
 
     def test_validate_instance_from_file(self):
-
-        experiment_xml = self.client.grab_experiment_from_api(self.api_key, 'FR-FCM-ZZY6')
+        experiment_xml = self.client.grab_experiment_from_api('FR-FCM-ZZY6')
         experience_metadata = xmljson.parker.data((elemTree.fromstring(
             experiment_xml.text)))["public-experiments"]["experiment"]
 
@@ -92,6 +87,7 @@ class FlowRepoClientTestCase(unittest.TestCase):
 
     def test_make_validation(self):
         error_validation = self.client.make_validation(10, 1)
+        print(error_validation)
 
         """
         print("----------------------------------------------")
