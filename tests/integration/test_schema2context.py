@@ -55,20 +55,20 @@ class TestSchema2Context(unittest.TestCase):
         context = create_and_save_contexts(mapping, base, output_directory)
         print(context)
 
+    def test_generate_mapping_dict(self):
+        input = {
+            "MIACME": {
+                "schema_url": "https://w3id.org/mircat/miacme/schema/miacme_schema.json"
+            },
+            "MIACA": {
+                "schema_url": "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
+            },
+            "MIFlowCyt": {
+                "schema_url": "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json"
+            }
+        }
 
-    def test_generate_mapping_dict_1(self):
-        schema_url = "https://w3id.org/mircat/miacme/schema/miacme_schema.json"
-        mapping = generate_context_mapping_dict(schema_url, self.regexes, "MIACME")
-        print(mapping)
+        for key in input:
+            mapping = generate_context_mapping_dict(input[key]["schema_url"], self.regexes, key)
+            print(mapping)
 
-
-    def test_generate_mapping_dict_2(self):
-        schema_url = "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
-        mapping = generate_context_mapping_dict(schema_url, self.regexes, "MIACA")
-        print(mapping)
-
-
-    def test_generate_mapping_dict_3(self):
-        schema_url = "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json"
-        mapping = generate_context_mapping_dict(schema_url, self.regexes, "MIFlowCyt")
-        print(mapping)
