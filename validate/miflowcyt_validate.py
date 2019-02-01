@@ -14,7 +14,7 @@ class FlowRepoClient:
     """
     A class that provides functionality to download experiments from the
     FlowRepository (https://flowrepository.org/), transform the XML into JSON
-    and validate the instances against their schema.
+    and validate the JSON instances against their JSON schema.
     The transformation from XML to JSON relies on the
     JSONBender library (https://github.com/Onyo/jsonbender).
     """
@@ -39,11 +39,10 @@ class FlowRepoClient:
 
         self.user_accessible_ids = self.get_user_content_id()
 
-    def make_validation(self, number_of_items, error_printing):
+    def make_validation(self, number_of_items):
         """ Method to run the mapping for the given number of items
 
         :param number_of_items: the number of items to process
-        :param error_printing: 0 or 1 to determine not to show or to show the errors
         :return: a dictionary containing the list of errors for all processed items
         """
         valid = []
@@ -56,6 +55,11 @@ class FlowRepoClient:
         else:
             for raw_experiment in content:
                 experiment = self.preprocess_content(content[raw_experiment])
+
+                # print("-------------------------")
+                # print(json.dumps(experiment))
+                # print("-------------------------")
+
                 try:
                     validation = self.validator.validate(experiment)
                     print(validation)
@@ -247,6 +251,9 @@ class FlowRepoClient:
                     extracted_json['related-publications']['publication']]
             else:
                 extracted_json['other']['related-publications'] = extracted_json['related-publications']['publication']
+
+        if 'related-publications' in extracted_json.keys():
+            extracted_json.pop('related-publications')
 
         for field in extracted_json.keys():
             if extracted_json[field] is None:

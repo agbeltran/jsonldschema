@@ -66,6 +66,10 @@ class FlowRepoClientTestCase(unittest.TestCase):
         experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZ3')
         print(experiment_xml_string)
 
+    def test_grab_experiment_from_api_2(self):
+        experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZV')
+        print(experiment_xml_string)
+
     def test_validate_instance_from_file(self):
         experiment_xml = self.client.grab_experiment_from_api('FR-FCM-ZZY6')
         experience_metadata = xmljson.parker.data((elemTree.fromstring(
@@ -85,8 +89,63 @@ class FlowRepoClientTestCase(unittest.TestCase):
                                                              base_schema)
         self.assertTrue(validation == [])
 
+    def test_convert_instance(self):
+        experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZV')
+        experiment_dict = self.client.preprocess_content(experiment_xml_string)
+        experiment_json = json.dumps(experiment_dict)
+        print(experiment_json)
+
+    def test_validate_instance(self):
+        experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZV')
+        experiment_dict = self.client.preprocess_content(experiment_xml_string)
+        experiment_json = json.dumps(experiment_dict)
+        print(experiment_json)
+        validation = self.client.validate_instance_from_file(experiment_dict,
+                                                             'FR-FCM-ZZZV',
+                                                             base_schema)
+        print(validation)
+
+    def test_convert_instance(self):
+        experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZ4')
+        experiment_dict = self.client.preprocess_content(experiment_xml_string)
+        experiment_json = json.dumps(experiment_dict)
+        print(experiment_json)
+
+    def test_validate_instance(self):
+        experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZ4')
+        experiment_dict = self.client.preprocess_content(experiment_xml_string)
+        experiment_json = json.dumps(experiment_dict)
+        print(experiment_json)
+        validation = self.client.validate_instance_from_file(experiment_dict,
+                                                             'FR-FCM-ZZZ4',
+                                                             base_schema)
+        print(validation)
+
+    def test_validate_instance(self):
+        experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZ3')
+        experiment_dict = self.client.preprocess_content(experiment_xml_string)
+        experiment_json = json.dumps(experiment_dict)
+        print(experiment_json)
+        validation = self.client.validate_instance_from_file(experiment_dict,
+                                                             'FR-FCM-ZZZ3',
+                                                             base_schema)
+        print(validation)
+
+
+    def test_validate_instance(self):
+        experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZU')
+        experiment_dict = self.client.preprocess_content(experiment_xml_string)
+        experiment_json = json.dumps(experiment_dict)
+        print(experiment_json)
+        validation = self.client.validate_instance_from_file(experiment_dict,
+                                                             'FR-FCM-ZZZU',
+                                                             base_schema)
+        print(validation)
+
+
+
     def test_make_validation(self):
-        error_validation = self.client.make_validation(10, 1)
+        error_validation = self.client.make_validation(9)
         print(error_validation)
 
         """
