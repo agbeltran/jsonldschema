@@ -6,7 +6,8 @@ import os
 import jsonbender
 import json
 from collections import OrderedDict
-from validate.jsonschema_validator import validate_instance, validate_instance_from_url
+from jsonschema.validators import RefResolver, Draft4Validator
+from validate.jsonschema_validator import validate_instance
 
 
 class FlowRepoClient:
@@ -30,6 +31,13 @@ class FlowRepoClient:
         self.MAPPING = self.get_mapping(mapping)
         self.base_schema = base_schema
         self.schema_url = "https://w3id.org/mircat/miflowcyt/schema/experiment_schema.json"
+        self.context_url = "https://w3id.org/mircat/miflowcyt/context/obo/experiment_obo_context.jsonld"
+        self.schemas = []
+        self.mapping = "https://fairsharing.github.io/mircat/miflowcyt/schema_context_mapping.json"
+        self.resolver = self.create_resolver()
+        self.validator = Draft4Validator(self.resolver[1], resolver=self.resolver[0])
+
+        self.user_accessible_ids = self.get_user_content_id()
 
     def make_validation(self, number_of_items):
         """ Method to run the mapping for the given number of items
@@ -37,115 +45,34 @@ class FlowRepoClient:
         :param number_of_items: the number of items to process
         :return: a dictionary containing the list of errors for all processed items
         """
-        content_ids = self.get_user_content_id(self.clientID)
         valid = []
         invalid = []
+        content = self.get_all_experiments(number_of_items)
 
-        if isinstance(content_ids, Exception):
+        if isinstance(self.user_accessible_ids, Exception):
             return Exception("Error with client ID " + self.clientID)
 
         else:
-            try:
-                for i in range(number_of_items):
-                    response = self.grab_experiment_from_api(self.clientID, content_ids[i])
+            for raw_experiment in content:
+                experiment = self.preprocess_content(content[raw_experiment])
+                try:
+                    validation = self.validator.validate(experiment)
+                    print(validation)
+                except Exception as e:
+                    raise e
 
-                    if response.status_code == 401:
-                        return Exception("client " + self.clientID + " does not have access to " +
-                                         content_ids[i])
-
-                    elif response.status_code == 404:
-                        return Exception("Item " + content_ids[i] + " could not be found")
-
-                    else:
-                        experience_metadata = xmljson.parker.data((elemTree.fromstring(
-                            response.text)))["public-experiments"]["experiment"]
-                        extracted_json = jsonbender.bend(self.MAPPING, experience_metadata)
-
-                        if extracted_json['organization'] == "\n   ":
-                            extracted_json['organization'] = []
-
-                        if extracted_json['keywords'] == "\n   ":
-                            extracted_json['keywords'] = []
-
-                        if 'keywords' in extracted_json.keys() and \
-                            type(extracted_json['keywords']) == OrderedDict and \
-                                'keyword' in extracted_json['keywords'].keys():
-                            if type(extracted_json['keywords']['keyword']) != list:
-                                extracted_json['keywords'] = [extracted_json['keywords']['keyword']]
-                            else:
-                                extracted_json['keywords'] = extracted_json['keywords']['keyword']
-
-                        if 'organization' in extracted_json.keys() and \
-                            type(extracted_json['organization']) == OrderedDict and \
-                                'organization' in extracted_json['organization'].keys():
-                            if type(extracted_json['organization']['organization']) != list:
-                                extracted_json['organization'] = [extracted_json['organization'][
-                                    'organization']]
-                            else:
-                                extracted_json['organization'] = extracted_json['organization'][
-                                    'organization']
-
-                        if 'other' not in extracted_json.keys() \
-                                or extracted_json['other'] is None:
-                            extracted_json['other'] = {}
-
-                        if 'related-publications' in extracted_json.keys() and \
-                            type(extracted_json['related-publications']) == OrderedDict and \
-                                'publication' in extracted_json['related-publications'].keys():
-                            if type(extracted_json['related-publications']['publication']) != list:
-                                extracted_json['other']['related-publications'] = [extracted_json['related-publications']['publication']]
-                            else:
-                                extracted_json['other']['related-publications'] = extracted_json['related-publications']['publication']
-
-                        '''validation = self.validate_instance_from_file(extracted_json,
-                                                                      content_ids[i],
-                                                                      self.base_schema)'''
-
-                        for field in extracted_json:
-                            if extracted_json[field] is None:
-                                extracted_json[field] = ""
-
-                        try:
-                            validation = validate_instance_from_url(self.schema_url, extracted_json)
-                            print("Validated instance %s" % content_ids[i])
-                            self.errors[content_ids[i]] = validation
-                            if len(validation) == 0:
-                                valid.append(content_ids[i])
-                            else:
-                                invalid.append(content_ids[i])
-                        except Exception:
-                            print("Problem with item %s" % content_ids[i])
-                            print(json.dumps(extracted_json, indent=4))
-                            invalid.append(content_ids[i])
-
-                return self.errors, valid, invalid
-            except IndexError:
-                return Exception("The number of available items is inferior to the number you "
-                                 "ask for")
-
-    @staticmethod
-    def grab_user_content(client_identifier):
-        """ Grab all content for a given user ID as an XML and outputs it as a JSON.
-        This method will grab all public experiments plus those only accessible to the user ID.
-
-        :param client_identifier: the user ID
-        :return: a dictionary containing the XML
-        """
-        full_url = "http://flowrepository.org/list?client=" + client_identifier
-        response = requests.request("GET", full_url)
-        return response
-
-    def get_user_content_id(self, client_identifier):
+    def get_user_content_id(self):
         """ Return all IDs found in the user content XML
 
-        :param client_identifier: the user content ID
         :return: a list of all IDs there were identified in the variable returned by the API
         """
+
+        full_url = "http://flowrepository.org/list?client=" + self.clientID
         ids = []
-        response = self.grab_user_content(client_identifier)
+        response = requests.request("GET", full_url)
 
         if response.status_code == 404:
-            return Exception("Verify your client ID (" + client_identifier + ")")
+            return Exception("Verify your client ID (" + self.clientID + ")")
 
         else:
             user_data = xmljson.parker.data((elemTree.fromstring(response.text)))
@@ -155,20 +82,33 @@ class FlowRepoClient:
 
             return ids
 
-    @staticmethod
-    def grab_experiment_from_api(client_identifier, item_identifier):
+    def grab_experiment_from_api(self, item_identifier):
         """ Retrieve the experimental metadata and return it as a python object
 
-        :param client_identifier: the client identifier (apiKey)
         :param item_identifier: the item identifier that should be retrieved
         :return: the python object obtained from the XML
         """
         full_url = "http://flowrepository.org/list/" \
                    + item_identifier \
                    + "?client=" \
-                   + client_identifier
-        response = requests.request("GET", full_url)
-        return response
+                   + self.clientID
+        try:
+            response = requests.request("GET", full_url)
+            if response.status_code == 404:
+                return Exception("Item %s could not be found" % item_identifier)
+            return response.text
+        except Exception:
+            return Exception('Problem with item %s' % item_identifier)
+
+    def get_all_experiments(self, max_number):
+        contents = {}
+
+        if max_number < len(self.user_accessible_ids):
+            for i in range(max_number):
+                current_content = self.grab_experiment_from_api(self.user_accessible_ids[i])
+                contents[self.user_accessible_ids[i]] = current_content
+
+        return contents
 
     @staticmethod
     def validate_instance_from_file(instance, item_id, schema_name):
@@ -242,3 +182,80 @@ class FlowRepoClient:
             return mapping
         except FileNotFoundError:
             return Exception("Mapping file wasn't found")
+
+    def inject_context(self):
+        context_mapping = json.loads(requests.get(self.mapping).text)["contexts"]
+        for schema in self.schemas:
+
+            for field_property in schema:
+                prop = field_property + "_schema.json"
+
+                if prop in context_mapping.keys():
+
+                    if type(schema[field_property]) == list:
+                        for item in schema[field_property]:
+                            item["@context"] = context_mapping[prop]
+                            item["@type"] = field_property.capitalize()
+                    else:
+                        schema[field_property]["@context"] = context_mapping[prop]
+                        schema[field_property]["@type"] = field_property.capitalize()
+
+            schema["@context"] = self.context_url
+            schema["@type"] = "Experiment"
+
+        return self.schemas
+
+    def preprocess_content(self, content):
+        experience_metadata = xmljson.parker.data((elemTree.fromstring(
+            content)))["public-experiments"]["experiment"]
+        extracted_json = jsonbender.bend(self.MAPPING, experience_metadata)
+
+        if extracted_json['organization'] == "\n   ":
+            extracted_json['organization'] = []
+
+        if extracted_json['keywords'] == "\n   ":
+            extracted_json['keywords'] = []
+
+        if 'keywords' in extracted_json.keys() and \
+                type(extracted_json['keywords']) == OrderedDict and \
+                'keyword' in extracted_json['keywords'].keys():
+            if type(extracted_json['keywords']['keyword']) != list:
+                extracted_json['keywords'] = [extracted_json['keywords']['keyword']]
+            else:
+                extracted_json['keywords'] = extracted_json['keywords']['keyword']
+
+        if 'organization' in extracted_json.keys() and \
+                type(extracted_json['organization']) == OrderedDict and \
+                'organization' in extracted_json['organization'].keys():
+            if type(extracted_json['organization']['organization']) != list:
+                extracted_json['organization'] = [extracted_json['organization'][
+                                                      'organization']]
+            else:
+                extracted_json['organization'] = extracted_json['organization'][
+                    'organization']
+
+        if 'other' not in extracted_json.keys() \
+                or extracted_json['other'] is None:
+            extracted_json['other'] = {}
+
+        if 'related-publications' in extracted_json.keys() and \
+                type(extracted_json['related-publications']) == OrderedDict and \
+                'publication' in extracted_json['related-publications'].keys():
+            if type(extracted_json['related-publications']['publication']) != list:
+                extracted_json['other']['related-publications'] = [
+                    extracted_json['related-publications']['publication']]
+            else:
+                extracted_json['other']['related-publications'] = extracted_json['related-publications']['publication']
+
+        for field in extracted_json.keys():
+            if extracted_json[field] is None:
+                extracted_json[field] = ""
+            if field == "primaryContact":
+                extracted_json["primary_contact"] = extracted_json["primaryContact"]
+                del extracted_json["primaryContact"]
+
+        return extracted_json
+
+    def create_resolver(self):
+        schema = json.loads(requests.get(self.schema_url).text)
+        return RefResolver(self.schema_url, schema, {}), schema

@@ -1,7 +1,6 @@
 import os
 from os.path import join
 import json
-import requests
 from jsonschema.validators import (
      Draft4Validator, RefResolver
 )
@@ -63,31 +62,9 @@ def validate_instance(schemapath, schemafile, instancepath, instancefile, error_
     schema_file.close()
 
     resolver = RefResolver('file://' + schemapath + '/' + schemafile, schema, store)
-    return validate_instance_against_schema(instance,resolver, schema, error_printing)
+    return validate_instance_against_schema(instance,resolver, schema)
 
 
-def validate_instance_from_url(schema_url, instance):
-    try:
-        schema = json.loads(requests.get(schema_url).text)
-        resolver = RefResolver(schema_url, schema, {})
-        return validate_instance_against_schema(instance, resolver, schema, 1)
-    except Exception as e:
-        raise e
-
-
-def validate_instance_against_schema(instance, resolver, schema, error_printing):
+def validate_instance_against_schema(instance, resolver, schema):
     validator = Draft4Validator(schema, resolver=resolver)
-    if error_printing == 0:
-        errors = sorted(validator.iter_errors(instance), key=lambda e: e.path)
-        for error in errors:
-            print(error.message)
-    elif error_printing == 1:
-        errors = sorted(validator.iter_errors(instance), key=lambda e: e.path)
-
-    for error in errors:
-        print(error)
-        for suberror in sorted(error.context, key=lambda e: e.schema_path):
-            print(list(suberror.schema_path), suberror.message)
-    else:
-        validator.validate(instance, schema)
-    return errors
+    return validator.validate(instance, schema)
