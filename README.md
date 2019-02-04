@@ -3,12 +3,12 @@
 [![Coverage Status](https://coveralls.io/repos/github/FAIRsharing/jsonldschema/badge.svg?branch=master)](https://coveralls.io/github/FAIRsharing/jsonldschema?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/jsonldschema/badge/?version=latest)](https://jsonldschema.readthedocs.io/en/latest/?badge=latest)
 
-Utility code for the Minimum Information Requirements Catalogue.
+Utility code for metadata models expressed with JSON-schema for JSON-LD instances.
 
 Functionality included:
- - validation of JSON schemas
+ - validation of JSON schemas and JSON-LD instances against a JSON-schema
  - comparison between JSON schemas
- - conversion of a generic json-schema, and especially mircat json schemas, into a CEDAR template json-schema
+ - conversion of a generic json-schema, into a CEDAR Workbench template to support instance creation
  - CEDAR API function: get folders and templates content, upload or update templates, get users ...
 
 ### Create and use a virtual environment
