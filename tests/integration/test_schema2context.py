@@ -1,7 +1,11 @@
 import unittest
 import os
-from utils.schema2context import create_network_context, \
-    prepare_input, create_and_save_contexts, generate_context_mapping_dict
+from utils.schema2context import (
+    create_network_context,
+    prepare_input,
+    create_and_save_contexts,
+    generate_context_mapping_dict
+)
 
 
 class TestSchema2Context(unittest.TestCase):
