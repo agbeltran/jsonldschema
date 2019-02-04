@@ -145,7 +145,7 @@ class FlowRepoClientTestCase(unittest.TestCase):
 
 
     def test_make_validation(self):
-        error_validation = self.client.make_validation(9)
+        error_validation = self.client.make_validation(10)
         print(error_validation)
 
         """
@@ -156,12 +156,11 @@ class FlowRepoClientTestCase(unittest.TestCase):
 
         print("INVALID IDS")
         print(json.dumps(error_validation[2], indent=4))
-
-        
+           
         for itemKey in errors:
             print(itemKey, errors[itemKey])
             self.assertTrue(errors[itemKey] == [])
-        
+
         jsonld_array = self.client.inject_context()
         print(json.dumps(jsonld_array, indent=4))
         """
