@@ -204,8 +204,8 @@ class FlowRepoClient:
     def preprocess_content(self, content):
         """
         Preprocess the XML into a JSON that is compliant with the schema.
-        :param content: a JSON schema
-        :type content: dict
+        :param content: str containing the XML
+        :type content: str
         :return: a JSON schema cleaned from residual artifacts
         """
         mapping = self.get_mapping(self.bender_mapping_file)

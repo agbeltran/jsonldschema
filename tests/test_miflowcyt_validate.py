@@ -2,6 +2,8 @@ from nose.tools import assert_true
 import os
 import mock
 import jsonbender
+from deepdiff import DeepDiff
+from collections import OrderedDict
 from validate.miflowcyt_validate import FlowRepoClient
 
 map_file = os.path.join(os.path.dirname(__file__),
@@ -85,6 +87,81 @@ class TestFlowRepoClient(object):
                                       "../tests/data/MiFlowCyt/_mapping.json")
         error = self.client.get_mapping(map_file_error)
         assert_true(isinstance(error, Exception))
+
+    def test_preprocess_content(self):
+        xml_file = os.path.join(os.path.dirname(__file__),
+                                "../tests/data/MiFlowCyt/experiment.xml")
+
+        with open(xml_file, 'r') as input_data:
+            data = input_data.read()
+        input_data.close()
+
+        local_client = FlowRepoClient(map_file, "FakeID", 1)
+        processed_content = [local_client.preprocess_content(data)]
+
+        expected_output = [
+            {
+                "date": OrderedDict({
+                    "start-date": "2007-05-30",
+                    "end-date": "2007-08-21"
+                }),
+                "qualityControlMeasures": "To standardize voltage "
+                                          "settings across samples "
+                                          "acquired on different days, "
+                                          "single stained controls were included. "
+                                          "Voltages were adjusted such that fluorescence"
+                                          " intensity was identical for each antibody, "
+                                          "regardless of date of acquisition. ",
+                "conclusions": "conclusion",
+                "organization": [
+                    OrderedDict({
+                        "name": "Child & Family Research Institute",
+                        "address": OrderedDict({
+                            "street": "938 West 28th Avenue",
+                            "city": "Vancouver",
+                            "zip": "V5Z 4H4",
+                            "state": "BC",
+                            "country": "Canada"
+                        })
+                    }),
+                    OrderedDict({
+                        "name": "University of Washington Medical Center",
+                        "address": OrderedDict({
+                            "street": "1959 NE Pacific Street ",
+                            "city": "Seattle",
+                            "zip": "98195-7650 ",
+                            "state": "Washington",
+                            "country": "USA"
+                        })
+                    })
+                ],
+                "purpose": "The purpose of the experiment presented "
+                           "here was to test whether human B cells can "
+                           "be identified through a negative-gating strategy.\n\n",
+                "keywords": [
+                    "Innate Immune Response",
+                    "Toll-like receptors",
+                    "Activation markers",
+                    "B cells",
+                    "MIFlowCyt"
+                ],
+                "experimentVariables": "",
+                "other": {
+                    "related-publications": [
+                        OrderedDict({
+                            "pubmed-id": 20131398
+                        }),
+                        OrderedDict({
+                            "pmc-id": "PMC2878765"
+                        })
+                    ]
+                },
+                "primary_contact": OrderedDict({
+                    "name": "Karin Breuer"
+                })
+            }
+        ]
+        assert_true(DeepDiff(processed_content, expected_output) == {})
 
     def test_inject_context(self):
         self.mock_request_patcher.stop()
@@ -219,7 +296,7 @@ class TestFlowRepoClient(object):
             }
         }
 
-        local_client = FlowRepoClient(map_file, "DBasdfas89798asoj892KOS", 1)
+        local_client = FlowRepoClient(map_file, "fakeID", 1)
         contexts = local_client.inject_context()
         assert_true(contexts == expected_output)
 
