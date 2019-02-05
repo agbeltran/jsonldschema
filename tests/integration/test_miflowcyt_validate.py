@@ -40,7 +40,7 @@ class FlowRepoClientTestCase(unittest.TestCase):
             quit(0)
 
     def setUp(self):
-        self.client = miflowcyt_validate.FlowRepoClient(map_file, base_schema, self.api_key)
+        self.client = miflowcyt_validate.FlowRepoClient(map_file, self.api_key)
         self.mappingKeys = {
             "date", "primaryContact", "qualityControlMeasures",
             "conclusions", "organization", "purpose",
@@ -58,7 +58,7 @@ class FlowRepoClientTestCase(unittest.TestCase):
             self.assertTrue(_id in user_content)
 
     def test_get_mapping(self):
-        mapping = self.client.get_mapping(map_file)
+        mapping = self.client.get_mapping()
         for mapKey in self.mappingKeys:
             self.assertTrue(mapKey in mapping.keys())
 
@@ -105,13 +105,13 @@ class FlowRepoClientTestCase(unittest.TestCase):
                                                              base_schema)
         print(validation)
 
-    def test_convert_instance(self):
+    def test_convert_instance_2(self):
         experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZ4')
         experiment_dict = self.client.preprocess_content(experiment_xml_string)
         experiment_json = json.dumps(experiment_dict)
         print(experiment_json)
 
-    def test_validate_instance(self):
+    def test_validate_instance_2(self):
         experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZ4')
         experiment_dict = self.client.preprocess_content(experiment_xml_string)
         experiment_json = json.dumps(experiment_dict)
@@ -121,7 +121,7 @@ class FlowRepoClientTestCase(unittest.TestCase):
                                                              base_schema)
         print(validation)
 
-    def test_validate_instance(self):
+    def test_validate_instance_3(self):
         experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZ3')
         experiment_dict = self.client.preprocess_content(experiment_xml_string)
         experiment_json = json.dumps(experiment_dict)
@@ -131,8 +131,7 @@ class FlowRepoClientTestCase(unittest.TestCase):
                                                              base_schema)
         print(validation)
 
-
-    def test_validate_instance(self):
+    def test_validate_instance_4(self):
         experiment_xml_string = self.client.grab_experiment_from_api('FR-FCM-ZZZU')
         experiment_dict = self.client.preprocess_content(experiment_xml_string)
         experiment_json = json.dumps(experiment_dict)
@@ -142,11 +141,10 @@ class FlowRepoClientTestCase(unittest.TestCase):
                                                              base_schema)
         print(validation)
 
-
-
     def test_make_validation(self):
-        error_validation = self.client.make_validation(10)
-        print(error_validation)
+        valid, invalid = self.client.make_validation(10)
+        print(valid)
+        print(invalid)
 
         """
         print("----------------------------------------------")
@@ -156,7 +154,6 @@ class FlowRepoClientTestCase(unittest.TestCase):
 
         print("INVALID IDS")
         print(json.dumps(error_validation[2], indent=4))
-           
         for itemKey in errors:
             print(itemKey, errors[itemKey])
             self.assertTrue(errors[itemKey] == [])

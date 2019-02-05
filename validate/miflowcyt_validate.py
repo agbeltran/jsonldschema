@@ -19,52 +19,27 @@ class FlowRepoClient:
     JSONBender library (https://github.com/Onyo/jsonbender).
     """
 
-    def __init__(self, mapping, base_schema, client_id):
+    def __init__(self, mapping, client_id, number_of_items):
         """ The class constructor
 
         :param mapping: the mapping dictionary containing the jsonbender objects
             (see https://github.com/Onyo/jsonbender)
+        :type mapping: file
+        :param client_id: identifier of the client
+        :type client_id: str
 
         """
         self.errors = {}
+        self.instances = []
+        self.main_context_url = ""
         self.clientID = client_id
-        self.MAPPING = self.get_mapping(mapping)
-        self.base_schema = base_schema
-        self.schema_url = "https://w3id.org/mircat/miflowcyt/schema/experiment_schema.json"
-        self.context_url = "https://w3id.org/mircat/miflowcyt/context/obo/experiment_obo_context.jsonld"
-        self.schemas = []
-        self.mapping = "https://fairsharing.github.io/mircat/miflowcyt/schema_context_mapping.json"
-        self.resolver = self.create_resolver()
-        self.validator = Draft4Validator(self.resolver[1], resolver=self.resolver[0])
+        self.item_number = number_of_items
+        self.bender_mapping_file = mapping
 
-        self.user_accessible_ids = self.get_user_content_id()
-
-    def make_validation(self, number_of_items):
-        """ Method to run the mapping for the given number of items
-
-        :param number_of_items: the number of items to process
-        :return: a dictionary containing the list of errors for all processed items
-        """
-        valid = []
-        invalid = []
-        content = self.get_all_experiments(number_of_items)
-
-        if isinstance(self.user_accessible_ids, Exception):
-            return Exception("Error with client ID " + self.clientID)
-
-        else:
-            for raw_experiment in content:
-                experiment = self.preprocess_content(content[raw_experiment])
-
-                # print("-------------------------")
-                # print(json.dumps(experiment))
-                # print("-------------------------")
-
-                try:
-                    validation = self.validator.validate(experiment)
-                    print(validation)
-                except Exception as e:
-                    raise e
+        self.mapping_url = "https://fairsharing.github.io/mircat/miflowcyt/" \
+                           "schema_context_mapping.json"
+        self.base_schema = "experiment_schema.json"
+        self.schema_url = "https://w3id.org/mircat/miflowcyt/schema/" + self.base_schema
 
     def get_user_content_id(self):
         """ Return all IDs found in the user content XML
@@ -82,36 +57,44 @@ class FlowRepoClient:
         else:
             user_data = xmljson.parker.data((elemTree.fromstring(response.text)))
 
-            for experiment in user_data['public-experiments']['experiment']:
-                ids.append(experiment['id'])
+            if "public-experiments" in user_data.keys() \
+                    and "experiment" in user_data["public-experiments"].keys():
+                for experiment in user_data['public-experiments']['experiment']:
+                    ids.append(experiment['id'])
 
             return ids
 
     def grab_experiment_from_api(self, item_identifier):
-        """ Retrieve the experimental metadata and return it as a python object
+        """ Retrieve the experimental metadata and return it as XML document object
 
         :param item_identifier: the item identifier that should be retrieved
-        :return: the python object obtained from the XML
+        :return: the XML document object
         """
         full_url = "http://flowrepository.org/list/" \
                    + item_identifier \
                    + "?client=" \
                    + self.clientID
-        try:
-            response = requests.request("GET", full_url)
-            if response.status_code == 404:
-                return Exception("Item %s could not be found" % item_identifier)
-            return response.text
-        except Exception:
-            return Exception('Problem with item %s' % item_identifier)
+        response = requests.request("GET", full_url)
+        if response.status_code == 404 or response.status_code == 400:
+            return Exception("Item %s could not be found" % item_identifier)
+        return response.text
 
-    def get_all_experiments(self, max_number):
+    def get_all_experiments(self, max_number, accessible_ids):
+        """Grab all experiments from the API for the given number
+
+        :param max_number: the number of item to retrieve
+        :type max_number: int
+        :param accessible_ids: the ids that this use can fetch
+        :type accessible_ids: list
+        :return the experiments XMLs
+        """
+
         contents = {}
 
-        if max_number < len(self.user_accessible_ids):
+        if max_number < len(accessible_ids):
             for i in range(max_number):
-                current_content = self.grab_experiment_from_api(self.user_accessible_ids[i])
-                contents[self.user_accessible_ids[i]] = current_content
+                current_content = self.grab_experiment_from_api(accessible_ids[i])
+                contents[accessible_ids[i]] = current_content
 
         return contents
 
@@ -189,31 +172,46 @@ class FlowRepoClient:
             return Exception("Mapping file wasn't found")
 
     def inject_context(self):
-        context_mapping = json.loads(requests.get(self.mapping).text)["contexts"]
-        for schema in self.schemas:
+        """
+        Transform the myflowcyt JSON into a JSON-LD by injecting @context and @type keywords
+        :return: a JSON-LD of the myflowcyt JSON
+        """
 
-            for field_property in schema:
-                prop = field_property + "_schema.json"
+        instances, errors = self.make_validation()
 
+        context_mapping = json.loads(requests.get(self.mapping_url).text)["contexts"]
+        self.main_context_url = context_mapping[self.base_schema]
+
+        for instance_name in instances:
+            instance = instances[instance_name]
+
+            for field in instance:
+                prop = field + "_schema.json"
                 if prop in context_mapping.keys():
-
-                    if type(schema[field_property]) == list:
-                        for item in schema[field_property]:
+                    if type(instance[field]) == list:
+                        for item in instance[field]:
                             item["@context"] = context_mapping[prop]
-                            item["@type"] = field_property.capitalize()
-                    else:
-                        schema[field_property]["@context"] = context_mapping[prop]
-                        schema[field_property]["@type"] = field_property.capitalize()
+                            item["@type"] = field.capitalize()
+                    elif type(instance[field]) == dict:
+                        instance[field]["@context"] = context_mapping[prop]
+                        instance[field]["@type"] = field.capitalize()
 
-            schema["@context"] = self.context_url
-            schema["@type"] = "Experiment"
+            instance["@context"] = self.main_context_url
+            instance["@type"] = "Experiment"
 
-        return self.schemas
+        return instances
 
     def preprocess_content(self, content):
+        """
+        Preprocess the XML into a JSON that is compliant with the schema.
+        :param content: a JSON schema
+        :type content: dict
+        :return: a JSON schema cleaned from residual artifacts
+        """
+        mapping = self.get_mapping(self.bender_mapping_file)
         experience_metadata = xmljson.parker.data((elemTree.fromstring(
             content)))["public-experiments"]["experiment"]
-        extracted_json = jsonbender.bend(self.MAPPING, experience_metadata)
+        extracted_json = jsonbender.bend(mapping, experience_metadata)
 
         if extracted_json['organization'] == "\n   ":
             extracted_json['organization'] = []
@@ -250,7 +248,8 @@ class FlowRepoClient:
                 extracted_json['other']['related-publications'] = [
                     extracted_json['related-publications']['publication']]
             else:
-                extracted_json['other']['related-publications'] = extracted_json['related-publications']['publication']
+                extracted_json['other']['related-publications'] = \
+                    extracted_json['related-publications']['publication']
 
         if 'related-publications' in extracted_json.keys():
             extracted_json.pop('related-publications')
@@ -265,5 +264,41 @@ class FlowRepoClient:
         return extracted_json
 
     def create_resolver(self):
+        """
+        Creates a single resolver that will be used by Draft4Validator to validate
+        instances against the set of schemas
+        :return: RefResolver
+        """
         schema = json.loads(requests.get(self.schema_url).text)
         return RefResolver(self.schema_url, schema, {}), schema
+
+    def make_validation(self):
+        """ Method to run the mapping for the given number of items
+
+        :return: a dictionary containing the list of errors for all processed items
+        """
+        valid = {}
+        invalid = {}
+
+        user_accessible_ids = self.get_user_content_id()
+        # print(user_accessible_ids)
+
+        if isinstance(user_accessible_ids, Exception):
+            return Exception("Error with client ID " + self.clientID)
+
+        else:
+            resolver = self.create_resolver()
+            validator = Draft4Validator(resolver[1], resolver=resolver[0])
+            content = self.get_all_experiments(self.item_number, user_accessible_ids)
+
+            for raw_experiment in content:
+                experiment = self.preprocess_content(content[raw_experiment])
+                try:
+                    validation = validator.validate(experiment)
+                    if validation is None:
+                        valid[raw_experiment] = experiment
+                    else:
+                        invalid[raw_experiment] = validation
+                except Exception as e:
+                    invalid[raw_experiment] = "Unexpected error: " + str(e)
+        return valid, invalid

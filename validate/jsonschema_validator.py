@@ -62,10 +62,18 @@ def validate_instance(schemapath, schemafile, instancepath, instancefile, error_
     schema_file.close()
 
     resolver = RefResolver('file://' + schemapath + '/' + schemafile, schema, store)
-    return validate_instance_against_schema(instance,resolver, schema)
+    return validate_instance_against_schema(instance, resolver, schema)
 
 
 def validate_instance_against_schema(instance, resolver, schema):
-    validator = Draft4Validator(schema, resolver=resolver)
-    return validator.validate(instance, schema)
-
+    """
+    Simple function to validate an instance against a schema on the fly
+    :param instance: the JSON instance to validate
+    :type instance: dict
+    :param resolver: the resolver object used by Drat4Validator
+    :type resolver: RefResolver
+    :param schema: the root schema to validate against
+    :type schema: dict
+    :return: Draft4Validator.validate
+    """
+    return Draft4Validator(schema, resolver=resolver).validate(instance, schema)
