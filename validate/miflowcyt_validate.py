@@ -263,15 +263,6 @@ class FlowRepoClient:
 
         return extracted_json
 
-    def create_resolver(self):
-        """
-        Creates a single resolver that will be used by Draft4Validator to validate
-        instances against the set of schemas
-        :return: RefResolver
-        """
-        schema = json.loads(requests.get(self.schema_url).text)
-        return RefResolver(self.schema_url, schema, {}), schema
-
     def make_validation(self):
         """ Method to run the mapping for the given number of items
 
@@ -287,8 +278,9 @@ class FlowRepoClient:
             return Exception("Error with client ID " + self.clientID)
 
         else:
-            resolver = self.create_resolver()
-            validator = Draft4Validator(resolver[1], resolver=resolver[0])
+            schema = json.loads(requests.get(self.schema_url).text)
+            resolver = RefResolver(self.schema_url, schema, {}), schema
+            validator = Draft4Validator(resolver, resolver=resolver[0])
             content = self.get_all_experiments(self.item_number, user_accessible_ids)
 
             for raw_experiment in content:
