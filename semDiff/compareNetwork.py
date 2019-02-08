@@ -81,7 +81,7 @@ class NetworkCoverage:
                 for schema2 in list(network__b.keys()):
                     context_type2 = network_b[schema2]
 
-                    if context_type == context_type2 and subtype is not "":
+                    if context_type == context_type2 and subtype != "":
                         matched = True
                         del network__b[schema2]
                         if schema in coverage.keys():
