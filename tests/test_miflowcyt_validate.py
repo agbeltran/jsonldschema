@@ -25,12 +25,6 @@ class TestFlowRepoClient(object):
         cls.mock_etree_patcher = mock.patch('validate.miflowcyt_validate.elemTree.fromstring')
         cls.mock_etree = cls.mock_etree_patcher.start()
 
-    """"@classmethod
-    def teardown_class(cls):
-        cls.mock_request_patcher.stop()
-        cls.mock_xmljson_patcher.stop()
-        cls.mock_etree_patcher.stop()"""
-
     def test_get_user_content_id(self):
         self.mock_request.return_value.status_code = 200
         self.mock_xmljson.return_value = {
@@ -385,10 +379,9 @@ class TestFlowRepoClient(object):
             }
         }
 
-        import json
-
         client = FlowRepoClient(map_file, "anotherfakeID", 1)
         validation, errors = client.make_validation()
-        print(json.dumps(validation, indent=4))
         assert_true(validation == expected_output)
         assert_true(errors == {})
+        mock_getcontent_patcher.stop()
+        mock_getexp_patcher.stop()
