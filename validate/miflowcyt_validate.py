@@ -279,8 +279,8 @@ class FlowRepoClient:
 
         else:
             schema = json.loads(requests.get(self.schema_url).text)
-            resolver = RefResolver(self.schema_url, schema, {}), schema
-            validator = Draft4Validator(resolver, resolver=resolver[0])
+            resolver = RefResolver(self.schema_url, schema, {})
+            validator = Draft4Validator(schema, resolver=resolver)
             content = self.get_all_experiments(self.item_number, user_accessible_ids)
 
             for raw_experiment in content:

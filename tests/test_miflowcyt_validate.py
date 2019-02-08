@@ -299,34 +299,89 @@ class TestFlowRepoClient(object):
         local_client = FlowRepoClient(map_file, "fakeID", 1)
         contexts = local_client.inject_context()
         assert_true(contexts == expected_output)
+        mock_validate_patcher.stop()
 
     def test_make_validation(self):
-        """
-        self.mock_request.return_value.status_code = 200
-        self.mock_request.return_value.text = "Hello worlds"
 
-        validation, errors = self.client.make_validation()
-        assert_true(isinstance(validation, Exception))
+        # Getting the XML variable that is returned by get_all_experiments
+        xml_file = os.path.join(os.path.dirname(__file__),
+                                "../tests/data/MiFlowCyt/experiment.xml")
 
-        self.mock_request.return_value.status_code = 404
-        validation2, errors2 = self.client.make_validation()
-        assert_true(isinstance(validation2, Exception))
+        with open(xml_file, 'r') as input_data:
+            data = input_data.read()
+        input_data.close()
 
-        self.mock_request_patcher.stop()
+        mock_getcontent_patcher = mock.patch("validate.miflowcyt_validate.FlowRepoClient.get_user_content_id")
+        mock_getcontent = mock_getcontent_patcher.start()
+        mock_getcontent.return_value = [
+            'FR-FCM-ZZZ3', 'FR-FCM-ZZZ4', 'FR-FCM-ZZZA'
+        ]
 
+        mock_getexp_patcher = mock.patch("validate.miflowcyt_validate.FlowRepoClient.get_all_experiments")
+        mock_getexp = mock_getexp_patcher.start()
+        mock_getexp.return_value = {'FR-FCM-ZZZ3': data}
 
-        mock_get_user_content_patcher = mock.patch(
-            "validate.miflowcyt_validate.FlowRepoClient.get_user_content_id")
-        mock_get_user_content = mock_get_user_content_patcher.start()
-        mock_get_user_content.return_value = ["123"]
-        self.mock_request.return_value.status_code = 404
-        validation3 = self.client.make_validation()
-        assert_true(isinstance(validation3, Exception))
-        mock_get_user_content_patcher.stop()
+        expected_output = {
+            "FR-FCM-ZZZ3": {
+                "date": {
+                    "start-date": "2007-05-30",
+                    "end-date": "2007-08-21"
+                },
+                "qualityControlMeasures": "To standardize voltage settings across samples acquired "
+                                          "on different days, single stained controls were included."
+                                          " Voltages were adjusted such that fluorescence intensity"
+                                          " was identical for each antibody, regardless of date of"
+                                          " acquisition. ",
+                "conclusions": "conclusion",
+                "organization": [
+                    {
+                        "name": "Child & Family Research Institute",
+                        "address": {
+                            "street": "938 West 28th Avenue",
+                            "city": "Vancouver",
+                            "zip": "V5Z 4H4",
+                            "state": "BC",
+                            "country": "Canada"
+                        }
+                    },
+                    {
+                        "name": "University of Washington Medical Center",
+                        "address": {
+                            "street": "1959 NE Pacific Street ",
+                            "city": "Seattle",
+                            "zip": "98195-7650 ",
+                            "state": "Washington",
+                            "country": "USA"
+                        }
+                    }
+                ],
+                "purpose": "The purpose of the experiment presented here was to test whether"
+                           " human B cells can be identified through a negative-gating strategy.\n\n",
+                "keywords": [
+                    "Innate Immune Response",
+                    "Toll-like receptors",
+                    "Activation markers",
+                    "B cells",
+                    "MIFlowCyt"
+                ],
+                "experimentVariables": "",
+                "other": {
+                    "related-publications": [
+                        {
+                            "pubmed-id": 20131398
+                        },
+                        {
+                            "pmc-id": "PMC2878765"
+                        }
+                    ]
+                },
+                "primary_contact": {
+                    "name": "Karin Breuer"
+                }
+            }
+        }
 
-
-        validation3, errors3 = self.client.make_validation()
-        print(validation3)
-        assert_true(validation3 == 123)
-        """
-        print(123)
+        client = FlowRepoClient(map_file, "anotherfakeID", 1)
+        validation, errors = client.make_validation()
+        assert_true(validation == expected_output)
+        assert_true(errors == {})
