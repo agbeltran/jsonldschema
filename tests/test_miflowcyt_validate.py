@@ -4,6 +4,10 @@ import mock
 import jsonbender
 from deepdiff import DeepDiff
 from collections import OrderedDict
+import json
+from jsonschema.validators import (
+     Draft4Validator, RefResolver
+)
 from validate.miflowcyt_validate import FlowRepoClient
 
 map_file = os.path.join(os.path.dirname(__file__),
@@ -379,9 +383,23 @@ class TestFlowRepoClient(object):
             }
         }
 
+        schema_path = os.path.join(os.path.dirname(__file__),
+                                   "../tests/data/MiFlowCyt/experiment_schema.json")
+        schema_file = open(schema_path)
+        schema = json.load(schema_file)
+        schema_file.close()
+        resolver = RefResolver('file://' + schema_path, schema, {})
+        validator = Draft4Validator(schema, resolver=resolver)
+
+        mock_validator_patcher = mock.patch(
+            "validate.miflowcyt_validate.Draft4Validator")
+        mock_validator = mock_validator_patcher.start()
+        mock_validator.return_value = validator
+
         client = FlowRepoClient(map_file, "anotherfakeID", 1)
         validation, errors = client.make_validation()
         assert_true(validation == expected_output)
         assert_true(errors == {})
         mock_getcontent_patcher.stop()
         mock_getexp_patcher.stop()
+        mock_validator_patcher.stop()
