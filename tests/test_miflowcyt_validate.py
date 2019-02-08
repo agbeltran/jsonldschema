@@ -311,13 +311,15 @@ class TestFlowRepoClient(object):
             data = input_data.read()
         input_data.close()
 
-        mock_getcontent_patcher = mock.patch("validate.miflowcyt_validate.FlowRepoClient.get_user_content_id")
+        mock_getcontent_patcher = mock.patch(
+            "validate.miflowcyt_validate.FlowRepoClient.get_user_content_id")
         mock_getcontent = mock_getcontent_patcher.start()
         mock_getcontent.return_value = [
             'FR-FCM-ZZZ3', 'FR-FCM-ZZZ4', 'FR-FCM-ZZZA'
         ]
 
-        mock_getexp_patcher = mock.patch("validate.miflowcyt_validate.FlowRepoClient.get_all_experiments")
+        mock_getexp_patcher = mock.patch(
+            "validate.miflowcyt_validate.FlowRepoClient.get_all_experiments")
         mock_getexp = mock_getexp_patcher.start()
         mock_getexp.return_value = {'FR-FCM-ZZZ3': data}
 
@@ -327,11 +329,12 @@ class TestFlowRepoClient(object):
                     "start-date": "2007-05-30",
                     "end-date": "2007-08-21"
                 },
-                "qualityControlMeasures": "To standardize voltage settings across samples acquired "
-                                          "on different days, single stained controls were included."
-                                          " Voltages were adjusted such that fluorescence intensity"
-                                          " was identical for each antibody, regardless of date of"
-                                          " acquisition. ",
+                "qualityControlMeasures": "To standardize voltage settings across samples "
+                                          "acquired on different days, single stained "
+                                          "controls were included. Voltages were adjusted "
+                                          "such that fluorescence intensity was identical "
+                                          "for each antibody, regardless of date of "
+                                          "acquisition. ",
                 "conclusions": "conclusion",
                 "organization": [
                     {
@@ -355,8 +358,9 @@ class TestFlowRepoClient(object):
                         }
                     }
                 ],
-                "purpose": "The purpose of the experiment presented here was to test whether"
-                           " human B cells can be identified through a negative-gating strategy.\n\n",
+                "purpose": "The purpose of the experiment presented here was to test"
+                           " whether human B cells can be identified through a "
+                           "negative-gating strategy.\n\n",
                 "keywords": [
                     "Innate Immune Response",
                     "Toll-like receptors",
@@ -381,7 +385,10 @@ class TestFlowRepoClient(object):
             }
         }
 
+        import json
+
         client = FlowRepoClient(map_file, "anotherfakeID", 1)
         validation, errors = client.make_validation()
+        print(json.dumps(validation, indent=4))
         assert_true(validation == expected_output)
         assert_true(errors == {})
