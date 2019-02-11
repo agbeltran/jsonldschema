@@ -80,13 +80,13 @@ class FlowRepoClient:
         return response.text
 
     def get_all_experiments(self, max_number, accessible_ids):
-        """Grab all experiments from the API for the given number
+        """ Grab all experiments from the API for the given number
 
         :param max_number: the number of item to retrieve
         :type max_number: int
         :param accessible_ids: the ids that this use can fetch
         :type accessible_ids: list
-        :return the experiments XMLs
+        :return: the experiments XMLs
         """
 
         contents = {}
