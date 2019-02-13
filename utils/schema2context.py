@@ -8,6 +8,22 @@ import os
 from utils.prepare_fulldiff_input import resolve_network
 
 
+def get_json_from_url(json_url):
+    """
+    Gets the content of a json file from its URL - it can be a schema or a context file, or any other json file.
+    :param json_url: a URL for a json file (e.g. a schema or a context file)
+    :return: a dictionary with the json content
+    """
+    try:
+        response = requests.get(json_url)
+        if response.status_code == 200:
+            json_dict = json.loads(response.text)
+            return json_dict
+        else:
+            raise Exception("No json could be found at given URL", json_url)
+    except Exception as e:
+        raise e
+
 def create_context_template(schema, semantic_types, name):
     """ Create the context template
 
@@ -59,33 +75,13 @@ def create_context_template_from_url(schema_url, semantic_types):
     :return: a dictionary with a context variable for easy ontology
     """
     try:
-        response = requests.get(schema_url)
-        if response.status_code == 200:
-            schema = json.loads(response.text)
-            schema_name = process_schema_name(schema['id'].split("/")[-1])
-            return create_context_template(schema, semantic_types, schema_name)
-        else:
-            return Exception("No schema could be found at given URL", schema_url)
+        schema = get_json_from_url(schema_url)
+        schema_name = process_schema_name(schema['id'].split("/")[-1])
+        return create_context_template(schema, semantic_types, schema_name)
     except requests.exceptions.MissingSchema:
         return Exception("No schema could be found at given URL", schema_url)
-
-
-def get_json_from_url(json_url):
-    """
-    Gets the content of a json file from its URL - it can be a schema or a context file, or any other json file.
-    :param json_url: a URL for a json file (e.g. a schema or a context file)
-    :return: a dictionary with the json content
-    """
-    try:
-        response = requests.get(json_url)
-        if response.status_code == 200:
-            json_dict = json.loads(response.text)
-            return json_dict
-        else:
-            raise Exception("No json could be found at given URL", json_url)
     except Exception as e:
-        raise e
-
+        return Exception("No schema could be found at given URL", schema_url, e)
 
 def create_network_context(mapping, semantic_types):
     """ Generates the context files for each schema in the given network
