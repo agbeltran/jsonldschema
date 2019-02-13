@@ -70,6 +70,23 @@ def create_context_template_from_url(schema_url, semantic_types):
         return Exception("No schema could be found at given URL", schema_url)
 
 
+def get_json_from_url(json_url):
+    """
+    Gets the content of a json file from its URL - it can be a schema or a context file, or any other json file.
+    :param json_url: a URL for a json file (e.g. a schema or a context file)
+    :return: a dictionary with the json content
+    """
+    try:
+        response = requests.get(json_url)
+        if response.status_code == 200:
+            json_dict = json.loads(response.text)
+            return json_dict
+        else:
+            raise Exception("No json could be found at given URL", json_url)
+    except Exception as e:
+        raise e
+
+
 def create_network_context(mapping, semantic_types):
     """ Generates the context files for each schema in the given network
     :param mapping: a file containing a mapping dict {"schemaName": "schemaURL"}
@@ -112,13 +129,13 @@ def create_and_save_contexts(mapping, semantic_types, write_to_file):
         if not os.path.exists(output_sub_dir):
             os.makedirs(output_sub_dir)
 
-        # create subsub directory for each ontology
-        for ontology_name in semantic_types:
+        # create subsub directory for each prefix
+        for ontology_prefix in semantic_types:
             local_output_dir = os.path.join(os.path.dirname(__file__),
                                             write_to_file + '/' +
                                             mapping['networkName'] +
                                             "/" +
-                                            ontology_name)
+                                            ontology_prefix)
             if not os.path.exists(local_output_dir):
                 os.makedirs(local_output_dir)
 
@@ -217,9 +234,9 @@ def generate_context_mapping(schema_url, regex_input):
 def generate_labels_from_contexts(contexts, labels):
     """
     Generate labels from given context using OLS
-    :param contexts: the contexts to process
+    :param contexts: a dictionary whose key is the schema name and whose value is the content of the context file to process (with or without @context)
     :type contexts: dict
-    :param labels: pre-existing labels to avoid triggering twice the same query
+    :param labels: pre-existing labels to avoid triggering twice the same query (first iteration pass an empty dictionary)
     :type labels: dict
     :return: labels
     """
@@ -229,10 +246,12 @@ def generate_labels_from_contexts(contexts, labels):
     # For each schema
     for schemaName in contexts:
         local_context = deepcopy(contexts[schemaName])
+        local_context = local_context["@context"] if ("@context" in local_context) else local_context
 
         # For each team in that schema
         for term in local_context:
             base_request_url = "https://www.ebi.ac.uk/ols/api/ontologies/"
+
 
             # If the term is not to be ignored
             if term not in ignored_keys:
@@ -257,7 +276,7 @@ def generate_labels_from_contexts(contexts, labels):
                         else:
                             url_sub_params = url_param[1].split("_")[0]
                             base_request_url += url_sub_params + "/terms/"
-                        term_url = contexts[schemaName][url_param[0]] + url_param[1]
+                        term_url = local_context[url_param[0]] + url_param[1]
 
                     # Double quote plus the URL or OLS won't work (??)
                     term_safe_url = quote_plus(quote_plus(term_url))
@@ -297,4 +316,17 @@ def generate_context_mapping_dict(schema_url, regex_input, network_name):
     for schema in raw_mapping[1]:
         output['schemas'][schema] = raw_mapping[1][schema]['id']
 
-    return output
+    labels = {}
+    errors = []
+    for schema_key in raw_mapping[0]:
+        context_url = raw_mapping[0][schema_key]
+        try:
+            context = get_json_from_url(context_url)
+        except Exception as e:
+            errors.append(e)
+            continue;
+        labels = generate_labels_from_contexts({ schema_key : context }, labels)
+
+    output['labels'] = labels
+
+    return output, errors
