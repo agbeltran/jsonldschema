@@ -68,6 +68,7 @@ def process_schema_name(name):
 
 def create_context_template_from_url(schema_url, semantic_types):
     """ Create a context template from the given URL
+
     :param schema_url: the schema URL
     :type schema_url: basestring
     :param semantic_types: a dictionary with {"ontologyName":"ontologyBaseURL"}
@@ -85,6 +86,7 @@ def create_context_template_from_url(schema_url, semantic_types):
 
 def create_network_context(mapping, semantic_types):
     """ Generates the context files for each schema in the given network
+
     :param mapping: a file containing a mapping dict {"schemaName": "schemaURL"}
     :type mapping: dict
     :param semantic_types: a mapping dict of ontologies {"ontologyName": "Ontology URL"}
@@ -106,6 +108,7 @@ def create_network_context(mapping, semantic_types):
 def create_and_save_contexts(mapping, semantic_types, write_to_file):
     """ Generates the context files for each schema in the given network
     and write these files to the disk
+
     :param mapping: a file containing a mapping dict {"schemaName": "schemaURL"}
     :type mapping: dict
     :param semantic_types: a mapping dict of ontologies {"ontologyName": "Ontology URL"}
@@ -165,6 +168,7 @@ def create_and_save_contexts(mapping, semantic_types, write_to_file):
 def prepare_input(schema_url, network_name):
     """ Enable to resolve all references from a given schema and create the output
     for create_network_context
+
     :param schema_url: url of the schema
     :type schema_url: basestring
     :param network_name: the name of the network
@@ -189,6 +193,7 @@ def prepare_input(schema_url, network_name):
 def generate_contexts_from_regex(schema_url, regex_input):
     """ Creates the context URL for the given schema url based
     on given regex
+
     :param schema_url: a schema URL
     :type schema_url: basestring
     :param regex_input: keys are the regex to locate and value the replace value
@@ -208,6 +213,7 @@ def generate_contexts_from_regex(schema_url, regex_input):
 
 def generate_context_mapping(schema_url, regex_input):
     """ Resolves all schemas from given schema URL and creates the context mapping
+
     :param schema_url: a schema URL
     :type schema_url: basestring
     :param regex_input: keys are the regex to locate and value the replace value
@@ -228,8 +234,7 @@ def generate_context_mapping(schema_url, regex_input):
 
 
 def generate_labels_from_contexts(contexts, labels):
-    """
-    Generate labels from given context using OLS
+    """  Generate labels from given context using OLS
     :param contexts: a dictionary whose key is the schema name and whose value is the content of the context file to process (with or without @context)
     :type contexts: dict
     :param labels: pre-existing labels to avoid triggering twice the same query (first iteration pass an empty dictionary)
@@ -292,8 +297,8 @@ def generate_labels_from_contexts(contexts, labels):
 
 
 def generate_context_mapping_dict(schema_url, regex_input, network_name):
-    """
-    Generates the mapping dictionary used by full diff
+    """ Generates the mapping dictionary used by full diff
+
     :param schema_url: the url of the main schema
     :type schema_url: basestring
     :param regex_input: a set of regex to indicate how to transform schemas URL to contexts URL
