@@ -10,7 +10,8 @@ from utils.prepare_fulldiff_input import resolve_network
 
 def get_json_from_url(json_url):
     """
-    Gets the content of a json file from its URL - it can be a schema or a context file, or any other json file.
+    Gets the content of a json file from its URL - it can be a schema or a context file,
+    or any other json file.
     :param json_url: a URL for a json file (e.g. a schema or a context file)
     :return: a dictionary with the json content
     """
@@ -23,6 +24,7 @@ def get_json_from_url(json_url):
             raise Exception("No json could be found at given URL", json_url)
     except Exception as e:
         raise e
+
 
 def create_context_template(schema, semantic_types, name):
     """ Create the context template
@@ -83,6 +85,7 @@ def create_context_template_from_url(schema_url, semantic_types):
         return Exception("No schema could be found at given URL", schema_url)
     except Exception as e:
         return Exception("No schema could be found at given URL", schema_url, e)
+
 
 def create_network_context(mapping, semantic_types):
     """ Generates the context files for each schema in the given network
@@ -235,9 +238,11 @@ def generate_context_mapping(schema_url, regex_input):
 
 def generate_labels_from_contexts(contexts, labels):
     """  Generate labels from given context using OLS
-    :param contexts: a dictionary whose key is the schema name and whose value is the content of the context file to process (with or without @context)
+    :param contexts: a dictionary whose key is the schema name and whose value
+    is the content of the context file to process (with or without @context)
     :type contexts: dict
-    :param labels: pre-existing labels to avoid triggering twice the same query (first iteration pass an empty dictionary)
+    :param labels: pre-existing labels to avoid triggering twice the same query
+     (first iteration pass an empty dictionary)
     :type labels: dict
     :return: labels
     """
@@ -247,12 +252,12 @@ def generate_labels_from_contexts(contexts, labels):
     # For each schema
     for schemaName in contexts:
         local_context = deepcopy(contexts[schemaName])
-        local_context = local_context["@context"] if ("@context" in local_context) else local_context
+        local_context = local_context["@context"] \
+            if ("@context" in local_context) else local_context
 
         # For each team in that schema
         for term in local_context:
             base_request_url = "https://www.ebi.ac.uk/ols/api/ontologies/"
-
 
             # If the term is not to be ignored
             if term not in ignored_keys:
@@ -325,8 +330,8 @@ def generate_context_mapping_dict(schema_url, regex_input, network_name):
             context = get_json_from_url(context_url)
         except Exception as e:
             errors.append(e)
-            continue;
-        labels = generate_labels_from_contexts({ schema_key : context }, labels)
+            continue
+        labels = generate_labels_from_contexts({schema_key: context}, labels)
 
     output['labels'] = labels
 
