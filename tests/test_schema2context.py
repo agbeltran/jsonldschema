@@ -506,12 +506,12 @@ class TestSchema2Context(unittest.TestCase):
         context = {
             'miacme_schema.json': {
                 "@context": {
-                'obo': 'http://purl.obolibrary.org/obo/',
-                "edam": "http://edamontology.org/",
-                '@language': 'en',
-                "400field": "obo:OBI_noID",
-                "BlankField": "",
-                "NoneField": None
+                    'obo': 'http://purl.obolibrary.org/obo/',
+                    "edam": "http://edamontology.org/",
+                    '@language': 'en',
+                    "400field": "obo:OBI_noID",
+                    "BlankField": "",
+                    "NoneField": None
                 }
             }
         }

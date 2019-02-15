@@ -51,6 +51,6 @@ class TestSchema2Context(unittest.TestCase):
             mapping, errors = generate_context_mapping_dict(
                         self.input[key]["schema_url"],
                         self.regexes, key)
-            print(json.dumps(mapping,indent=4))
+            print(json.dumps(mapping, indent=4))
             print(errors)
             self.assertTrue(mapping["networkName"] == key)
