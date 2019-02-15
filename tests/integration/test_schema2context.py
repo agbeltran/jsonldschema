@@ -12,15 +12,15 @@ from utils.schema2context import (
 class TestSchema2Context(unittest.TestCase):
 
     input = dict({
-      #"MIACME": {
-      #  "schema_url": "https://w3id.org/mircat/miacme/schema/miacme_schema.json"
-      #},
+      "MIACME": {
+        "schema_url": "https://w3id.org/mircat/miacme/schema/miacme_schema.json"
+      },
       "MIACA": {
         "schema_url": "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
-      }#,
-      #"MIFlowCyt": {
-      #  "schema_url": "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json"
-      #}
+      },
+      "MIFlowCyt": {
+        "schema_url": "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json"
+      }
     })
 
     base = {
