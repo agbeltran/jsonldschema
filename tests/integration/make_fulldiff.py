@@ -9,7 +9,7 @@ output_base_path = os.path.join(os.path.dirname(__file__), "../fullDiffOutput/")
 def make_diff(network1, network2):
     print("-----------------------------")
     print("Comparing %s VS %s, please wait" % (network1["name"], network2["name"]))
-    overlaps = FullDiffGenerator(MIACA_network, MIACME_network)
+    overlaps = FullDiffGenerator(network1, network2)
     print("Result:", json.dumps(overlaps.json))
 
     filename = network1["name"] + "_VS_" + network2["name"] + ".json"
