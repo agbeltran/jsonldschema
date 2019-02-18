@@ -78,8 +78,8 @@ class MergeEntityFromDiff:
         output_name = self.content['network1']['name'].lower() + "_" + self.content['network2']['name'].lower() + "_merge"
         output_dir = os.path.join(os.path.dirname(__file__), "../tests/fullDiffOutput/merges/" + output_name + "/")
         directory_system = [
-            os.path.join(output_dir, 'schemas'),
-            os.path.join(output_dir, 'contexts')
+            os.path.join(output_dir, 'schema'),
+            os.path.join(output_dir, 'context')
         ]
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
