@@ -23,6 +23,7 @@ class FullSemDiff:
         self.total_entities = 0
         self.half_twins = 0
         self.twins = []
+        self.needs_merging = {}
 
         twin_tuple = namedtuple('Twins', ['first_entity', 'second_entity'])
         twin_coverage = namedtuple('TwinCoverage', ['twins', 'overlap'])
@@ -60,6 +61,16 @@ class FullSemDiff:
                         # adds it to output
                         self.twins.append(attribute_coverage)
 
+                        if len(attribute_diff.unmatched_with_sem) > 0:
+                            self.needs_merging[twin.lower() + "_schema.json"] = {}
+                            self.needs_merging[twin.lower() + "_schema.json"]['fields'] = []
+
+                        for semantic_url in attribute_diff.unmatched_with_sem:
+                            field = attribute_diff.unmatched_with_sem[semantic_url]
+                            self.needs_merging[twin.lower() + "_schema.json"]['merge_with'] = \
+                                entity_name.lower() + "_schema.json"
+                            self.needs_merging[twin.lower() + "_schema.json"]['fields'].append(field[0])
+
 
 class FullSemDiffMultiple:
     """
@@ -73,6 +84,7 @@ class FullSemDiffMultiple:
         self.networks = deepcopy(networks)
         self.contexts = []
         self.output = []
+        self.ready_for_merge = []
 
         for network in self.networks:
             self.contexts.append(network["contexts"])
@@ -87,6 +99,9 @@ class FullSemDiffMultiple:
                                    self.networks[start_position]["schemas"],
                                    self.networks[i]["schemas"])
             local_overlap.append(coverage.twins)
+
+            if len(coverage.needs_merging) > 0:
+                self.ready_for_merge.append(coverage.needs_merging)
 
         if len(local_overlap) > 0:
             self.output.append(local_overlap)
@@ -145,39 +160,7 @@ class FullDiffGenerator:
             "network1": overlaps.networks[0],
             "network2": overlaps.networks[1],
             "overlaps": overlaps.output[0][0],
-            "labels": labels
+            "labels": labels,
+            "fields_to_merge": overlaps.ready_for_merge[0]
         }
 
-
-"""
-if __name__ == '__main__':
-    output_file = "html/overlap.json"
-
-    regex_1 = {
-        "/schema": "/context/obo",
-        "_schema.json": "_obo_context.jsonld"
-    }
-
-    network_1 = {
-        "url": "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json",
-        "regex": regex_1,
-        "name": "MyFlowCyt"
-    }
-
-    network_2 = {
-        "url": "https://w3id.org/mircat/miaca/schema/miaca_schema.json",
-        "regex": regex_1,
-        "name": "MIACA"
-    }
-    network_3 = {
-        "url": "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json",
-        "regex": regex_1,
-        "name": "MyFlowCyt"
-    }
-
-    report = FullDiffGenerator(network_1, network_3)
-
-    with open("outputfile.json", "w") as writter:
-        writter.write(json.dumps(report.json, indent=4))
-        writter.close()
-"""

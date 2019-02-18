@@ -1,4 +1,6 @@
 import copy
+import json
+import os
 from semDiff.compareEntities import EntityCoverage
 
 
@@ -36,3 +38,79 @@ class EntityMerge:
             # if that field isn't already in the first schema
             if field_name not in schema1["properties"]:
                 self.output_schema["properties"][field_name] = schema2["properties"][field_name]
+
+
+class MergeEntityFromDiff:
+    """
+    A class that merges network2 into network1 based on overlaps from FullDiff
+    """
+
+    def __init__(self, overlaps):
+        self.overlaps = overlaps["overlaps"]
+        self.output = {
+            "schemas": copy.deepcopy(overlaps["network1"]['schemas']),
+            "contexts": copy.deepcopy(overlaps["network1"]['contexts'])
+        }
+        self.content = overlaps
+
+        for schemaName in overlaps['fields_to_merge']:
+            merging_schema_name = schemaName.replace('_schema.json', '')
+            merge_with_schema_name = overlaps['fields_to_merge'][schemaName]['merge_with'].replace('_schema.json', '')
+            merged_schema_name = merge_with_schema_name + "_" + merging_schema_name + "_merged_schema.json"
+
+            merged_schema = copy.deepcopy(
+                overlaps["network1"]['schemas'][overlaps['fields_to_merge'][schemaName]['merge_with']])
+            merged_context = copy.deepcopy(
+                overlaps["network1"]['contexts'][overlaps['fields_to_merge'][schemaName]['merge_with']])
+
+            del self.output['schemas'][overlaps['fields_to_merge'][schemaName]['merge_with']]
+            del self.output['contexts'][overlaps['fields_to_merge'][schemaName]['merge_with']]
+
+            # process the fields to merge
+            for field in overlaps['fields_to_merge'][schemaName]['fields']:
+                merged_schema['properties'][field] = overlaps['network2']['schemas'][schemaName]['properties'][field]
+                merged_context[field] = overlaps['network2']['contexts'][schemaName][field]
+
+            self.output['schemas'][merged_schema_name] = merged_schema
+            self.output['contexts'][merged_schema_name] = merged_context
+
+    def save(self, base_url):
+        output_name = self.content['network1']['name'] + "_" + self.content['network2']['name'] + "_merge"
+        output_dir = os.path.join(os.path.dirname(__file__), "../tests/fullDiffOutput/merges/" + output_name + "/")
+        directory_system = [
+            os.path.join(output_dir, 'schemas'),
+            os.path.join(output_dir, 'contexts')
+        ]
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        for directory in directory_system:
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+
+        for schemaName in self.output["schemas"]:
+            schema = self.output["schemas"][schemaName]
+            schema["id"] = base_url + "schema/" + schemaName
+            schema_file_name = os.path.join(os.path.join(output_dir, 'schemas/'), schemaName)
+            context_name = schemaName.replace("_schema.json", '_context.jsonld')
+            context_file_name = os.path.join(os.path.join(output_dir, 'contexts/'), context_name)
+            with open(schema_file_name, "w") as schemaFile:
+                schemaFile.write(json.dumps(schema, indent=4))
+                schemaFile.close()
+
+            if schemaName in self.output['contexts'].keys():
+                with open(context_file_name, "w") as contextFile:
+                    contextFile.write(json.dumps({
+                        "@context": self.output['contexts'][schemaName]
+                    }, indent=4))
+                    contextFile.close()
+
+
+if __name__ == '__main__':
+    input_file = "../tests/fullDiffOutput/MIACA_VS_MIACME.json"
+    with open(input_file, "r") as input_data:
+        MIACA_VS_MIACME = json.loads(input_data.read())
+        input_data.close()
+
+    merged_network = MergeEntityFromDiff(MIACA_VS_MIACME)
+    merged_network.save("https://w3id.org/mircat/miaca_miacme_merge/")
+    print(merged_network.output)
