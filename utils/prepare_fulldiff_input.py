@@ -73,7 +73,26 @@ def load_context(context):
     return full_context
 
 
-def resolve_network(schema_url):
+def resolve_network(schema_location):
+    if schema_location.startswith("http://") or schema_location.startswith("https://"):
+        resolve_network_url(schema_location)
+    if schema_location.startswith("file://"):
+        resolve_network_file(schema_location)
+
+
+def resolve_network_file(schema_file):
+    network_schemas = {}
+    try:
+        with open(schema_file.replace("file:/", '')) as f:
+            schema_content = json.load(f)
+            network_schemas[get_name(schema_content['id'])] = schema_content
+            resolver = RefResolver(schema_file, schema_content, store={})
+            return resolve_schema_ref(schema_content, resolver, network_schemas)
+    except Exception as e:
+        raise Exception("There is a problem with your url or schema: ", schema_file, ", ", e)
+
+
+def resolve_network_url(schema_url):
     """ Function that triggers the resolved_schema_ref function
 
     :param schema_url: a schema URL
