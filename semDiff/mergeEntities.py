@@ -55,27 +55,33 @@ class MergeEntityFromDiff:
 
         for schemaName in overlaps['fields_to_merge']:
             merging_schema_name = schemaName.replace('_schema.json', '')
-            merge_with_schema_name = overlaps['fields_to_merge'][schemaName]['merge_with'].replace('_schema.json', '')
-            merged_schema_name = merge_with_schema_name + "_" + merging_schema_name + "_merged_schema.json"
+            merge_with_schema_name = overlaps['fields_to_merge'][schemaName][
+                'merge_with'].replace('_schema.json', '')
+            merged_schema_name = merge_with_schema_name + "_" \
+                                                        + merging_schema_name \
+                                                        + "_merged_schema.json"
 
             merged_title = overlaps["network1"]['schemas'][overlaps[
                 'fields_to_merge'][schemaName]['merge_with']]['title'] + " - " + \
                 overlaps["network2"]['schemas'][schemaName]['title'] + " merging"
-            merged_description = "Merge between the " +  overlaps["network1"]['schemas'][overlaps[
+            merged_description = "Merge between the " + overlaps["network1"]['schemas'][overlaps[
                 'fields_to_merge'][schemaName]['merge_with']]['title'] + " and the " + \
                 overlaps["network2"]['schemas'][schemaName]['title']
 
             merged_schema = copy.deepcopy(
-                overlaps["network1"]['schemas'][overlaps['fields_to_merge'][schemaName]['merge_with']])
+                overlaps["network1"]['schemas'][
+                    overlaps['fields_to_merge'][schemaName]['merge_with']])
             merged_context = copy.deepcopy(
-                overlaps["network1"]['contexts'][overlaps['fields_to_merge'][schemaName]['merge_with']])
+                overlaps["network1"]['contexts'][overlaps[
+                    'fields_to_merge'][schemaName]['merge_with']])
 
             del self.output['schemas'][overlaps['fields_to_merge'][schemaName]['merge_with']]
             del self.output['contexts'][overlaps['fields_to_merge'][schemaName]['merge_with']]
 
             # process the fields to merge
             for field in overlaps['fields_to_merge'][schemaName]['fields']:
-                merged_schema['properties'][field] = overlaps['network2']['schemas'][schemaName]['properties'][field]
+                merged_schema['properties'][field] = overlaps['network2'][
+                    'schemas'][schemaName]['properties'][field]
                 merged_schema['title'] = merged_title
                 merged_schema['description'] = merged_description
                 merged_context[field] = overlaps['network2']['contexts'][schemaName][field]
@@ -84,8 +90,11 @@ class MergeEntityFromDiff:
             self.output['contexts'][merged_schema_name] = merged_context
 
     def save(self, base_url):
-        output_name = self.content['network1']['name'].lower() + "_" + self.content['network2']['name'].lower() + "_merge"
-        output_dir = os.path.join(os.path.dirname(__file__), "../tests/fullDiffOutput/merges/" + output_name + "/")
+        output_name = self.content['network1']['name'].lower() \
+                      + "_" + self.content['network2']['name'].lower() \
+                      + "_merge"
+        output_dir = os.path.join(os.path.dirname(__file__),
+                                  "../tests/fullDiffOutput/merges/" + output_name + "/")
         directory_system = [
             os.path.join(output_dir, 'schema'),
             os.path.join(output_dir, 'context')
