@@ -69,7 +69,8 @@ class FullSemDiff:
                             field = attribute_diff.unmatched_with_sem[semantic_url]
                             self.needs_merging[twin.lower() + "_schema.json"]['merge_with'] = \
                                 entity_name.lower() + "_schema.json"
-                            self.needs_merging[twin.lower() + "_schema.json"]['fields'].append(field[0])
+                            self.needs_merging[twin.lower() + "_schema.json"][
+                                'fields'].append(field[0])
 
 
 class FullSemDiffMultiple:
@@ -160,7 +161,8 @@ class FullDiffGenerator:
             "network1": overlaps.networks[0],
             "network2": overlaps.networks[1],
             "overlaps": overlaps.output[0][0],
-            "labels": labels,
-            "fields_to_merge": overlaps.ready_for_merge[0]
+            "labels": labels
         }
 
+        if len(overlaps.ready_for_merge) > 0:
+            self.json["fields_to_merge"] = overlaps.ready_for_merge[0]

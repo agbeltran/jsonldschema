@@ -55,28 +55,46 @@ class MergeEntityFromDiff:
 
         for schemaName in overlaps['fields_to_merge']:
             merging_schema_name = schemaName.replace('_schema.json', '')
-            merge_with_schema_name = overlaps['fields_to_merge'][schemaName]['merge_with'].replace('_schema.json', '')
-            merged_schema_name = merge_with_schema_name + "_" + merging_schema_name + "_merged_schema.json"
+            merge_with_schema_name = overlaps['fields_to_merge'][schemaName][
+                'merge_with'].replace('_schema.json', '')
+            merged_schema_name = merge_with_schema_name + "_" \
+                                                        + merging_schema_name \
+                                                        + "_merged_schema.json"
+
+            merged_title = overlaps["network1"]['schemas'][overlaps[
+                'fields_to_merge'][schemaName]['merge_with']]['title'] + " - " + \
+                overlaps["network2"]['schemas'][schemaName]['title'] + " merging"
+            merged_description = "Merge between the " + overlaps["network1"]['schemas'][overlaps[
+                'fields_to_merge'][schemaName]['merge_with']]['title'] + " and the " + \
+                overlaps["network2"]['schemas'][schemaName]['title']
 
             merged_schema = copy.deepcopy(
-                overlaps["network1"]['schemas'][overlaps['fields_to_merge'][schemaName]['merge_with']])
+                overlaps["network1"]['schemas'][
+                    overlaps['fields_to_merge'][schemaName]['merge_with']])
             merged_context = copy.deepcopy(
-                overlaps["network1"]['contexts'][overlaps['fields_to_merge'][schemaName]['merge_with']])
+                overlaps["network1"]['contexts'][overlaps[
+                    'fields_to_merge'][schemaName]['merge_with']])
 
             del self.output['schemas'][overlaps['fields_to_merge'][schemaName]['merge_with']]
             del self.output['contexts'][overlaps['fields_to_merge'][schemaName]['merge_with']]
 
             # process the fields to merge
             for field in overlaps['fields_to_merge'][schemaName]['fields']:
-                merged_schema['properties'][field] = overlaps['network2']['schemas'][schemaName]['properties'][field]
+                merged_schema['properties'][field] = overlaps['network2'][
+                    'schemas'][schemaName]['properties'][field]
+                merged_schema['title'] = merged_title
+                merged_schema['description'] = merged_description
                 merged_context[field] = overlaps['network2']['contexts'][schemaName][field]
 
             self.output['schemas'][merged_schema_name] = merged_schema
             self.output['contexts'][merged_schema_name] = merged_context
 
     def save(self, base_url):
-        output_name = self.content['network1']['name'].lower() + "_" + self.content['network2']['name'].lower() + "_merge"
-        output_dir = os.path.join(os.path.dirname(__file__), "../tests/fullDiffOutput/merges/" + output_name + "/")
+        output_name = self.content['network1']['name'].lower() \
+                      + "_" + self.content['network2']['name'].lower() \
+                      + "_merge"
+        output_dir = os.path.join(os.path.dirname(__file__),
+                                  "../tests/fullDiffOutput/merges/" + output_name + "/")
         directory_system = [
             os.path.join(output_dir, 'schema'),
             os.path.join(output_dir, 'context')
@@ -90,9 +108,10 @@ class MergeEntityFromDiff:
         for schemaName in self.output["schemas"]:
             schema = self.output["schemas"][schemaName]
             schema["id"] = base_url + "schema/" + schemaName
-            schema_file_name = os.path.join(os.path.join(output_dir, 'schemas/'), schemaName)
+            schema_file_name = os.path.join(os.path.join(output_dir, 'schema/'), schemaName)
             context_name = schemaName.replace("_schema.json", '_context.jsonld')
-            context_file_name = os.path.join(os.path.join(output_dir, 'contexts/'), context_name)
+            context_file_name = os.path.join(os.path.join(output_dir, 'context/'), context_name)
+
             with open(schema_file_name, "w") as schemaFile:
                 schemaFile.write(json.dumps(schema, indent=4))
                 schemaFile.close()
@@ -103,24 +122,3 @@ class MergeEntityFromDiff:
                         "@context": self.output['contexts'][schemaName]
                     }, indent=4))
                     contextFile.close()
-
-
-if __name__ == '__main__':
-    input_file = "../tests/fullDiffOutput/MIACA_VS_MIACME.json"
-    with open(input_file, "r") as input_data:
-        MIACA_VS_MIACME = json.loads(input_data.read())
-        input_data.close()
-
-    merged_network = MergeEntityFromDiff(MIACA_VS_MIACME)
-    merged_network.save("https://w3id.org/mircat/miaca_miacme_merge/")
-    print(merged_network.output)
-
-
-    input_file = "../tests/fullDiffOutput/MIACME_VS_MIACA.json"
-    with open(input_file, "r") as input_data:
-        MIACME_VS_MIACA = json.loads(input_data.read())
-        input_data.close()
-
-    merged_network = MergeEntityFromDiff(MIACME_VS_MIACA)
-    merged_network.save("https://w3id.org/mircat/miacme_miaca_merge/")
-    print(merged_network.output)
