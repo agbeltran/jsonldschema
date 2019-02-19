@@ -45,9 +45,12 @@ if __name__ == '__main__':
         "url": MyFlowCyt_schema_url
     }
 
+    make_diff(MIACA_network, MIACA_network)
     make_diff(MIACA_network, MIACME_network)
     make_diff(MIACME_network, MIACA_network)
+    make_diff(MIACME_network, MIACME_network)
     make_diff(MIACA_network, MyFlowCyt_network)
     make_diff(MyFlowCyt_network, MIACA_network)
     make_diff(MIACME_network, MyFlowCyt_network)
     make_diff(MyFlowCyt_network, MIACME_network)
+    make_diff(MyFlowCyt_network, MyFlowCyt_network)
