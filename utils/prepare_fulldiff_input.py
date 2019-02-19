@@ -75,9 +75,9 @@ def load_context(context):
 
 def resolve_network(schema_location):
     if schema_location.startswith("http://") or schema_location.startswith("https://"):
-        resolve_network_url(schema_location)
-    if schema_location.startswith("file://"):
-        resolve_network_file(schema_location)
+        return resolve_network_url(schema_location)
+    elif schema_location.startswith("file://"):
+        return resolve_network_file(schema_location)
 
 
 def resolve_network_file(schema_file):

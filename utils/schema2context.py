@@ -190,7 +190,7 @@ def prepare_input(schema_url, network_name):
 
         return output
     except Exception as e:
-        raise Exception("Error with one or more schemas", e)
+        raise Exception("Error with schema ", schema_url, "Exception:", e)
 
 
 def generate_contexts_from_regex(schema_url, regex_input):

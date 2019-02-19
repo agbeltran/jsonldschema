@@ -44,7 +44,7 @@ class TestSchema2Context(unittest.TestCase):
             mapping = prepare_input(self.input[key]["schema_url"], key)
             output_directory = os.path.join(os.path.dirname(__file__), "../data/contexts")
             context = create_and_save_contexts(mapping, self.base, output_directory)
-            self.assertTrue(not context)
+            self.assertTrue(context)
 
     def test_generate_mapping_dict(self):
         for key in self.input:
