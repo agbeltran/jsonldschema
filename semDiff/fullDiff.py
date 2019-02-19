@@ -160,7 +160,9 @@ class FullDiffGenerator:
             "network1": overlaps.networks[0],
             "network2": overlaps.networks[1],
             "overlaps": overlaps.output[0][0],
-            "labels": labels,
-            "fields_to_merge": overlaps.ready_for_merge[0]
+            "labels": labels
         }
+
+        if len(overlaps.ready_for_merge) > 0:
+            self.json["fields_to_merge"] = overlaps.ready_for_merge[0]
 
