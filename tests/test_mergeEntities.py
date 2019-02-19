@@ -1,5 +1,7 @@
 import unittest
-from semDiff.mergeEntities import EntityMerge
+import os
+import json
+from semDiff.mergeEntities import EntityMerge, MergeEntityFromDiff
 
 schema_1 = {
     "id": "https://w3id.org/dats/schema/person_schema.json",
@@ -141,3 +143,24 @@ class EntityMergeTestCase(unittest.TestCase):
             "@context"].keys())
         self.assertTrue("fullName" in self.merge.output_context["@context"].keys())
         self.assertTrue("firstName" in self.merge.output_context["@context"].keys())
+
+
+class MergeEntityFromDiffTestCase(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(MergeEntityFromDiffTestCase, self).__init__(*args, **kwargs)
+
+        input_file = os.path.join(os.path.dirname(__file__), './fullDiffOutput/MIACA_VS_MIACME.json')
+        with open(input_file, 'r') as input_data:
+            self.overlaps = json.loads(input_data.read())
+            input_data.close()
+
+    def test__init_(self):
+
+        expected_out_file = os.path.join(os.path.dirname(__file__),
+                                         './fullDiffOutput/merges/miaca_vs_miacme_raw_merge.json')
+        with open(expected_out_file, "r") as outputFile:
+            expected_output = json.loads(outputFile.read())
+
+        merger = MergeEntityFromDiff(self.overlaps)
+        self.assertTrue(merger.output == expected_output)
