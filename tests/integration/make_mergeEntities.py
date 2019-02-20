@@ -4,7 +4,6 @@ from semDiff.mergeEntities import MergeEntityFromDiff
 
 
 if __name__ == '__main__':
-
     input_dir = os.path.join(os.path.dirname(__file__), "../fullDiffOutput/")
 
     input_file = os.path.join(input_dir, "MIACA_VS_MIACME.json")
