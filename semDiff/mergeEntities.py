@@ -86,8 +86,8 @@ class MergeEntityFromDiff:
                 merged_schema['description'] = merged_description
                 merged_context[field] = overlaps['network2']['contexts'][schemaName][field]
 
-            self.output['schemas'][merged_schema_name] = merged_schema
-            self.output['contexts'][merged_schema_name] = merged_context
+            self.output['schemas'][overlaps['fields_to_merge'][schemaName]['merge_with']] = merged_schema
+            self.output['contexts'][overlaps['fields_to_merge'][schemaName]['merge_with']] = merged_context
 
     def save(self, base_url):
         output_name = self.content['network1']['name'].lower() \
