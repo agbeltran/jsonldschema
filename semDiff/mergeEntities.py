@@ -2,6 +2,7 @@ import copy
 import json
 import os
 from semDiff.compareEntities import EntityCoverage
+from validate.jsonschema_validator import validate_schema
 
 
 class EntityMerge:
@@ -54,7 +55,11 @@ class MergeEntityFromDiff:
         self.content = overlaps
         self.name_mapping = {}  # {"oldName":"newName"}
 
-        print(overlaps)
+        self.output_name = self.content['network1']['name'].lower() \
+                           + "_" + self.content['network2']['name'].lower() \
+                           + "_merge"
+        self.output_dir = os.path.join(os.path.dirname(__file__),
+                                       "../tests/fullDiffOutput/merges/" + self.output_name + "/")
 
         for schemaName in overlaps['fields_to_merge']:
             merging_schema_name = schemaName.replace('_schema.json', '')
@@ -98,6 +103,7 @@ class MergeEntityFromDiff:
             self.output['contexts'][merged_schema_name] = merged_context
 
         self.modify_references()
+        self.validate_output()
 
     def find_references(self, schema):
         """
@@ -199,17 +205,12 @@ class MergeEntityFromDiff:
                                     sub_item_iterator += 1
 
     def save(self, base_url):
-        output_name = self.content['network1']['name'].lower() \
-                      + "_" + self.content['network2']['name'].lower() \
-                      + "_merge"
-        output_dir = os.path.join(os.path.dirname(__file__),
-                                  "../tests/fullDiffOutput/merges/" + output_name + "/")
         directory_system = [
-            os.path.join(output_dir, 'schema'),
-            os.path.join(output_dir, 'context')
+            os.path.join(self.output_dir, 'schema'),
+            os.path.join(self.output_dir, 'context')
         ]
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
         for directory in directory_system:
             if not os.path.exists(directory):
                 os.makedirs(directory)
@@ -217,9 +218,9 @@ class MergeEntityFromDiff:
         for schemaName in self.output["schemas"]:
             schema = self.output["schemas"][schemaName]
             schema["id"] = base_url + "schema/" + schemaName
-            schema_file_name = os.path.join(os.path.join(output_dir, 'schema/'), schemaName)
+            schema_file_name = os.path.join(os.path.join(self.output_dir, 'schema/'), schemaName)
             context_name = schemaName.replace("_schema.json", '_context.jsonld')
-            context_file_name = os.path.join(os.path.join(output_dir, 'context/'), context_name)
+            context_file_name = os.path.join(os.path.join(self.output_dir, 'context/'), context_name)
 
             with open(schema_file_name, "w") as schemaFile:
                 schemaFile.write(json.dumps(schema, indent=4))
@@ -231,3 +232,9 @@ class MergeEntityFromDiff:
                         "@context": self.output['contexts'][schemaName]
                     }, indent=4))
                     contextFile.close()
+
+    def validate_output(self):
+        output_dir = os.path.join(self.output_dir, 'schema/')
+        for schema in self.output['schemas']:
+            print(schema)
+            validation = validate_schema(output_dir, schema)
