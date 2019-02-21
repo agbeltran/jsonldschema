@@ -1,6 +1,7 @@
 import copy
 import json
 import os
+from jsonschema.validators import Draft4Validator
 from semDiff.compareEntities import EntityCoverage
 from validate.jsonschema_validator import validate_schema
 
@@ -60,6 +61,7 @@ class MergeEntityFromDiff:
                            + "_merge"
         self.output_dir = os.path.join(os.path.dirname(__file__),
                                        "../tests/fullDiffOutput/merges/" + self.output_name + "/")
+        self.errors = []
 
         for schemaName in overlaps['fields_to_merge']:
             merging_schema_name = schemaName.replace('_schema.json', '')
@@ -103,7 +105,6 @@ class MergeEntityFromDiff:
             self.output['contexts'][merged_schema_name] = merged_context
 
         self.modify_references()
-        self.validate_output()
 
     def find_references(self, schema):
         """
@@ -234,7 +235,9 @@ class MergeEntityFromDiff:
                     contextFile.close()
 
     def validate_output(self):
-        output_dir = os.path.join(self.output_dir, 'schema/')
+
         for schema in self.output['schemas']:
-            print(schema)
-            validation = validate_schema(output_dir, schema)
+            try:
+                Draft4Validator.check_schema(self.output['schemas'][schema])
+            except Exception as e:
+                self.errors.append(str(e))
