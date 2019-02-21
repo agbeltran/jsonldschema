@@ -61,17 +61,23 @@ class MergeEntityFromDiff:
                            + "_merge"
         self.output_dir = os.path.join(os.path.dirname(__file__),
                                        "../tests/fullDiffOutput/merges/" + self.output_name + "/")
-        self.errors = []
+        self.errors = {}
 
         for schemaName in overlaps['fields_to_merge']:
             merging_schema_name = schemaName.replace('_schema.json', '')
             merge_with_schema_name = overlaps['fields_to_merge'][schemaName][
                 'merge_with'].replace('_schema.json', '')
-            merged_schema_name = merge_with_schema_name + "_" \
-                                                        + merging_schema_name \
-                                                        + "_merged_schema.json"
+
+            if merge_with_schema_name != merging_schema_name:
+                merged_schema_name = merge_with_schema_name + "_" \
+                                                            + merging_schema_name \
+                                                            + "_merged_schema.json"
+            else:
+                merged_schema_name = merge_with_schema_name + "_merged_schema.json"
+
             self.name_mapping[overlaps['fields_to_merge'][schemaName][
                 'merge_with']] = merged_schema_name
+            self.name_mapping[schemaName] = merged_schema_name
 
             merged_title = overlaps["network1"]['schemas'][overlaps[
                 'fields_to_merge'][schemaName]['merge_with']]['title'] + " - " + \
@@ -161,49 +167,58 @@ class MergeEntityFromDiff:
 
     def modify_references(self):
         look_for = ["anyOf", "oneOf", "allOf"]
+        delete_schemas = []
 
         for schema in self.output['schemas']:
-            if 'properties' in self.output['schemas'][schema]:
-                for item in self.output['schemas'][schema]['properties']:
-                    field = self.output['schemas'][schema]['properties'][item]
 
-                    if '$ref' in field:
-                        field_ref = field['$ref'].replace('#', '')
-                        if field_ref in self.name_mapping:
-                            self.output['schemas'][schema]['properties'][item]['$ref'] = \
-                                self.name_mapping[field_ref] + '#'
+            if schema in self.name_mapping:
+                delete_schemas.append(schema)
 
-                    for reference in look_for:
-                        if reference in field:
-                            sub_item_iterator = 0
-                            for sub_item in field[reference]:
-                                if '$ref' in sub_item:
-                                    field_ref = sub_item['$ref']
-                                    if field_ref in self.name_mapping:
-                                        self.output['schemas'][schema]['properties'][
-                                            reference][sub_item_iterator]['$ref'] = \
-                                            self.name_mapping[field_ref] + "#"
-                                sub_item_iterator += 1
+            else:
+                if 'properties' in self.output['schemas'][schema]:
+                    for item in self.output['schemas'][schema]['properties']:
+                        field = self.output['schemas'][schema]['properties'][item]
 
-                    if 'items' in field:
-
-                        if '$ref' in field['items']:
-                            field_ref = field['items']['$ref'].replace('#', '')
+                        if '$ref' in field:
+                            field_ref = field['$ref'].replace('#', '')
                             if field_ref in self.name_mapping:
-                                self.output['schemas'][schema]['properties'][item]['items']['$ref'] = \
+                                self.output['schemas'][schema]['properties'][item]['$ref'] = \
                                     self.name_mapping[field_ref] + '#'
 
                         for reference in look_for:
-                            if reference in field['items']:
+                            if reference in field:
                                 sub_item_iterator = 0
-                                for sub_item in field['items'][reference]:
+                                for sub_item in field[reference]:
                                     if '$ref' in sub_item:
                                         field_ref = sub_item['$ref']
                                         if field_ref in self.name_mapping:
                                             self.output['schemas'][schema]['properties'][
-                                                reference]['items'][sub_item_iterator]['$ref'] = \
+                                                reference][sub_item_iterator]['$ref'] = \
                                                 self.name_mapping[field_ref] + "#"
                                     sub_item_iterator += 1
+
+                        if 'items' in field:
+
+                            if '$ref' in field['items']:
+                                field_ref = field['items']['$ref'].replace('#', '')
+                                if field_ref in self.name_mapping:
+                                    self.output['schemas'][schema]['properties'][item]['items']['$ref'] = \
+                                        self.name_mapping[field_ref] + '#'
+
+                            for reference in look_for:
+                                if reference in field['items']:
+                                    sub_item_iterator = 0
+                                    for sub_item in field['items'][reference]:
+                                        if '$ref' in sub_item:
+                                            field_ref = sub_item['$ref']
+                                            if field_ref in self.name_mapping:
+                                                self.output['schemas'][schema]['properties'][
+                                                    reference]['items'][sub_item_iterator]['$ref'] = \
+                                                    self.name_mapping[field_ref] + "#"
+                                        sub_item_iterator += 1
+
+        for schema in delete_schemas:
+            del self.output['schemas'][schema]
 
     def save(self, base_url):
         directory_system = [
@@ -240,4 +255,6 @@ class MergeEntityFromDiff:
             try:
                 Draft4Validator.check_schema(self.output['schemas'][schema])
             except Exception as e:
-                self.errors.append(str(e))
+                if schema not in self.errors:
+                    self.errors[schema] = []
+                self.errors[schema].append(str(e))
