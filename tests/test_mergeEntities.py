@@ -150,7 +150,8 @@ class MergeEntityFromDiffTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(MergeEntityFromDiffTestCase, self).__init__(*args, **kwargs)
 
-        input_file = os.path.join(os.path.dirname(__file__), './fullDiffOutput/MIACA_VS_MIACME.json')
+        input_file = os.path.join(
+            os.path.dirname(__file__), './fullDiffOutput/MIACA_VS_MIACME.json')
         with open(input_file, 'r') as input_data:
             self.overlaps = json.loads(input_data.read())
             input_data.close()

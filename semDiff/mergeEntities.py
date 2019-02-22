@@ -3,7 +3,6 @@ import json
 import os
 from jsonschema.validators import Draft4Validator
 from semDiff.compareEntities import EntityCoverage
-from validate.jsonschema_validator import validate_schema
 
 
 class EntityMerge:
@@ -56,9 +55,9 @@ class MergeEntityFromDiff:
         self.content = overlaps
         self.name_mapping = {}  # {"oldName":"newName"}
 
-        self.output_name = self.content['network1']['name'].lower() \
-                           + "_" + self.content['network2']['name'].lower() \
-                           + "_merge"
+        self.output_name = \
+            self.content['network1']['name'].lower() + \
+            "_" + self.content['network2']['name'].lower() + "_merge"
         self.output_dir = os.path.join(os.path.dirname(__file__),
                                        "../tests/fullDiffOutput/merges/" + self.output_name + "/")
         self.errors = {}
@@ -105,7 +104,8 @@ class MergeEntityFromDiff:
                 merged_schema['description'] = merged_description
                 merged_context[field] = overlaps['network2']['contexts'][schemaName][field]
 
-                self.find_references(overlaps['network2']['schemas'][schemaName]['properties'][field])
+                self.find_references(
+                    overlaps['network2']['schemas'][schemaName]['properties'][field])
 
             self.output['schemas'][merged_schema_name] = merged_schema
             self.output['contexts'][merged_schema_name] = merged_context
@@ -160,9 +160,11 @@ class MergeEntityFromDiff:
 
         else:
             if schema_name is not None and schema_name not in self.output['schemas']:
-                self.output['schemas'][schema_name] = self.content['network2']['schemas'][schema_name]
+                self.output['schemas'][schema_name] = \
+                    self.content['network2']['schemas'][schema_name]
                 if schema_name in self.content['network2']['contexts']:
-                    self.output['contexts'][schema_name] = self.content['network2']['contexts'][schema_name]
+                    self.output['contexts'][schema_name] = \
+                        self.content['network2']['contexts'][schema_name]
                 self.find_references(self.content['network2']['schemas'][schema_name])
 
     def modify_references(self):
@@ -202,7 +204,8 @@ class MergeEntityFromDiff:
                             if '$ref' in field['items']:
                                 field_ref = field['items']['$ref'].replace('#', '')
                                 if field_ref in self.name_mapping:
-                                    self.output['schemas'][schema]['properties'][item]['items']['$ref'] = \
+                                    self.output['schemas'][
+                                        schema]['properties'][item]['items']['$ref'] = \
                                         self.name_mapping[field_ref] + '#'
 
                             for reference in look_for:
@@ -213,7 +216,8 @@ class MergeEntityFromDiff:
                                             field_ref = sub_item['$ref']
                                             if field_ref in self.name_mapping:
                                                 self.output['schemas'][schema]['properties'][
-                                                    reference]['items'][sub_item_iterator]['$ref'] = \
+                                                    reference]['items'][
+                                                    sub_item_iterator]['$ref'] = \
                                                     self.name_mapping[field_ref] + "#"
                                         sub_item_iterator += 1
 
@@ -236,7 +240,8 @@ class MergeEntityFromDiff:
             schema["id"] = base_url + "schema/" + schemaName
             schema_file_name = os.path.join(os.path.join(self.output_dir, 'schema/'), schemaName)
             context_name = schemaName.replace("_schema.json", '_context.jsonld')
-            context_file_name = os.path.join(os.path.join(self.output_dir, 'context/'), context_name)
+            context_file_name = \
+                os.path.join(os.path.join(self.output_dir, 'context/'), context_name)
 
             with open(schema_file_name, "w") as schemaFile:
                 schemaFile.write(json.dumps(schema, indent=4))
