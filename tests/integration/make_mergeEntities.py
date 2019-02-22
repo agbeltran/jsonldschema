@@ -15,8 +15,8 @@ if __name__ == '__main__':
     merged_network.save("https://w3id.org/mircat/miaca_miacme_merge/")
     print(merged_network.output)
 
-    """
-    input_file = "../tests/fullDiffOutput/MIACME_VS_MIACA.json"
+
+    input_file = os.path.join(input_dir, "MIACME_VS_MIACA.json")
     with open(input_file, "r") as input_data:
         MIACME_VS_MIACA = json.loads(input_data.read())
         input_data.close()
@@ -24,4 +24,4 @@ if __name__ == '__main__':
     merged_network = MergeEntityFromDiff(MIACME_VS_MIACA)
     merged_network.save("https://w3id.org/mircat/miacme_miaca_merge/")
     print(merged_network.output)
-    """
+

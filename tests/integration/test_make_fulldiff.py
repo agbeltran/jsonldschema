@@ -24,6 +24,7 @@ if __name__ == '__main__':
     MIACME_schema_url = "https://w3id.org/mircat/miacme/schema/miacme_schema.json"
     MIACA_schema_url = "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
     MyFlowCyt_schema_url = "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json"
+    MIACA_MIACME_merge_url = "https://w3id.org/mircat/miaca_miacme_merge/schema/miaca_schema.json"
     regex = {
         "/schema": "/context/obo",
         "_schema.json": "_obo_context.jsonld"
@@ -44,6 +45,11 @@ if __name__ == '__main__':
         "regex": regex,
         "url": MyFlowCyt_schema_url
     }
+    MIACA_MIACME_network = {
+        "name": "MIACA_MIACME_merge",
+        "regex": regex,
+        "url": MIACA_MIACME_merge_url
+    }
 
     make_diff(MIACA_network, MIACA_network)
     make_diff(MIACA_network, MIACME_network)
@@ -54,3 +60,4 @@ if __name__ == '__main__':
     make_diff(MIACME_network, MyFlowCyt_network)
     make_diff(MyFlowCyt_network, MIACME_network)
     make_diff(MyFlowCyt_network, MyFlowCyt_network)
+    make_diff(MIACA_MIACME_network, MIACA_network)
