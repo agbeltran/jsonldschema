@@ -115,31 +115,7 @@
                     },
                     "processLine": {
                         "description": "The experiment workflow",
-                        "type": "object",
-                        "properties": {
-                            "ID": {
-                                "description": "The identifier of the processLine",
-                                "type": "string"
-                            },
-                            "process": {
-                                "description": "a Treatment, Post-Treatment or DataAcquisition Step",
-                                "type": "array",
-                                "items": {
-                                    "processName": {
-                                        "description": "e.g. cell propagation, siRNA transfection",
-                                        "type": "string"
-                                    },
-                                    "currentID": {
-                                        "description": "ID of the referenced step",
-                                        "type": "string"
-                                    },
-                                    "successID": {
-                                        "description": "ID of a successor element of the process step",
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
+                        "$ref": "process_schema.json#"
                     }
                 }
             },
@@ -283,7 +259,10 @@
                     },
                     "controls": {
                         "description": "controls are relevant in data analysis to determine the robustness and the dynamic range of the assay, and to produce the list of significant hits.e.g. measuring the effect of a perturbation on the induction of apoptosis (biological process), by measuring the level of activated caspase 3 (measured effect), with a antibody specific for the activated enzyme (reporter). One project consists of experiments (>=1) which are carried out in arrays (1 to n features). A proposed definition of experiment is given in The experiment concept above.",
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
                         "minLength": 1
                     },
                     "xref": {
@@ -392,7 +371,7 @@
                         "minLength": 1
                     },
                     "refType": {
-                        "description": "Reference type, e.g. 'Identity' if this reference referes to an Identical object in the external database, or 'see-also' for additional information. Controlled by CV.",
+                        "description": "Reference type, e.g. 'Identity' if this reference refers to an Identical object in the external database, or 'see-also' for additional information. Controlled by CV.",
                         "type": "string",
                         "minLength": 1
                     },
@@ -529,44 +508,98 @@
                     },
                     "nameType": {
                         "description": "Type of vessel used,: i.e. single eppendorf tube, 96-well plate, etc.",
-                        "type": "object",
-                        "properties": {
-                            "anyOf": [
-                                {
-                                    "ontologyValue": {
-                                        "type": "string"
-                                    }
-                                },
-                                {
-                                    "ontologySource": {
-                                        "type": "string"
-                                    }
-                                },
-                                {
-                                    "comment": {
-                                        "type": "string"
-                                    }
-                                }
-                            ]
-                        }
+                        "$ref": "ontology_value_source_schema.json#"
                     },
                     "size": {
                         "description": "Size of reaction vessel, e.g. volume or surface area.",
-                        "type": "object",
-                        "properties": {
-                            "surfaceArea": {
-                                "description": "surface area in mm\u00b2",
-                                "type": "string"
-                            },
-                            "dimension": {
-                                "description": "number of wells",
-                                "type": "number"
-                            }
-                        }
+                        "$ref": "array_support_size_schema.json#"
                     },
                     "vendor": {
                         "description": "Contact details of the source of the reaction vessels, e.g. company",
                         "$ref": "vendor_schema.json"
+                    }
+                }
+            },
+            "ontology_value_source_schema.json": {
+                "id": "https://w3id.org/mircat/miaca/schema/ontology_value_source_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "MIACA ontology value source schema",
+                "description": "name type",
+                "type": "object",
+                "properties": {
+                    "@context": {
+                        "description": "The JSON-LD context",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "@id": {
+                        "description": "The JSON-LD identifier",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
+                        "description": "The JSON-LD type",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "ontologyValue": {
+                        "type": "string"
+                    },
+                    "ontologySource": {
+                        "type": "string"
+                    },
+                    "comment": {
+                        "type": "string"
+                    }
+                }
+            },
+            "array_support_size_schema.json": {
+                "id": "https://w3id.org/mircat/miaca/schema/array_support_size_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "MIACA array support size type schema",
+                "description": "Size of reaction vessel, e.g. volume or surface area.",
+                "type": "object",
+                "properties": {
+                    "@context": {
+                        "description": "The JSON-LD context",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "@id": {
+                        "description": "The JSON-LD identifier",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
+                        "description": "The JSON-LD type",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "surfaceArea": {
+                        "description": "surface area in mm\u00b2",
+                        "type": "string"
+                    },
+                    "dimension": {
+                        "description": "number of wells",
+                        "type": "number"
                     }
                 }
             },
@@ -712,95 +745,139 @@
                         "type": "string"
                     },
                     "cellSource": {
-                        "type": "object",
-                        "properties": {
-                            "provider": {
-                                "description": "e.g. ATCC",
-                                "@type": {
-                                    "type": "string",
-                                    "enum": [
-                                        "Organization",
-                                        "Person"
-                                    ]
-                                },
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
-                            "cellLineID": {
-                                "description": "Controlled vocabulary ID. Description of the cell line used. (e.g. HeLa ATTC CCL2)",
-                                "type": "string"
-                            },
-                            "species": {
-                                "description": "e.g. human",
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "ontologyValue": {
-                                        "type": "string"
-                                    },
-                                    "ontologySource": {
-                                        "type": "string"
-                                    },
-                                    "comment": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "organ": {
-                                "description": "e.g. kidney",
-                                "type": "string"
-                            },
-                            "cellType": {
-                                "description": "e.g. totipotent stem cell (CL:0000723)",
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
-                            "strain": {
-                                "description": "a variant of a cellType",
-                                "type": "string"
-                            },
-                            "tissue": {
-                                "description": "",
-                                "type": "string"
-                            },
-                            "reference": {
-                                "description": "reference to publication",
-                                "type": "string"
-                            },
-                            "source": {
-                                "description": "contact details refering to the CellLine",
-                                "$ref": "source_schema.json"
-                            }
-                        }
+                        "description": "Information about the cellLine if not ATCC",
+                        "$ref": "cell_source_schema.json#"
                     },
                     "passageNo": {
                         "description": "is the number of generation of a CellLine due to passaging and growing",
-                        "type": "array",
-                        "items": {
-                            "type": "number"
-                        }
+                        "type": "string"
                     },
                     "modifications": {
                         "description": "transgene/genetic manipulations, e.g. stably transfected, induced resistance",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                        "type": "string"
                     },
                     "validation": {
                         "description": "measures undertaken to validate cell line, e.g. DNA fingerprinting, genotyping, morphology testing",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                        "type": "string"
                     },
                     "lineQC": {
                         "description": "Mycoplasma test (Y/N) and other measures for quality control, e.g. virus testing",
+                        "type": "string"
+                    }
+                }
+            },
+            "cell_source_schema.json": {
+                "id": "https://w3id.org/mircat/miaca/schema/cell_source_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "MIACA cell source schema",
+                "description": "Cell source schema",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "@context": {
+                        "description": "The JSON-LD context",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "@id": {
+                        "description": "The JSON-LD identifier",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
+                        "description": "The JSON-LD type",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "provider": {
+                        "description": "e.g. ATCC",
+                        "type": "string"
+                    },
+                    "cellLineID": {
+                        "description": "Controlled vocabulary ID. Description of the cell line used. (e.g. HeLa ATTC CCL2)",
+                        "type": "string"
+                    },
+                    "species": {
+                        "description": "e.g. human",
+                        "$ref": "ontology_value_source_schema.json#"
+                    },
+                    "organ": {
+                        "description": "e.g. kidney",
+                        "$ref": "ontology_value_source_schema.json#"
+                    },
+                    "cellType": {
+                        "description": "e.g. totipotent stem cell (CL:0000723)",
+                        "$ref": "CL_ontology_schema.json#"
+                    },
+                    "strain": {
+                        "description": "a variant of a cellType",
+                        "$ref": "ontology_value_source_schema.json#"
+                    },
+                    "tissue": {
+                        "description": "is a collection of interconnected cells that perform a similar function within an organism",
+                        "$ref": "ontology_value_source_schema.json#"
+                    },
+                    "reference": {
+                        "description": "reference to publication",
+                        "type": "string"
+                    },
+                    "source": {
+                        "description": "contact details refering to the CellLine",
+                        "$ref": "source_schema.json"
+                    }
+                }
+            },
+            "CL_ontology_schema.json": {
+                "id": "https://w3id.org/mircat/miaca/schema/CL_ontology_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "MIACA CL ontology schema",
+                "description": "Controlled vocabulary for celltypes",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "@context": {
+                        "description": "The JSON-LD context",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "@id": {
+                        "description": "The JSON-LD identifier",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
+                        "description": "The JSON-LD type",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "ontologyID": {
+                        "description": "ID of cell.obo",
+                        "type": "string"
+                    },
+                    "ontologyName": {
+                        "description": "name",
+                        "type": "string"
+                    },
+                    "is_a": {
+                        "description": "derived from other ontologyID",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -1412,20 +1489,22 @@
                                 "description": "the name of the reagent",
                                 "type": "string"
                             },
-                            "anyOf": [
-                                {
-                                    "$ref": "#/definitions/volume"
-                                },
-                                {
-                                    "$ref": "#/definitions/volumeUnit"
-                                },
-                                {
-                                    "$ref": "#/definitions/concentration"
-                                },
-                                {
-                                    "$ref": "#/definitions/concentrationUnit"
-                                }
-                            ]
+                            "characteristics": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/volume"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/volumeUnit"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/concentration"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/concentrationUnit"
+                                    }
+                                ]
+                            }
                         }
                     },
                     "compReagentName": {
@@ -1436,20 +1515,22 @@
                                 "description": "the name of the reagent",
                                 "type": "string"
                             },
-                            "anyOf": [
-                                {
-                                    "$ref": "#/definitions/volume"
-                                },
-                                {
-                                    "$ref": "#/definitions/volumeUnit"
-                                },
-                                {
-                                    "$ref": "#/definitions/concentration"
-                                },
-                                {
-                                    "$ref": "#/definitions/concentrationUnit"
-                                }
-                            ]
+                            "characteristics": {
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/volume"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/volumeUnit"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/concentration"
+                                    },
+                                    {
+                                        "$ref": "#/definitions/concentrationUnit"
+                                    }
+                                ]
+                            }
                         }
                     },
                     "cellLine": {
@@ -1549,43 +1630,53 @@
                     },
                     "instrument": {
                         "description": "a reference to an instrument used during the data acquisition",
-                        "type": "string",
-                        "@type": {
-                            "type": "string",
-                            "enum": [
-                                "instrumentName"
-                            ]
-                        }
+                        "type": "string"
                     },
                     "settings": {
-                        "description": "a reference to an instrument used during the data acquisition",
+                        "description": "Reference to the instrument-settings",
                         "type": "object",
-                        "anyOf": [
-                            {
-                                "$ref": "#/definitions/lampEnergy"
+                        "properties": {
+                            "lampEnergy": {
+                                "description": "lampEnergy",
+                                "type": "string"
                             },
-                            {
-                                "$ref": "#/definitions/excitation"
+                            "excitation": {
+                                "description": "excitation",
+                                "type": "string"
                             },
-                            {
-                                "$ref": "#/definitions/excitationFilter"
+                            "excitationFilter": {
+                                "description": "excitationFilter",
+                                "type": "string"
                             },
-                            {
-                                "$ref": "#/definitions/emission"
+                            "emission": {
+                                "description": "emission",
+                                "type": "string"
                             },
-                            {
-                                "$ref": "#/definitions/emissionFilter"
+                            "emissionFilter": {
+                                "description": "emissionFilter",
+                                "type": "string"
                             },
-                            {
-                                "$ref": "#/definitions/measurement"
+                            "plateType": {
+                                "desciption": "plateType",
+                                "type": "string"
                             },
-                            {
-                                "$ref": "#/definitions/operationMode"
+                            "time": {
+                                "description": "time",
+                                "type": "string"
                             },
-                            {
-                                "$ref": "#/definitions/acquisitionTime"
+                            "timeUnit": {
+                                "description": "time unit, e.g. seconds",
+                                "type": "string"
+                            },
+                            "measurement": {
+                                "description": "measurement",
+                                "type": "string"
+                            },
+                            "operationMode": {
+                                "description": "operationMode",
+                                "type": "string"
                             }
-                        ]
+                        }
                     },
                     "reference": {
                         "description": "a reference to an publication about the data acquisition",
@@ -1596,49 +1687,6 @@
                                 "publicationIdentifier"
                             ]
                         }
-                    }
-                },
-                "definitions": {
-                    "lampEnergy": {
-                        "description": "",
-                        "type": "string"
-                    },
-                    "excitation": {
-                        "description": "",
-                        "type": "string"
-                    },
-                    "excitationFilter": {
-                        "description": "",
-                        "type": "string"
-                    },
-                    "emission": {
-                        "description": "",
-                        "type": "string"
-                    },
-                    "emissionFilter": {
-                        "description": "",
-                        "type": "string"
-                    },
-                    "measurement": {
-                        "description": "",
-                        "type": "string"
-                    },
-                    "operationMode": {
-                        "description": "",
-                        "type": "string"
-                    },
-                    "acquisitionTime": {
-                        "description": "",
-                        "type": "string"
-                    },
-                    "acquisitionTimeUnit": {
-                        "description": "The  time unit used to measure the duration of the data acquisition",
-                        "type": "string",
-                        "enum": [
-                            "s",
-                            "min",
-                            "hour"
-                        ]
                     }
                 }
             },
@@ -1794,6 +1842,55 @@
                         }
                     }
                 }
+            },
+            "process_schema.json": {
+                "id": "https://w3id.org/mircat/miaca/schema/process_schema.json",
+                "$schema": "http://json-schema.org/draft-04/schema",
+                "title": "MIACA process",
+                "description": "The experiment workflow.",
+                "type": "object",
+                "properties": {
+                    "@context": {
+                        "description": "The JSON-LD context",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "@id": {
+                        "description": "The JSON-LD identifier",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "@type": {
+                        "description": "The JSON-LD type",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "ID": {
+                        "description": "identifier",
+                        "type": "string"
+                    },
+                    "processName": {
+                        "description": "e.g. cell propagation, siRNA transfection",
+                        "type": "string"
+                    },
+                    "currentID": {
+                        "description": "ID of the referenced step",
+                        "type": "string"
+                    },
+                    "successorID": {
+                        "description": "ID of a successor element of the process step",
+                        "type": "string"
+                    }
+                }
             }
         },
         "contexts": {
@@ -1801,51 +1898,68 @@
                 "obo": "http://purl.obolibrary.org/obo/",
                 "Miaca": "obo:MS_1000900",
                 "@language": "en",
-                "project": "obo:"
+                "project": "obo:OBI_0000011"
             },
             "project_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
-                "ProjectDescription": "obo:OBI_0000011",
+                "Project": "obo:OBI_0000011",
                 "@language": "en",
-                "title": "obo:",
+                "dataProcessing": "obo:OBI_0200000",
+                "materialList": "obo:OBI_0000747",
+                "projectDescription": "obo:OBI_0001615",
+                "processLine": "obo:BFO_0000015",
+                "cellAssay": "obo:NCIT_C15959",
+                "arraySupport": "obo:OBI_0001865",
                 "ID": "obo:IAO_0000578",
-                "xref": "obo:",
-                "process": "obo:",
-                "effect": "obo:",
-                "controls": "obo:"
+                "application": "obo:IAO_0000311",
+                "instrument": "obo:OBI_0000968",
+                "source": "obo:NCBITaxon_9606"
             },
             "source_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
                 "sio": "http://semanticscience.org/resource/",
                 "Source": "obo:NCBITaxon_9606",
                 "@language": "en",
-                "address": "obo:IAO_0000422",
                 "ID": "obo:IAO_0000578",
-                "country": "obo:",
+                "country": "sio:SIO_000664",
                 "email": "obo:IAO_0000429",
-                "name": "obo:IAO_0000590",
                 "institution": "obo:ERO_0000066",
+                "address": "obo:IAO_0000422",
+                "name": "obo:IAO_0000590",
                 "department": "sio:SIO_000686",
                 "city": "sio:SIO_000665"
             },
+            "project_description_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "sio": "http://semanticscience.org/resource/",
+                "ProjectDescription": "obo:OBI_0001615",
+                "@language": "en",
+                "ID": "obo:IAO_0000578",
+                "effect": "obo:NCIT_C25492",
+                "xref": "sio:SIO_001171",
+                "process": "obo:BFO_0000015",
+                "title": "obo:IAO_0000590",
+                "controls": "obo:NCIT_C61299"
+            },
             "xref_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
-                "Xref": "obo:",
+                "sio": "http://semanticscience.org/resource/",
+                "Xref": "sio:SIO_001171",
                 "@language": "en",
-                "secondaryRef": "obo:",
-                "primaryRef": "obo:"
+                "secondaryRef": "obo:NCIT_C25667",
+                "primaryRef": "obo:NCIT_C25251"
             },
             "dbreference_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
-                "Dbreference": "obo:",
+                "Dbreference": "obo:NCIT_C15426",
                 "@language": "en",
                 "ID": "obo:IAO_0000578",
-                "refTypeAc": "obo:",
-                "secondary": "obo:",
-                "dbAc": "obo:",
-                "db": "obo:",
-                "refType": "obo:",
-                "version": "obo:"
+                "db": "obo:NCIT_C15426",
+                "refTypeAc": "obo:NCIT_C25396",
+                "refType": "obo:NCIT_C25284",
+                "secondary": "obo:NCIT_C25667",
+                "version": "obo:NCIT_C25714",
+                "dbAc": "obo:NCIT_C25402"
             },
             "application_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
@@ -1853,61 +1967,155 @@
                 "@language": "en",
                 "ID": "obo:IAO_0000578",
                 "pubref": "obo:NCIT_C40976",
-                "bibref": "obo:NCIT_C25474",
-                "abstract": "obo:IAO_0000315"
+                "abstract": "obo:IAO_0000315",
+                "bibref": "obo:NCIT_C25474"
+            },
+            "open_cv_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "sio": "http://semanticscience.org/resource/",
+                "OpenCv": "obo:NCIT_C44272",
+                "@language": "en",
+                "name": "obo:IAO_0000590",
+                "xref": "sio:SIO_001171"
+            },
+            "array_support_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "ArraySupport": "obo:OBI_0001865",
+                "@language": "en",
+                "ID": "obo:IAO_0000578",
+                "size": "obo:PATO_0000117",
+                "vendor": "obo:NCIT_C68608",
+                "nameType": "obo:OBI_0000967"
+            },
+            "ontology_value_source_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "OntologyValueSource": "obo:NCIT_C21270 ",
+                "@language": "en",
+                "comment": "obo:NCIT_C25393",
+                "ontologyValue": "obo:NCIT_C25712",
+                "ontologySource": "obo:NCIT_C25683"
+            },
+            "array_support_size_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "ArraySupportSize": "obo:NCIT_C25681",
+                "@language": "en",
+                "surfaceArea": "obo:GENEPIO_0001885",
+                "dimension": "obo:NCIT_C25483"
             },
             "vendor_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
                 "Vendor": "obo:NCIT_C68608",
                 "@language": "en",
-                "orderNo": "obo:",
-                "serialNo": "obo:",
-                "lotNo": "obo:",
-                "name": "obo:"
+                "orderNo": "obo:IAO_0000028 ",
+                "lotNo": "obo:IAO_0000132",
+                "serialNo": "obo:IAO_0000131",
+                "name": "obo:IAO_0000590"
+            },
+            "material_list_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "MaterialList": "obo:NCIT_C43432",
+                "@language": "en",
+                "ID": "obo:IAO_0000578",
+                "cellLine": "obo:CLO_0000031",
+                "reagent": "obo:CHEBI_33893",
+                "compositeReagent": "obo:REX_0000057"
+            },
+            "cell_line_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "CellLine": "obo:CLO_0000031",
+                "@language": "en",
+                "ID": "obo:IAO_0000578",
+                "lineQC": "obo:ERO_0001219",
+                "validation": "obo:ERO_0002025",
+                "cellLineName": "obo:IAO_0000590",
+                "modifications": "obo:CLO_0000004",
+                "passageNo": "obo:EFO_0007061",
+                "cellSource": "obo:CL_0000000"
+            },
+            "cell_source_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "CellSource": "obo:CL_0000000",
+                "@language": "en",
+                "reference": "obo:PRIDE_0000400",
+                "species": "obo:OBI_0100026",
+                "cellType": "obo:CL_0000000",
+                "source": "obo:NCIT_C25683",
+                "cellLineID": "obo:IAO_0000578",
+                "tissue": "obo:UBERON_0000479",
+                "provider": "obo:NCIT_C37900",
+                "organ": "obo:UBERON_0000062",
+                "strain": "obo:PATO_0001034"
+            },
+            "CL_ontology_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "ClOntology": "obo:NCIT_C44272",
+                "@language": "en",
+                "ontologyName": "obo:IAO_0000590",
+                "is_a": "rdf:type",
+                "ontologyID": "obo:IAO_0000578"
             },
             "reagent_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
                 "Reagent": "obo:CHEBI_33893",
                 "@language": "en",
+                "comment": "obo:NCIT_C25393",
                 "solvent": "obo:CHEBI_46787",
-                "stockConc": "obo:CHMO_0002820",
-                "array": "obo:",
-                "reagentType": "obo:",
-                "vendor": "obo:NCIT_C68608",
-                "targetSpecies": "obo:",
-                "targetID": "obo:",
-                "reagentID": "obo:",
+                "array": "obo:OBI_0001865",
                 "reagentName": "obo:IAO_0000590",
+                "virusRef": "obo:NCIT_C14283",
+                "compoundRef": "obo:MSIO_0000023",
+                "type": "obo:NCIT_C25284",
+                "stockConc": "obo:CHMO_0002820",
+                "struct": "obo:NCIT_C103240",
+                "ID": "obo:IAO_0000578",
+                "targetID": "obo:IAO_0000578",
+                "stockConcUnit": "obo:UO_0000051",
                 "libraryRef": "obo:ERO_0001194",
-                "perturbagenType": "obo:",
-                "reagentOrderNumber": "obo:",
-                "efficiency": "obo:",
-                "stockConcUnit": "obo:"
+                "targetSpecies": "obo:OBI_0100026",
+                "vendor": "obo:NCIT_C68608",
+                "efficiency": "obo:PATO_0001029"
             },
             "library_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
-                "Library": "obo:",
+                "bao": "http://www.bioassayontology.org/bao#",
+                "Library": "obo:ERO_0001194",
                 "@language": "en",
-                "type": "obo:",
-                "features": "obo:",
+                "preparationMethod": "bao:BAO_0002014",
+                "features": "obo:NCIT_C73619",
+                "name": "obo:IAO_0000590",
+                "type": "obo:NCIT_C25284",
+                "definitions": "obo:NCIT_C43680",
                 "ID": "obo:IAO_0000578",
-                "libraryElementCharacteristics": "obo:",
-                "name": "obo:",
-                "preparationMethod": "obo:",
+                "featurePosition": "obo:",
                 "vendor": "obo:NCIT_C68608",
-                "definitions": "obo:",
-                "format": "obo:",
-                "featurePosition": "obo:"
+                "format": "obo:NCIT_C42761",
+                "libraryElementCharacteristics": "obo:NCIT_C25447"
+            },
+            "composite_reagent_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "CompositeReagent": "obo:",
+                "@language": "en",
+                "compReagentName": "obo:IAO_0000590",
+                "comment": "obo:NCIT_C25393",
+                "reagentList": "obo:CHEBI_33893"
+            },
+            "reagent_list_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "ReagentList": "obo:CHEBI_33893",
+                "@language": "en",
+                "ID": "obo:IAO_0000578",
+                "reagents": "obo:CHEBI_33893"
             },
             "instrument_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
                 "Instrument": "obo:OBI_0000968",
                 "@language": "en",
-                "instrumentSpec": "obo:",
                 "ID": "obo:IAO_0000578",
                 "instrumentName": "obo:IAO_0000590",
-                "instrumentType": "obo:PRIDE_0000163",
                 "instrumentModel": "obo:MS_1000031",
+                "instrumentType": "obo:PRIDE_0000163",
+                "instrumentSpec": "obo:NCIT_C44175",
                 "vendor": "obo:NCIT_C68608"
             },
             "cell_assay_schema.json": {
@@ -1917,7 +2125,7 @@
                 "@language": "en",
                 "ID": "obo:IAO_0000578",
                 "treatment": "efo:EFO_0000727",
-                "postTreatment": "obo:",
+                "postTreatment": "efo:EFO_0000727",
                 "dataAcquisition": "obo:NCIT_C142469"
             },
             "treatment_schema.json": {
@@ -1925,33 +2133,50 @@
                 "efo": "http://www.ebi.ac.uk/efo/",
                 "Treatment": "efo:EFO_0000727",
                 "@language": "en",
-                "comment": "obo:",
-                "temperatureUnit": "obo:",
-                "ID": "obo:IAO_0000578",
+                "comment": "obo:NCIT_C25393",
+                "cellLine": "obo:CLO_0000031",
+                "co2ContentUnit": "obo:UO_0000052",
+                "temperature": "obo:PATO_0000146",
+                "co2Content": "obo:OBA_1000957",
+                "temperatureUnit": "obo:UO_0000005",
+                "humidityUnit": "obo:UO_0000052",
+                "array": "obo:EFO_0002698",
                 "conditionName": "obo:IAO_0000590",
-                "co2Content": "obo:",
-                "passageNo": "obo:",
-                "humidityUnit": "obo:",
-                "array": "obo:",
-                "cellLine": "obo:",
-                "duration": "obo:",
+                "passageNo": "obo:MSIO_0000071",
+                "ID": "obo:IAO_0000578",
                 "compReagentName": "obo:IAO_0000590",
-                "durationUnit": "obo:",
-                "temperature": "obo:",
-                "seedingDensity": "obo:",
-                "humidity": "obo:",
+                "duration": "obo:PATO_0001309",
+                "cellDensity": "obo:NCIT_C120538",
+                "durationUnit": "obo:UO_0000003",
                 "reagentName": "obo:IAO_0000590",
-                "cellDensity": "obo:",
-                "co2ContentUnit": "obo:"
+                "seedingDensity": "obo:MSIO_0000062",
+                "humidity": "obo:PATO_0015009"
             },
             "da_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
-                "Da": "obo:",
+                "Da": "obo:ERO_0000387",
                 "@language": "en",
                 "ID": "obo:IAO_0000578",
-                "settings": "obo:",
-                "reference": "obo:",
-                "instrument": "obo:OBI_0000968"
+                "reference": "obo:NCIT_C25641",
+                "instrument": "obo:OBI_0000968",
+                "settings": "obo:NCIT_C44175"
+            },
+            "data_processing_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "DataProcessing": "obo:NCIT_C43582",
+                "@language": "en",
+                "ID": "obo:IAO_0000578",
+                "phenoDesc": "obo:NCIT_C16977",
+                "rawData": "obo:NCIT_C142663"
+            },
+            "process_schema.json": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "Process": "obo:BFO_0000015",
+                "@language": "en",
+                "ID": "obo:IAO_0000578",
+                "currentID": "obo:NCIT_C25471",
+                "processName": "obo:IAO_0000590",
+                "successorID": "obo:NCIT_C53286"
             }
         }
     },
@@ -3119,7 +3344,7 @@
                 "identifierSource": "obo:OBI_0000245",
                 "conclusions": "obo:IAO_0000144",
                 "MIACMEversion": "obo:IAO_0000129",
-                "identifier": "obo:IAO_0000577",
+                "identifier": "obo:IAO_0000578",
                 "contacts": "obo:OBI_0000202",
                 "MIACMEcompliance": "obo:OBI_0500023",
                 "studies": "obo:OBI_0000066",
@@ -3139,7 +3364,7 @@
                 "affiliation": "obo:ERO_0000066",
                 "phone": "sio:SIO_001324",
                 "address": "obo:IAO_0000422",
-                "identifier": "obo:IAO_0000577",
+                "identifier": "obo:IAO_0000578",
                 "midInitials": "obo:IAO_0000590",
                 "roles": "obo:OBI_0000202",
                 "email": "obo:IAO_0000429",
@@ -3150,7 +3375,7 @@
                 "obo": "http://purl.obolibrary.org/obo/",
                 "Organization": "obo:OBI_0000245",
                 "@language": "en",
-                "identifier": "obo:IAO_0000577",
+                "identifier": "obo:IAO_0000578",
                 "identifierSource": "obo:OBI_0000245",
                 "name": "obo:IAO_0000590"
             },
@@ -3163,7 +3388,7 @@
                 "conclusions": "obo:IAO_0000144",
                 "data": "obo:IAO_0000027",
                 "MIACMEversion": "obo:IAO_0000129",
-                "identifier": "obo:IAO_0000577",
+                "identifier": "obo:IAO_0000578",
                 "dates": "obo:STATO_0000093",
                 "contacts": "obo:OBI_0000202",
                 "experimental_setup": "obo:XCO_0000000",
@@ -3188,9 +3413,9 @@
             },
             "cell_model_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
-                "CellModel": "obo:",
+                "CellModel": "obo:CL_0000000",
                 "@language": "en",
-                "specificCellDetails": "obo:",
+                "specificCellDetails": "obo:CL_0000000",
                 "organism": "obo:OBI_0100026",
                 "cellType": "obo:CL_0000000"
             },
@@ -3204,18 +3429,18 @@
             "imaging_condition_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
                 "bao": "http://www.bioassayontology.org/bao#",
-                "ImagingCondition": "obo:",
+                "ImagingCondition": "obo:FBbi_00000222",
                 "@language": "en",
-                "timeSeriesInterval": "obo:",
-                "imageSequenceType": "obo:",
+                "timeSeriesInterval": "obo:IAO_0000584",
+                "imageSequenceType": "obo:NCIT_C69268",
                 "pixels": "obo:NCIT_C48367",
-                "observationPeriod": "obo:",
-                "numericalAperture": "obo:",
-                "observationPeriodUnit": "obo:",
+                "observationPeriod": "obo:NCIT_C25616",
+                "numericalAperture": "obo:NCIT_C44175",
+                "observationPeriodUnit": "obo:UO_0000003",
                 "objectiveLens": "obo:ERO_0000453",
                 "modality": "obo:FBbi_00000222 ",
                 "channelDefinition": "bao:BAO_0000184",
-                "timeSeriesIntervalUnit": "obo:"
+                "timeSeriesIntervalUnit": "obo:UO_0000003"
             },
             "pixel_schema.json": {
                 "obo": "http://purl.obolibrary.org/obo/",
@@ -3263,7 +3488,7 @@
                 "obo": "http://purl.obolibrary.org/obo/",
                 "Publication": "obo:IAO_0000311",
                 "@language": "en",
-                "identifier": "obo:IAO_0000577",
+                "identifier": "obo:IAO_0000578",
                 "identifierSource": "obo:OBI_0000245",
                 "date": "obo:IAO_0000582",
                 "authors": "obo:IAO_0000442",
@@ -3290,10 +3515,44 @@
             ],
             {
                 "coverage": [
-                    0,
-                    0
+                    "100.0",
+                    [
+                        "1",
+                        "1"
+                    ]
                 ],
-                "overlapping fields": [],
+                "overlapping fields": [
+                    [
+                        "project",
+                        "investigation"
+                    ]
+                ],
+                "ignored fields": []
+            }
+        ],
+        [
+            [
+                "Project",
+                "Investigation"
+            ],
+            {
+                "coverage": [
+                    "20.0",
+                    [
+                        "2",
+                        "10"
+                    ]
+                ],
+                "overlapping fields": [
+                    [
+                        "ID",
+                        "identifier"
+                    ],
+                    [
+                        "projectDescription",
+                        "description"
+                    ]
+                ],
                 "ignored fields": []
             }
         ],
@@ -3304,13 +3563,17 @@
             ],
             {
                 "coverage": [
-                    "57.14",
+                    "62.5",
                     [
-                        "4",
-                        "7"
+                        "5",
+                        "8"
                     ]
                 ],
                 "overlapping fields": [
+                    [
+                        "ID",
+                        "identifier"
+                    ],
                     [
                         "name",
                         "lastName"
@@ -3342,16 +3605,67 @@
             ],
             {
                 "coverage": [
-                    "25.0",
+                    "50.0",
                     [
-                        "1",
+                        "2",
                         "4"
                     ]
                 ],
                 "overlapping fields": [
                     [
+                        "ID",
+                        "identifier"
+                    ],
+                    [
                         "pubref",
                         "publicationVenue"
+                    ]
+                ],
+                "ignored fields": []
+            }
+        ],
+        [
+            [
+                "Open_cv",
+                "Annotation"
+            ],
+            {
+                "coverage": [
+                    "0.0",
+                    [
+                        "0",
+                        "2"
+                    ]
+                ],
+                "overlapping fields": [],
+                "ignored fields": []
+            }
+        ],
+        [
+            [
+                "Cell_source",
+                "Cell_model"
+            ],
+            {
+                "coverage": [
+                    "22.22",
+                    [
+                        "2",
+                        "9"
+                    ]
+                ],
+                "overlapping fields": [
+                    [
+                        "species",
+                        "organism"
+                    ],
+                    [
+                        "cellType",
+                        "cellType"
+                    ],
+                    [
+                        "cellType",
+                        "specificCellDetails"
                     ]
                 ],
                 "ignored fields": []
@@ -3361,43 +3675,116 @@
     "labels": {
         "http://purl.obolibrary.org/obo/": null,
         "obo:MS_1000900": "minimum information standard",
-        "obo:": null,
         "obo:OBI_0000011": "planned process",
+        "obo:OBI_0200000": "data transformation",
+        "obo:OBI_0000747": "material sample",
+        "obo:OBI_0001615": "investigation description",
+        "obo:BFO_0000015": "process",
+        "obo:NCIT_C15959": "Cellular Assay",
+        "obo:OBI_0001865": "assay array",
         "obo:IAO_0000578": "centrally registered identifier",
-        "http://semanticscience.org/resource/": null,
+        "obo:IAO_0000311": "publication",
+        "obo:OBI_0000968": "device",
         "obo:NCBITaxon_9606": "Homo sapiens",
-        "obo:IAO_0000422": "postal address",
+        "http://semanticscience.org/resource/": null,
+        "sio:SIO_000664": "country",
         "obo:IAO_0000429": "email address",
-        "obo:IAO_0000590": "written name",
         "obo:ERO_0000066": null,
+        "obo:IAO_0000422": "postal address",
+        "obo:IAO_0000590": "written name",
         "sio:SIO_000686": "academic department",
         "sio:SIO_000665": "city",
-        "obo:IAO_0000311": "publication",
+        "obo:NCIT_C25492": "Effect",
+        "sio:SIO_001171": "database cross-reference",
+        "obo:NCIT_C61299": "Control",
+        "obo:NCIT_C25667": "Secondary",
+        "obo:NCIT_C25251": "Primary",
+        "obo:NCIT_C15426": "Database",
+        "obo:NCIT_C25396": "Access",
+        "obo:NCIT_C25284": "Type",
+        "obo:NCIT_C25714": "Version",
+        "obo:NCIT_C25402": "Accession Number",
         "obo:NCIT_C40976": "Journal",
-        "obo:NCIT_C25474": "Data",
         "obo:IAO_0000315": "abstract",
+        "obo:NCIT_C25474": "Data",
+        "obo:NCIT_C44272": "Annotation",
+        "obo:PATO_0000117": "size",
         "obo:NCIT_C68608": "Vendor",
+        "obo:OBI_0000967": "container",
+        "obo:NCIT_C21270 ": null,
+        "obo:NCIT_C25393": "Comment",
+        "obo:NCIT_C25712": "Value",
+        "obo:NCIT_C25683": "Source",
+        "obo:NCIT_C25681": "Size",
+        "obo:GENEPIO_0001885": "surface area",
+        "obo:NCIT_C25483": "Dimension",
+        "obo:IAO_0000028 ": null,
+        "obo:IAO_0000132": "lot number",
+        "obo:IAO_0000131": "serial number",
+        "obo:NCIT_C43432": "List",
+        "obo:CLO_0000031": "\u7ec6\u80de\u7cfb",
         "obo:CHEBI_33893": "reagent",
+        "obo:REX_0000057": "composite reaction",
+        "obo:ERO_0001219": "quality control",
+        "obo:ERO_0002025": "cell line validation report",
+        "obo:CLO_0000004": "cell line cell modification",
+        "obo:EFO_0007061": null,
+        "obo:CL_0000000": "cell",
+        "obo:PRIDE_0000400": "Reference",
+        "obo:OBI_0100026": "organism",
+        "obo:UBERON_0000479": "tissue",
+        "obo:NCIT_C37900": "Provider",
+        "obo:UBERON_0000062": "organ",
+        "obo:PATO_0001034": "strain",
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#": null,
+        "rdf:type": null,
         "obo:CHEBI_46787": "solvent",
+        "obo:NCIT_C14283": "Virus",
+        "obo:MSIO_0000023": "reference compound",
         "obo:CHMO_0002820": "concentration",
+        "obo:NCIT_C103240": "Chemical Structure",
+        "obo:UO_0000051": "concentration unit",
         "obo:ERO_0001194": "reagent library",
-        "obo:OBI_0000968": "device",
-        "obo:PRIDE_0000163": "Instrument type",
+        "obo:PATO_0001029": "efficiency",
+        "http://www.bioassayontology.org/bao#": null,
+        "bao:BAO_0002014": "preparation method",
+        "obo:NCIT_C73619": "Feature",
+        "obo:NCIT_C43680": "DEFINITION",
+        "obo:": null,
+        "obo:NCIT_C42761": "Format",
+        "obo:NCIT_C25447": "Characteristic",
         "obo:MS_1000031": "instrument model",
+        "obo:PRIDE_0000163": "Instrument type",
+        "obo:NCIT_C44175": "Parameter",
         "http://www.ebi.ac.uk/efo/": null,
-        "obo:NCIT_C15959": "Cellular Assay",
         "efo:EFO_0000727": "treatment",
         "obo:NCIT_C142469": "Data Acquisition",
+        "obo:UO_0000052": "mass density unit",
+        "obo:PATO_0000146": "temperature",
+        "obo:OBA_1000957": "carbon dioxide amount",
+        "obo:UO_0000005": "temperature unit",
+        "obo:EFO_0002698": null,
+        "obo:MSIO_0000071": "passage number",
+        "obo:PATO_0001309": "duration",
+        "obo:NCIT_C120538": "Cell Density",
+        "obo:UO_0000003": "time unit",
+        "obo:MSIO_0000062": "cell seeding density",
+        "obo:PATO_0015009": "humidity",
+        "obo:ERO_0000387": "data acquisition",
+        "obo:NCIT_C25641": "Reference",
+        "obo:NCIT_C43582": "Data Transformation",
+        "obo:NCIT_C16977": "Phenotype",
+        "obo:NCIT_C142663": "Raw Data",
+        "obo:NCIT_C25471": "Current",
+        "obo:NCIT_C53286": "Next",
         "https://schema.org/": null,
         "obo:OBI_0000245": "organization",
         "obo:IAO_0000144": "conclusion textual entity",
         "obo:IAO_0000129": "version number",
-        "obo:IAO_0000577": "centrally registered identifier symbol",
         "obo:OBI_0000202": "investigation agent role",
         "obo:OBI_0500023": "compliance rule",
         "obo:OBI_0000066": "investigation",
         "sdo:funder": null,
-        "obo:OBI_0001615": "investigation description",
         "obo:IAO_0000312": "publication about an investigation",
         "obo:STATO_0000093": "date",
         "obo:OBI_0001622": "investigation title",
@@ -3410,25 +3797,24 @@
         "obo:NCIT_C17369": "Imaging Technique",
         "obo:OMIT_0027850": "Cellular Microenvironment",
         "obo:FBcv_0003050": "assay type",
-        "obo:CL_0000000": "cell",
         "obo:BTO_0000316": "culture medium",
-        "obo:OBI_0100026": "organism",
         "obo:OBI_0000070": "assay",
-        "http://www.bioassayontology.org/bao#": null,
+        "obo:FBbi_00000222": "imaging method",
+        "obo:IAO_0000584": "time sampled measurement data set",
+        "obo:NCIT_C69268": "Image Type",
         "obo:NCIT_C48367": "Pixel",
+        "obo:NCIT_C25616": "Period",
         "obo:ERO_0000453": "objective lens",
         "obo:FBbi_00000222 ": null,
         "bao:BAO_0000184": "image-based readout",
         "obo:NCIT_C68553": "Unit",
-        "obo:NCIT_C25284": "Type",
         "obo:NCIT_C94953": "Pixel Size",
         "obo:NCIT_C42680": "Order",
+        "obo:IAO_0000577": "centrally registered identifier symbol",
         "http://edamontology.org/data_3424": null,
-        "obo:NCIT_C73619": "Feature",
         "obo:IAO_0000101": "image",
         "edam:data_3424": null,
         "obo:NCIT_C27993": "General Qualifier",
-        "obo:NCIT_C44272": "Annotation",
         "obo:NCIT_C42743": "Uniform Resource Locator",
         "obo:IAO_0000582": "time stamped measurement datum",
         "obo:IAO_0000442": "author role",
@@ -3438,15 +3824,23 @@
         "efo:EFO_0001736": "funder"
     },
     "fields_to_merge": {
-        "miacme_schema.json": {
+        "investigation_schema.json": {
             "fields": [
-                "investigation"
+                "identifierSource",
+                "title",
+                "contacts",
+                "studies",
+                "publications",
+                "acknowledges",
+                "conclusions",
+                "dates",
+                "MIACMEversion",
+                "MIACMEcompliance"
             ],
-            "merge_with": "miaca_schema.json"
+            "merge_with": "project_schema.json"
         },
         "person_schema.json": {
             "fields": [
-                "identifier",
                 "identifierSource",
                 "firstName",
                 "phone",
@@ -3457,13 +3851,19 @@
         },
         "publication_schema.json": {
             "fields": [
-                "identifier",
                 "identifierSource",
                 "title",
                 "authors",
                 "date"
             ],
             "merge_with": "application_schema.json"
+        },
+        "annotation_schema.json": {
+            "fields": [
+                "value",
+                "valueIRI"
+            ],
+            "merge_with": "open_cv_schema.json"
         }
     }
 }
