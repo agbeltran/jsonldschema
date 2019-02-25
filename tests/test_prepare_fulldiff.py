@@ -53,7 +53,7 @@ class TestCasePrepareFullDiffInput(unittest.TestCase):
         mock_request_patcher = patch('utils.prepare_fulldiff_input.requests.get')
         mock_request = mock_request_patcher.start()
 
-        schema_url = "justatest.com"
+        schema_url = "http://justatest.com"
         schema = {
             "id": "schemas/test.json#",
             "definitions": {
