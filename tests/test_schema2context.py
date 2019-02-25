@@ -54,7 +54,8 @@ base = {
 schema_url = "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
 regexes = {
     "/schema": "/context/obo",
-    "_schema": "_obo_context"
+    "_schema": "_obo_context",
+    "json" : "jsonld"
 }
 regex_error = "thisisastring"
 
@@ -441,7 +442,7 @@ class TestSchema2Context(unittest.TestCase):
     def test_generate_contexts_from_regex(self):
         context = generate_contexts_from_regex(schema_url, regexes)
         self.assertTrue(context ==
-                        "https://w3id.org/mircat/miaca/context/obo/miaca_obo_context.json")
+                        "https://w3id.org/mircat/miaca/context/obo/miaca_obo_context.jsonld")
 
         with self.assertRaises(Exception) as context:
             generate_contexts_from_regex(schema_url, regex_error)
@@ -464,9 +465,9 @@ class TestSchema2Context(unittest.TestCase):
         expected_output = [
             {
                 "miaca_schema.json": "https://w3id.org/mircat/miaca/context/obo/"
-                                     "miaca_obo_context.json",
+                                     "miaca_obo_context.jsonld",
                 "test_schema.json": "https://w3id.org/mircat/miaca/context/obo/"
-                                    "test_obo_context.json"
+                                    "test_obo_context.jsonld"
             },
             {
                 "miaca_schema.json": {
@@ -568,7 +569,7 @@ class TestSchema2Context(unittest.TestCase):
         generate_mapping.return_value = [
             {
                 "miaca_schema.json": "https://w3id.org/mircat/miaca/context/"
-                                     "obo/miaca_context_obo.json",
+                                     "obo/miaca_context_obo.jsonld",
             },
             {
                 "miaca_schema.json": {
@@ -620,15 +621,16 @@ class TestSchema2Context(unittest.TestCase):
             'networkName': 'MIACA',
             'contexts': {
                 'miaca_schema.json': 'https://w3id.org/mircat/miaca/context/'
-                                     'obo/miaca_context_obo.json'
+                                     'obo/miaca_context_obo.jsonld'
             },
             'schemas': {
                 'miaca_schema.json': 'https://w3id.org/mircat/miaca/schema/miaca_schema.json'
-            }
+            },
+            'labels': {}
         }
 
         mapping = generate_context_mapping_dict(schema_url, regexes, "MIACA")
-        self.assertTrue(mapping == expected_output)
+        self.assertTrue(json.dumps(mapping[0]) == json.dumps(expected_output))
 
 
 class MockedRequest:
