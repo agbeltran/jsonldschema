@@ -151,7 +151,7 @@ class MergeEntityFromDiffTestCase(unittest.TestCase):
         super(MergeEntityFromDiffTestCase, self).__init__(*args, **kwargs)
 
         input_file = os.path.join(
-            os.path.dirname(__file__), './fullDiffOutput/MIACA_VS_MIACME.json')
+            os.path.dirname(__file__), './fullDiffOutput/overlap_example.json')
         with open(input_file, 'r') as input_data:
             self.overlaps = json.loads(input_data.read())
             input_data.close()
@@ -159,9 +159,56 @@ class MergeEntityFromDiffTestCase(unittest.TestCase):
     def test__init_(self):
 
         expected_out_file = os.path.join(os.path.dirname(__file__),
-                                         './fullDiffOutput/merges/miaca_vs_miacme_raw_merge.json')
+                                         './fullDiffOutput/merges/example_merge.json')
         with open(expected_out_file, "r") as outputFile:
             expected_output = json.loads(outputFile.read())
 
         merger = MergeEntityFromDiff(self.overlaps)
+        print(json.dumps(merger.output, indent=4))
         self.assertTrue(merger.output == expected_output)
+
+
+class MergeGeneratorTestCase(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(MergeGeneratorTestCase, self).__init__(*args, **kwargs)
+
+        with open('fullDiffOutput/network1.json', 'r') as networkFile:
+            network1 = json.load(networkFile)
+            networkFile.close()
+
+        with open('fullDiffOutput/network2.json', 'r') as networkFile:
+            network2 = json.load(networkFile)
+            networkFile.close()
+
+        self.prepared_input = [
+            {
+                "name": network1['name'],
+                "schemas": network1['schemas'],
+                "contexts": network1['contexts']
+            },
+            {
+                "name": network2['name'],
+                "schemas": network2['schemas'],
+                "contexts": network2['contexts']
+            }
+        ]
+
+    def test_test1(self):
+        from semDiff.fullDiff import FullSemDiffMultiple
+
+        overlaps = FullSemDiffMultiple(self.prepared_input)
+        merging = {
+            "network1": overlaps.networks[0],
+            "network2": overlaps.networks[1],
+            "overlaps": overlaps.output[0][0],
+        }
+        if len(overlaps.ready_for_merge) > 0:
+            merging["fields_to_merge"] = overlaps.ready_for_merge[0]
+
+        with open("fullDiffOutput/overlap_example.json", "w") as outputFile:
+            outputFile.write(json.dumps(merging, indent=4))
+
+        merge = MergeEntityFromDiff(merging)
+        with open("fullDiffOutput/merges/example_merge.json", "w") as outputFile:
+            outputFile.write(json.dumps(merge.output, indent=4))
