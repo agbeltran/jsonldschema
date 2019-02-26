@@ -164,7 +164,6 @@ class MergeEntityFromDiffTestCase(unittest.TestCase):
             expected_output = json.loads(outputFile.read())
 
         merger = MergeEntityFromDiff(self.overlaps)
-        print(json.dumps(merger.output, indent=4))
         self.assertTrue(merger.output == expected_output)
 
 

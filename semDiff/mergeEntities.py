@@ -160,6 +160,7 @@ class MergeEntityFromDiff:
 
         else:
             if schema_name is not None and schema_name not in self.output['schemas']:
+                schema_name = schema_name.replace("#", '')
                 self.output['schemas'][schema_name] = \
                     self.content['network2']['schemas'][schema_name]
                 if schema_name in self.content['network2']['contexts']:

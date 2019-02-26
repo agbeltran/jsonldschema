@@ -1,10 +1,10 @@
 {
     "schemas": {
-        "test1_main_schema.json": {
+        "test1_main_test2_main_merged_schema.json": {
             "id": "https://example.com/test1_main_schema.json",
             "$schema": "http://json-schema.org/draft-04/schema",
-            "title": "Test case 1 for unit testing main schema",
-            "description": "JSON-schema representing the first schema of the first network used by JSONLD-SCHEMA merging unit tests.",
+            "title": "Test case 1 for unit testing main schema - Test case 1 for unit testing main schema merging",
+            "description": "Merge between the Test case 1 for unit testing main schema and the Test case 1 for unit testing main schema",
             "type": "object",
             "_provenance": {
                 "url": "http://w3id.org/mircat/miaca/provenance.json"
@@ -60,6 +60,20 @@
                     "items": {
                         "$ref": "test1_second_test2_second_merged_schema.json#"
                     }
+                },
+                "I_Need_Merge": {
+                    "description": "a test field that needs to be merged",
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "test2_second_schema.json#"
+                            },
+                            {
+                                "$ref": "third_schema.json#"
+                            }
+                        ]
+                    }
                 }
             }
         },
@@ -103,6 +117,29 @@
                 "another_field_for_merge": {
                     "description": "The project identifier",
                     "type": "string"
+                },
+                "merge_me": {
+                    "description": "please merge me",
+                    "$ref": "third_merged_schema.json#"
+                },
+                "merge_me_too": {
+                    "description": "please merge me too",
+                    "type": "array",
+                    "items": {
+                        "$ref": "third_merged_schema.json#"
+                    }
+                },
+                "object_merge": {
+                    "description": "a field merge with type object",
+                    "type": "object",
+                    "anyOf": [
+                        {
+                            "$ref": "test2_second_schema.json#"
+                        },
+                        {
+                            "$ref": "third_schema.json#"
+                        }
+                    ]
                 }
             }
         },
@@ -155,19 +192,33 @@
         }
     },
     "contexts": {
-        "test1_main_schema.json": {
+        "test2_second_schema.json": {
+            "obo": "http://purl.obolibrary.org/obo/",
+            "Test2Second": "obo:OBI_0000011",
+            "@language": "en",
+            "ID": "obo:OBI_0200000",
+            "another_field_for_merge": "obo:OBI_0200011",
+            "merge_me": "obo:OBI_0300001",
+            "merge_me_too": "obo:OBI_0303401",
+            "object_merge": "obo:IAO_0001555"
+        },
+        "test1_main_test2_main_merged_schema.json": {
             "obo": "http://purl.obolibrary.org/obo/",
             "Test1Main": "obo:MS_1000900",
             "@language": "en",
             "field_1": "obo:OBI_0000011",
-            "field_2": "obo:OBI_0000013"
+            "field_2": "obo:OBI_0000013",
+            "I_Need_Merge": "obo:OBI_0000111"
         },
         "test1_second_test2_second_merged_schema.json": {
             "obo": "http://purl.obolibrary.org/obo/",
             "Test1Second": "obo:OBI_0000011",
             "@language": "en",
             "ID": "obo:OBI_0200000",
-            "another_field_for_merge": "obo:OBI_0200011"
+            "another_field_for_merge": "obo:OBI_0200011",
+            "merge_me": "obo:OBI_0300001",
+            "merge_me_too": "obo:OBI_0303401",
+            "object_merge": "obo:IAO_0001555"
         },
         "third_merged_schema.json": {
             "obo": "http://purl.obolibrary.org/obo/",
