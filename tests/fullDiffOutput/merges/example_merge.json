@@ -192,16 +192,6 @@
         }
     },
     "contexts": {
-        "test2_second_schema.json": {
-            "obo": "http://purl.obolibrary.org/obo/",
-            "Test2Second": "obo:OBI_0000011",
-            "@language": "en",
-            "ID": "obo:OBI_0200000",
-            "another_field_for_merge": "obo:OBI_0200011",
-            "merge_me": "obo:OBI_0300001",
-            "merge_me_too": "obo:OBI_0303401",
-            "object_merge": "obo:IAO_0001555"
-        },
         "test1_main_test2_main_merged_schema.json": {
             "obo": "http://purl.obolibrary.org/obo/",
             "Test1Main": "obo:MS_1000900",
