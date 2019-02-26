@@ -167,7 +167,7 @@ class MergeEntityFromDiffTestCase(unittest.TestCase):
         print(json.dumps(merger.output, indent=4))
         self.assertTrue(merger.output == expected_output)
 
-
+"""
 class MergeGeneratorTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
@@ -212,3 +212,4 @@ class MergeGeneratorTestCase(unittest.TestCase):
         merge = MergeEntityFromDiff(merging)
         with open("fullDiffOutput/merges/example_merge.json", "w") as outputFile:
             outputFile.write(json.dumps(merge.output, indent=4))
+"""
