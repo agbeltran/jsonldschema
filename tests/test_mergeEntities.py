@@ -167,6 +167,7 @@ class MergeEntityFromDiffTestCase(unittest.TestCase):
         print(json.dumps(merger.output, indent=4))
         self.assertTrue(merger.output == expected_output)
 
+
 """
 class MergeGeneratorTestCase(unittest.TestCase):
 
