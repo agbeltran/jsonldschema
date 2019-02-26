@@ -165,13 +165,20 @@ class MergeEntityFromDiffTestCase(unittest.TestCase):
             expected_output = json.loads(outputFile.read())
 
         merger = MergeEntityFromDiff(self.overlaps)
+        print(json.dumps(merger.output, indent=4))
         print(DeepDiff(merger.output, expected_output))
         self.assertTrue(merger.output == expected_output)
 
     def test_validate_output(self):
         merger = MergeEntityFromDiff(self.overlaps)
+        merger.output['schemas']['wrong_schema.json'] = {
+            "anyOf": "justATest"
+        }
         merger.validate_output()
-        self.assertTrue(merger.errors == {})
+        self.assertTrue("wrong_schema.json" in merger.errors)
+
+    def test_save(self):
+        self.assertTrue(123 == 345)
 
 
 """
