@@ -24,9 +24,20 @@ if __name__ == '__main__':
     MIACME_schema_url = "https://w3id.org/mircat/miacme/schema/miacme_schema.json"
     MIACA_schema_url = "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
     MyFlowCyt_schema_url = "https://w3id.org/mircat/miflowcyt/schema/miflowcyt_schema.json"
+    MIACA_MIACME_merge_schema_url = \
+        "https://w3id.org/mircat/miaca_miacme_merge/schema/miaca_schema.json"
+    MIACME_MIACA_merge_schem_url = \
+        "https://w3id.org/mircat/miacme_miaca_merge/schema/miacme_schema.jso"
+
     regex = {
         "/schema": "/context/obo",
         "_schema.json": "_obo_context.jsonld"
+    }
+
+    # REGEX 2 is for merged networks
+    regex2 = {
+        "/schema": "/context/",
+        "_schema.json": "_context.jsonld"
     }
 
     MIACME_network = {
@@ -45,6 +56,23 @@ if __name__ == '__main__':
         "url": MyFlowCyt_schema_url
     }
 
-    make_diff(MIACA_network, MIACME_network)
+    MIACA_MIACME_merge_network = {
+        "name": "MIACA_MIACME_merge",
+        "regex": regex2,
+        "url": MIACA_MIACME_merge_schema_url
+    }
+
+    make_diff(MIACA_network, MIACA_network)
     make_diff(MIACA_network, MyFlowCyt_network)
+    make_diff(MIACA_network, MIACME_network)
+
+    make_diff(MIACME_network, MIACME_network)
     make_diff(MIACME_network, MyFlowCyt_network)
+    make_diff(MIACME_network, MIACA_network)
+
+    make_diff(MyFlowCyt_network, MyFlowCyt_network)
+    make_diff(MyFlowCyt_network, MIACME_network)
+    make_diff(MyFlowCyt_network, MIACA_network)
+
+    make_diff(MIACA_MIACME_merge_network, MIACA_network)
+    make_diff(MIACA_network, MIACA_MIACME_merge_network)

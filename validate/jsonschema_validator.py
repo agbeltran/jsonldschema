@@ -11,8 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def validate_schema_file(schema_file):
-    """
-    Validate a JSON schema given the schema file.
+    """ Validate a JSON schema given the schema file.
 
     :param schema_file: the string the the schema file location
     :return: True
@@ -22,8 +21,8 @@ def validate_schema_file(schema_file):
 
 
 def validate_schema(path, schema_file_name):
-    """
-    Validate a JSON schema given the folder/path and file name of the schema file.
+    """ Validate a JSON schema given the folder/path and file name of the schema file.
+
     :param path: the path to the schema directory
     :param schema_file_name: the name of the schema in that directory
     :return: True or False
@@ -40,7 +39,7 @@ def validate_schema(path, schema_file_name):
 
 
 def validate_instance(schemapath, schemafile, instancepath, instancefile, error_printing, store):
-    """Validate a JSON instance against a JSON schema.
+    """ Validate a JSON instance against a JSON schema.
 
     :param schemapath: the path to the schema directory
     :param schemafile:  the name of the schema file
@@ -66,8 +65,8 @@ def validate_instance(schemapath, schemafile, instancepath, instancefile, error_
 
 
 def validate_instance_against_schema(instance, resolver, schema):
-    """
-    Simple function to validate an instance against a schema on the fly
+    """ Simple function to validate an instance against a schema on the fly
+
     :param instance: the JSON instance to validate
     :type instance: dict
     :param resolver: the resolver object used by Drat4Validator

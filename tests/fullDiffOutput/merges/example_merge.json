@@ -1,0 +1,221 @@
+{
+    "schemas": {
+        "test1_main_test2_main_merged_schema.json": {
+            "id": "https://example.com/test1_main_schema.json",
+            "$schema": "http://json-schema.org/draft-04/schema",
+            "title": "Test case 1 for unit testing main schema - Test case 1 for unit testing main schema merging",
+            "description": "Merge between the Test case 1 for unit testing main schema and the Test case 1 for unit testing main schema",
+            "type": "object",
+            "_provenance": {
+                "url": "http://w3id.org/mircat/miaca/provenance.json"
+            },
+            "properties": {
+                "@context": {
+                    "description": "The JSON-LD context",
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "type": "array"
+                        }
+                    ]
+                },
+                "@id": {
+                    "description": "The JSON-LD identifier",
+                    "type": "string",
+                    "format": "uri"
+                },
+                "@type": {
+                    "description": "The JSON-LD type",
+                    "type": "string",
+                    "enum": [
+                        "Miaca"
+                    ]
+                },
+                "field_1": {
+                    "description": "a test field",
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "test1_second_schema.json#"
+                            },
+                            {
+                                "$ref": "test1_third_schema.json#"
+                            }
+                        ]
+                    }
+                },
+                "field_2": {
+                    "description": "another field for testing references",
+                    "$ref": "test1_second_test2_second_merged_schema.json#"
+                },
+                "field_3": {
+                    "description": "another field for testing references",
+                    "type": "array",
+                    "items": {
+                        "$ref": "test1_second_test2_second_merged_schema.json#"
+                    }
+                },
+                "I_Need_Merge": {
+                    "description": "a test field that needs to be merged",
+                    "type": "array",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "test2_second_schema.json#"
+                            },
+                            {
+                                "$ref": "third_schema.json#"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "test1_second_test2_second_merged_schema.json": {
+            "id": "https://example.com/test1_second_schema.json",
+            "$schema": "http://json-schema.org/draft-04/schema",
+            "title": "Test case 1 for unit testing second schema - Test case 1 for unit testing second schema merging",
+            "description": "Merge between the Test case 1 for unit testing second schema and the Test case 1 for unit testing second schema",
+            "type": "object",
+            "properties": {
+                "@context": {
+                    "description": "The JSON-LD context",
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "type": "array"
+                        }
+                    ]
+                },
+                "@id": {
+                    "description": "The JSON-LD identifier",
+                    "type": "string",
+                    "format": "uri"
+                },
+                "@type": {
+                    "description": "The JSON-LD type",
+                    "type": "string",
+                    "enum": [
+                        "Project"
+                    ]
+                },
+                "ID": {
+                    "description": "The project identifier",
+                    "type": "string"
+                },
+                "another_field_for_merge": {
+                    "description": "The project identifier",
+                    "type": "string"
+                },
+                "merge_me": {
+                    "description": "please merge me",
+                    "$ref": "third_merged_schema.json#"
+                },
+                "merge_me_too": {
+                    "description": "please merge me too",
+                    "type": "array",
+                    "items": {
+                        "$ref": "third_merged_schema.json#"
+                    }
+                },
+                "object_merge": {
+                    "description": "a field merge with type object",
+                    "type": "object",
+                    "anyOf": [
+                        {
+                            "$ref": "test2_second_schema.json#"
+                        },
+                        {
+                            "$ref": "third_schema.json#"
+                        }
+                    ]
+                }
+            }
+        },
+        "third_merged_schema.json": {
+            "id": "https://example.com/third_schema.json",
+            "$schema": "http://json-schema.org/draft-04/schema",
+            "title": "Test case 1 for unit testing third schema - Test case 1 for unit testing third schema merging",
+            "description": "Merge between the Test case 1 for unit testing third schema and the Test case 1 for unit testing third schema",
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "@context": {
+                    "description": "The JSON-LD context",
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "type": "array"
+                        }
+                    ]
+                },
+                "@id": {
+                    "description": "The JSON-LD identifier",
+                    "type": "string",
+                    "format": "uri"
+                },
+                "@type": {
+                    "description": "The JSON-LD type",
+                    "type": "string",
+                    "enum": [
+                        "Source"
+                    ]
+                },
+                "name": {
+                    "description": "name of the researcher working on the project.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "field_for_merge": {
+                    "description": "This field should be merged into network1",
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "contexts": {
+        "test1_main_test2_main_merged_schema.json": {
+            "obo": "http://purl.obolibrary.org/obo/",
+            "Test1Main": "obo:MS_1000900",
+            "@language": "en",
+            "field_1": "obo:OBI_0000011",
+            "field_2": "obo:OBI_0000013",
+            "I_Need_Merge": "obo:OBI_0000111"
+        },
+        "test1_second_test2_second_merged_schema.json": {
+            "obo": "http://purl.obolibrary.org/obo/",
+            "Test1Second": "obo:OBI_0000011",
+            "@language": "en",
+            "ID": "obo:OBI_0200000",
+            "another_field_for_merge": "obo:OBI_0200011",
+            "merge_me": "obo:OBI_0300001",
+            "merge_me_too": "obo:OBI_0303401",
+            "object_merge": "obo:IAO_0001555"
+        },
+        "third_merged_schema.json": {
+            "obo": "http://purl.obolibrary.org/obo/",
+            "Third": "obo:NCBITaxon_9606",
+            "@language": "en",
+            "name": "obo:IAO_0000578",
+            "field_for_merge": "obo:IAO_0000555"
+        }
+    }
+}

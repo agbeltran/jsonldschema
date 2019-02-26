@@ -85,8 +85,8 @@ def resolve_network(schema_url):
         network_schemas[get_name(schema_content['id'])] = schema_content
         resolver = RefResolver(schema_url, schema_content, store={})
         return resolve_schema_ref(schema_content, resolver, network_schemas)
-    except Exception:
-        raise Exception("There is a problem with your url or schema", schema_url)
+    except Exception as e:
+        raise Exception("There is a problem with your url or schema", schema_url, "exception ", e)
 
 
 def resolve_schema_ref(schema, resolver, network):
