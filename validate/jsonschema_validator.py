@@ -22,7 +22,7 @@ def validate_schema_file(schema_file):
 
 def validate_schema(path, schema_file_name):
     """ Validate a JSON schema given the folder/path and file name of the schema file.
-    
+
     :param path: the path to the schema directory
     :param schema_file_name: the name of the schema in that directory
     :return: True or False
