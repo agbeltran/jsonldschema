@@ -1,6 +1,7 @@
 import unittest
 import os
 import json
+from mock import patch, mock_open
 from semDiff.mergeEntities import EntityMerge, MergeEntityFromDiff
 from deepdiff import DeepDiff
 
@@ -178,7 +179,15 @@ class MergeEntityFromDiffTestCase(unittest.TestCase):
         self.assertTrue("wrong_schema.json" in merger.errors)
 
     def test_save(self):
-        self.assertTrue(123 == 345)
+        self.mock_makedir_patcher = patch('os.makedirs')
+        self.mock_makedir = self.mock_makedir_patcher.start()
+        self.mock_makedir.return_value = True
+
+        with patch('builtins.open', new_callable=mock_open()):
+            merger = MergeEntityFromDiff(self.overlaps)
+            merger.save("http://example.com/")
+
+        self.mock_makedir_patcher.stop()
 
 
 """
