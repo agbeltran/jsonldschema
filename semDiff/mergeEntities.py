@@ -6,19 +6,15 @@ from semDiff.compareEntities import EntityCoverage
 
 
 class EntityMerge:
-    """
-    A class that merge two schemas based on their semantic annotations
+    """ A class that merge two schemas based on their semantic annotations
+
+    :param schema1: dictionary of the first schema
+    :param context1: dictionary of the first context as {"@context":{}}
+    :param schema2: dictionary of the second schema
+    :param context2: dictionary of the second context as {"@context":{}}
     """
 
     def __init__(self, schema1, context1, schema2, context2):
-        """ Constructor
-
-        :param schema1: dictionary of the first schema
-        :param context1: dictionary of the first context as {"@context":{}}
-        :param schema2: dictionary of the second schema
-        :param context2: dictionary of the second context as {"@context":{}}
-        """
-
         # Initiate output as a copy of the first schema and its context
         self.output_schema = copy.deepcopy(schema1)
         self.output_context = copy.deepcopy(context1)
@@ -42,8 +38,9 @@ class EntityMerge:
 
 
 class MergeEntityFromDiff:
-    """
-    A class that merges network2 into network1 based on overlaps from FullDiff
+    """ A class that merges network2 into network1 based on overlaps from FullDiff
+
+    :param overlaps: a variable containing
     """
 
     def __init__(self, overlaps):
@@ -112,46 +109,45 @@ class MergeEntityFromDiff:
 
         self.modify_references()
 
-    def find_references(self, schema):
-        """
-        Find $ref at root, in items or in allOf, anyOf, oneOf, adds the schema/context
+    def find_references(self, field):
+        """ Find $ref at root, in items or in allOf, anyOf, oneOf, adds the schema/context
         to the merge and change reference names
 
-        :param schema: ??
-        :type schema: dict
+        :param field: a schema field
+        :type field: dict
         :return:
         """
         look_for = ["anyOf", "oneOf", "allOf"]
 
         # $ref at root
-        if '$ref' in schema:
-            sub_schema_name = schema['$ref'].replace("#", '')
+        if '$ref' in field:
+            sub_schema_name = field['$ref'].replace("#", '')
             self.add_schema(sub_schema_name)
 
         # $ref in anyOf, oneOf or allOf
         for item in look_for:
-            if item in schema:
-                for sub_item in schema[item]:
+            if item in field:
+                for sub_item in field[item]:
                     if '$ref' in sub_item:
                         sub_schema_name = sub_item['$ref'].replace("#", '')
                         self.add_schema(sub_schema_name)
 
         # $ref in items
-        if 'items' in schema:
-            if '$ref' in schema['items']:
-                sub_schema_name = schema['items']['$ref'].replace('#', '')
+        if 'items' in field:
+            if '$ref' in field['items']:
+                sub_schema_name = field['items']['$ref'].replace('#', '')
                 self.add_schema(sub_schema_name)
 
             for item in look_for:
-                if item in schema['items']:
-                    for sub_item in schema['items'][item]:
+                if item in field['items']:
+                    for sub_item in field['items'][item]:
                         if '$ref' in sub_item:
                             sub_schema_name = sub_item['$ref']
                             self.add_schema(sub_schema_name)
 
     def add_schema(self, schema_name):
-        """
-        Adds the schema/context to the merge
+        """ Adds the schema to the merge
+
         :param schema_name:
         :return:
         """
@@ -169,6 +165,10 @@ class MergeEntityFromDiff:
                 self.find_references(self.content['network2']['schemas'][schema_name])
 
     def modify_references(self):
+        """ Modify the $ref names
+
+        :return:
+        """
         look_for = ["anyOf", "oneOf", "allOf"]
         delete_schemas = []
 
@@ -226,6 +226,12 @@ class MergeEntityFromDiff:
             del self.output['schemas'][schema]
 
     def save(self, base_url):
+        """ Saves the merge to disk and replace "id" attribute with the given base url
+        + schema name
+
+        :param base_url:
+        :return:
+        """
         directory_system = [
             os.path.join(self.output_dir, 'schema'),
             os.path.join(self.output_dir, 'context')
@@ -256,6 +262,10 @@ class MergeEntityFromDiff:
                     contextFile.close()
 
     def validate_output(self):
+        """ Validates the output of the merge
+
+        :return:
+        """
 
         for schema in self.output['schemas']:
             try:
