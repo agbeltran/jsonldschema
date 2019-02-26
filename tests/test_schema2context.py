@@ -16,59 +16,62 @@ from utils.schema2context import (
 )
 
 
-person_schema = {
-    "id": "https://w3id.org/dats/schema/person_schema.json",
-    "$schema": "http://json-schema.org/draft-04/schema",
-    "title": "DATS person schema",
-    "description": "A human being",
-    "type": "object",
-    "properties": {
-        "@context": {
-            "anyOf": [
-                {
-                    "type": "string"
-                },
-                {
-                    "type": "object"
-                }
-            ]
-        },
-        "@id": {"type": "string", "format": "uri"},
-        "@type": {"type": "string", "format": "uri"},
-        "identifier": {
-            "description": "Primary identifier for the person.",
-            "$ref": "identifier_info_schema.json#"
-        },
-        "lastName": {
-            "description": "The person's family name.",
-            "type": "string"
-        }
-    },
-    "additionalProperties": False
-}
-schema_name = 'identifier_info_schema.json'
-base = {
-    "sdo": "https://schema.org",
-    "obo": "http://purl.obolibrary.org/obo/"
-}
-schema_url = "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
-regexes = {
-    "/schema": "/context/obo",
-    "_schema": "_obo_context",
-    "json": "jsonld"
-}
-regex_error = "thisisastring"
-
-
 class TestSchema2Context(unittest.TestCase):
+
+    person_schema = {
+        "id": "https://w3id.org/dats/schema/person_schema.json",
+        "$schema": "http://json-schema.org/draft-04/schema",
+        "title": "DATS person schema",
+        "description": "A human being",
+        "type": "object",
+        "properties": {
+            "@context": {
+                "anyOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "object"
+                    }
+                ]
+            },
+            "@id": {"type": "string", "format": "uri"},
+            "@type": {"type": "string", "format": "uri"},
+            "identifier": {
+                "description": "Primary identifier for the person.",
+                "$ref": "identifier_info_schema.json#"
+            },
+            "lastName": {
+                "description": "The person's family name.",
+                "type": "string"
+            }
+        },
+        "additionalProperties": False
+    }
+
+    schema_name = 'identifier_info_schema.json'
+    base = {
+        "sdo": "https://schema.org",
+        "obo": "http://purl.obolibrary.org/obo/"
+    }
+
+    schema_url = "https://w3id.org/mircat/miaca/schema/miaca_schema.json"
+
+    regexes = {
+        "/schema": "/context/obo",
+        "_schema": "_obo_context",
+        "json": "jsonld"
+    }
+
+    regex_error = "thisisastring"
 
     def __init__(self, *args, **kwargs):
         super(TestSchema2Context, self).__init__(*args, **kwargs)
 
     def test_create_context_template(self):
-        new_context = create_context_template(person_schema,
-                                              base,
-                                              process_schema_name(schema_name))
+        new_context = create_context_template(self.person_schema,
+                                              self.base,
+                                              process_schema_name(self.schema_name))
         self.assertTrue('sdo' in new_context['sdo']["@context"].keys())
         self.assertTrue(new_context['sdo']["@context"]['sdo'] == "https://schema.org")
         self.assertTrue('IdentifierInfo' in new_context['sdo']["@context"].keys())
@@ -84,7 +87,7 @@ class TestSchema2Context(unittest.TestCase):
         self.assertTrue('identifier' in new_context['obo']["@context"].keys())
 
     def test_process_schema_name(self):
-        self.assertTrue(process_schema_name(schema_name) == "IdentifierInfo")
+        self.assertTrue(process_schema_name(self.schema_name) == "IdentifierInfo")
 
     def test_create_context_template_from_url(self):
         url = "https://w3id.org/dats/schema/person_schema.json"
@@ -100,7 +103,7 @@ class TestSchema2Context(unittest.TestCase):
             "properties": {}
         }
 
-        context = create_context_template_from_url(url, base)
+        context = create_context_template_from_url(url, self.base)
 
         self.assertTrue('sdo' in context.keys())
         self.assertTrue('obo' in context.keys())
@@ -110,16 +113,16 @@ class TestSchema2Context(unittest.TestCase):
                         and 'Person' in context['obo']["@context"].keys())
 
         self.mock_request.return_value.status_code = 400
-        context_error_1 = create_context_template_from_url(url, base)
+        context_error_1 = create_context_template_from_url(url, self.base)
         self.assertTrue(isinstance(context_error_1, Exception))
 
-        context_error_2 = create_context_template_from_url("123", base)
+        context_error_2 = create_context_template_from_url("123", self.base)
         self.assertTrue(isinstance(context_error_2, Exception))
 
         self.mock_request_patcher.stop()
         self.mock_json_load_patcher.stop()
 
-        context_error_3 = create_context_template_from_url("123", base)
+        context_error_3 = create_context_template_from_url("123", self.base)
         self.assertTrue(context_error_3)
 
     def test_create_network_context(self):
@@ -239,7 +242,7 @@ class TestSchema2Context(unittest.TestCase):
             }
 
             mapping = prepare_input("https://w3id.org/dats/schema/person_schema.json", "DATS")
-            contexts = create_network_context(mapping, base)
+            contexts = create_network_context(mapping, self.base)
 
             self.mock_request_patcher.stop()
             self.mock_makedir_patcher.stop()
@@ -364,10 +367,10 @@ class TestSchema2Context(unittest.TestCase):
 
             mapping = prepare_input("https://w3id.org/dats/schema/person_schema.json", "DATS")
             output_directory = os.path.join(os.path.dirname(__file__), "../data/contexts")
-            contexts = create_and_save_contexts(mapping, base, output_directory)
+            contexts = create_and_save_contexts(mapping, self.base, output_directory)
 
             with self.assertRaises(Exception) as context:
-                create_and_save_contexts(mapping, base, [output_directory])
+                create_and_save_contexts(mapping, self.base, [output_directory])
                 self.assertTrue("Please provide a valid path to your directory"
                                 in context.exception)
 
@@ -440,12 +443,13 @@ class TestSchema2Context(unittest.TestCase):
                             in context.exception)
 
     def test_generate_contexts_from_regex(self):
-        context = generate_contexts_from_regex(schema_url, regexes)
+        context = generate_contexts_from_regex(self.schema_url, self.regexes)
         self.assertTrue(context ==
                         "https://w3id.org/mircat/miaca/context/obo/miaca_obo_context.jsonld")
 
+    def test_generate_contexts_from_regex_error(self):
         with self.assertRaises(Exception) as context:
-            generate_contexts_from_regex(schema_url, regex_error)
+            generate_contexts_from_regex(self.schema_url, self.regex_error)
             self.assertTrue("There is a problem with your input"
                             in context.exception)
 
@@ -460,7 +464,7 @@ class TestSchema2Context(unittest.TestCase):
                 "id": "https://w3id.org/mircat/miaca/schema/test_schema.json"
             }
         }
-        context_mapping = generate_context_mapping(schema_url, regexes)
+        context_mapping = generate_context_mapping(self.schema_url, self.regexes)
 
         expected_output = [
             {
@@ -482,7 +486,7 @@ class TestSchema2Context(unittest.TestCase):
         self.assertTrue(json.dumps(context_mapping) == json.dumps(expected_output))
 
         with self.assertRaises(Exception) as context:
-            generate_context_mapping(schema_url, regex_error)
+            generate_context_mapping(self.schema_url, self.regex_error)
             self.assertTrue("There is a problem with your input"
                             in context.exception)
 
@@ -620,16 +624,43 @@ class TestSchema2Context(unittest.TestCase):
         expected_output = {
             'networkName': 'MIACA',
             'contexts': {
-                'miaca_schema.json': 'https://w3id.org/mircat/miaca/context/'
-                                     'obo/miaca_context_obo.jsonld'
+                'miaca_schema.json':
+                    'https://w3id.org/mircat/miaca/context/obo/miaca_context_obo.jsonld'
             },
             'schemas': {
                 'miaca_schema.json': 'https://w3id.org/mircat/miaca/schema/miaca_schema.json'
             },
-            'labels': {}
+            'labels': {
+                "obo:OBI_0000011": "planned process"
+            }
         }
 
-        mapping = generate_context_mapping_dict(schema_url, regexes, "MIACA")
+        context = {
+           "@context": {
+                "obo": "http://purl.obolibrary.org/obo/",
+                "Miaca": "obo:MS_1000900",
+                "@language": "en",
+                "project": "obo:OBI_0000011"
+            }
+        }
+
+        return_value = {
+            "obo:OBI_0000011": "planned process"
+        }
+
+        mock_generate_labels_patcher = patch("utils.schema2context.generate_labels_from_contexts",
+                                             return_value=return_value)
+        mock_generate_labels_patcher.start()
+
+        mock_get_json_from_url_patcher = patch("utils.schema2context.get_json_from_url",
+                                               return_value=context)
+        mock_get_json_from_url_patcher.start()
+
+        mapping = generate_context_mapping_dict(self.schema_url, self.regexes, "MIACA")
+        mock_generate_labels_patcher.stop()
+        mock_get_json_from_url_patcher.stop()
+        print(json.dumps(mapping[0]))
+
         self.assertTrue(json.dumps(mapping[0]) == json.dumps(expected_output))
 
 
