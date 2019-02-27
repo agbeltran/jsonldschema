@@ -130,6 +130,9 @@ class MergeEntityFromDiff:
 
                 self.output['schemas'][new_schema_name] = new_schema
                 del self.output['schemas'][old_schema1_name + "_schema.json"]
+                self.output['contexts'][new_schema_name] = self.content['network1'][
+                    'contexts'][old_schema1_name]
+                del self.output['contexts'][old_schema1_name]
 
         self.modify_references()
 
