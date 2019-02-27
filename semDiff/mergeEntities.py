@@ -59,7 +59,11 @@ class MergeEntityFromDiff:
                                        "../tests/fullDiffOutput/merges/" + self.output_name + "/")
         self.errors = {}
 
+        self.main_schema_name = overlaps['network1']['name'].lower().replace(' ', '_').capitalize()
+
+        # Process mergings
         for schemaName in overlaps['fields_to_merge']:
+
             merging_schema_name = schemaName.replace('_schema.json', '')
             merge_with_schema_name = overlaps['fields_to_merge'][schemaName][
                 'merge_with'].replace('_schema.json', '')
@@ -106,6 +110,29 @@ class MergeEntityFromDiff:
 
             self.output['schemas'][merged_schema_name] = merged_schema
             self.output['contexts'][merged_schema_name] = merged_context
+
+        # processing main schema name
+        for overlap in self.overlaps:
+            if self.main_schema_name in overlap[0] and float(overlap[1]['coverage'][0]) >= 100:
+                old_schema1_name = self.main_schema_name.lower()
+                old_schema2_name = overlap[0][1].lower()
+
+                new_schema_name = old_schema1_name \
+                    + "_" + old_schema2_name + '_merged_schema.json'
+                new_description = "A merge between " \
+                                  + old_schema1_name + " and " \
+                                  + old_schema2_name + " schemas"
+                new_title = "Merge between " + old_schema1_name + " and " + old_schema2_name
+                new_schema = self.content['network1']['schemas'][old_schema1_name
+                                                                 + "_schema.json"]
+                new_schema['description'] = new_description
+                new_schema['title'] = new_title
+
+                self.output['schemas'][new_schema_name] = new_schema
+                del self.output['schemas'][old_schema1_name + "_schema.json"]
+                self.output['contexts'][new_schema_name] = self.content['network1'][
+                    'contexts'][old_schema1_name]
+                del self.output['contexts'][old_schema1_name]
 
         self.modify_references()
 

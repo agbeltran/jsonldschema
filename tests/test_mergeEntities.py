@@ -3,7 +3,6 @@ import os
 import json
 from mock import patch, mock_open
 from semDiff.mergeEntities import EntityMerge, MergeEntityFromDiff
-from deepdiff import DeepDiff
 
 schema_1 = {
     "id": "https://w3id.org/dats/schema/person_schema.json",
@@ -166,8 +165,6 @@ class MergeEntityFromDiffTestCase(unittest.TestCase):
             expected_output = json.loads(outputFile.read())
 
         merger = MergeEntityFromDiff(self.overlaps)
-        print(json.dumps(merger.output, indent=4))
-        print(DeepDiff(merger.output, expected_output))
         self.assertTrue(merger.output == expected_output)
 
     def test_validate_output(self):
