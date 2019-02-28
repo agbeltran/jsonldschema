@@ -3,6 +3,7 @@ import json
 import os
 from jsonschema.validators import Draft4Validator
 from semDiff.compareEntities import EntityCoverage
+from utils.schema2context import process_schema_name
 
 
 class EntityMerge:
@@ -60,6 +61,10 @@ class MergeEntityFromDiff:
         self.errors = {}
 
         self.main_schema_name = overlaps['network1']['name'].lower().replace(' ', '_').capitalize()
+
+        if "fields_to_merge" not in overlaps:
+            print("Nothing to merge for current setup")
+            exit()
 
         # Process mergings
         for schemaName in overlaps['fields_to_merge']:
@@ -130,9 +135,15 @@ class MergeEntityFromDiff:
 
                 self.output['schemas'][new_schema_name] = new_schema
                 del self.output['schemas'][old_schema1_name + "_schema.json"]
+
+                # Context
                 self.output['contexts'][new_schema_name] = self.content['network1'][
-                    'contexts'][old_schema1_name]
-                del self.output['contexts'][old_schema1_name]
+                    'contexts'][old_schema1_name + '_schema.json']
+                self.output['contexts'][new_schema_name][
+                    process_schema_name(new_schema_name)] = self.output['contexts'][
+                    old_schema1_name + '_schema.json'][process_schema_name(old_schema1_name)]
+                del self.output['contexts'][new_schema_name][process_schema_name(old_schema1_name)]
+                del self.output['contexts'][old_schema1_name + '_schema.json']
 
         self.modify_references()
 
@@ -251,6 +262,17 @@ class MergeEntityFromDiff:
 
         for schema in delete_schemas:
             del self.output['schemas'][schema]
+
+        change_names = {v: k for k, v in self.name_mapping.items()}
+        for context in self.output['contexts']:
+            new_field_base_name = process_schema_name(context)
+
+            if context in change_names:
+                old_schema_name = change_names[context]
+                old_field_base_name = process_schema_name(old_schema_name)
+                # set the new context field
+                self.output["contexts"][context][new_field_base_name] = copy.copy(self.content['network2'][
+                    "contexts"][old_schema_name][old_field_base_name])
 
     def save(self, base_url):
         """ Saves the merge to disk and replace "id" attribute with the given base url
