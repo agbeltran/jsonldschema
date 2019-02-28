@@ -27,7 +27,7 @@ if __name__ == '__main__':
     MIACA_MIACME_merge_schema_url = \
         "https://w3id.org/mircat/miaca_miacme_merge/schema/miaca_schema.json"
     MIACME_MIACA_merge_schem_url = \
-        "https://w3id.org/mircat/miacme_miaca_merge/schema/miacme_schema.jso"
+        "https://w3id.org/mircat/miacme_miaca_merge/schema/miacme_schema.json"
 
     regex = {
         "/schema": "/context/obo",
@@ -51,7 +51,7 @@ if __name__ == '__main__':
         "url": MIACA_schema_url
     }
     MyFlowCyt_network = {
-        "name": "MyFlowCyt",
+        "name": "MIFlowCyt",
         "regex": regex,
         "url": MyFlowCyt_schema_url
     }
