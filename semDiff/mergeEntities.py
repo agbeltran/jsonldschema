@@ -271,8 +271,9 @@ class MergeEntityFromDiff:
                 old_schema_name = change_names[context]
                 old_field_base_name = process_schema_name(old_schema_name)
                 # set the new context field
-                self.output["contexts"][context][new_field_base_name] = copy.copy(self.content['network2'][
-                    "contexts"][old_schema_name][old_field_base_name])
+                self.output["contexts"][context][new_field_base_name] = \
+                    copy.copy(self.content['network2'][
+                                  "contexts"][old_schema_name][old_field_base_name])
 
     def save(self, base_url):
         """ Saves the merge to disk and replace "id" attribute with the given base url
