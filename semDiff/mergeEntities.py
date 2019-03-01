@@ -189,10 +189,7 @@ class MergeEntityFromDiff:
         :param schema_name:
         :return:
         """
-        if schema_name in self.name_mapping:
-            schema_name = self.name_mapping[schema_name]
-
-        else:
+        if schema_name not in self.name_mapping:
             if schema_name is not None and schema_name not in self.output['schemas']:
                 schema_name = schema_name.replace("#", '')
                 self.output['schemas'][schema_name] = \
