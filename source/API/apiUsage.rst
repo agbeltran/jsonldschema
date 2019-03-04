@@ -1,6 +1,6 @@
-===========================
+============================
 Using the JSONSCHEMA-LD API
-===========================
+============================
+Using the API:
 
-
-Hello
+.. literalinclude:: /../examples/api.py

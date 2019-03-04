@@ -3,7 +3,7 @@ import json
 import os
 from cedar import schema2cedar, client
 
-# get your api key, folder_id and user_is from the configuratio file:
+# get your api key, folder_id and user_id from the configuration file:
 configfile_path = os.path.join(os.path.dirname(__file__), "../../tests/test_config.json")
 if not (os.path.exists(configfile_path)):
     print("Please, create the config file.")
@@ -16,6 +16,7 @@ folder_id = config_json["folder_id"]
 user_id = config_json["user_id"]
 
 # Create your schema or load it from a file
+# Note that all sub-schemas will be instantiated and uploaded automatically as TemplateElements
 schema = {
           "id": "https://example.com/test1_main_schema.json",
           "$schema": "http://json-schema.org/draft-04/schema",
@@ -68,3 +69,11 @@ validation_response, validation_message = client.validate_template(
     "production",
     template.production_api_key,
     json.loads(output_schema))
+
+# push to server
+response = client.create_template(
+                "production",
+                template.production_api_key,
+                template.folder_id,
+                output_schema)
+print(response.json())

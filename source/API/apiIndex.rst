@@ -1,9 +1,15 @@
 ==============================
 using the API client
 ==============================
+
+
+Code documentation
+-------------------------------------------
 .. toctree::
-
-    apiClient
-    apiUsage
+   apiClient
 
 
+Code example
+-------------------------------------------
+.. toctree::
+   apiUsage
