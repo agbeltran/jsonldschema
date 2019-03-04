@@ -6,10 +6,11 @@ Compare set of JSON-Schemas
 Code documentation
 -------------------------------------------
 .. toctree::
-   semanticComparator
+    semanticComparator
 
 
 code example
 -------------------------------------------
 .. toctree::
-   semDiffUsage
+    semDiffUsage
+    merger
