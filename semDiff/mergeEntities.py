@@ -77,8 +77,10 @@ class MergeEntityFromDiff:
                 merged_schema_name = merge_with_schema_name + "_" \
                                                             + merging_schema_name \
                                                             + "_merged_schema.json"
+                merged_type = merge_with_schema_name.capitalize() + merging_schema_name.capitalize()
             else:
                 merged_schema_name = merge_with_schema_name + "_merged_schema.json"
+                merged_type = merge_with_schema_name.capitalize() + 'Merged'
 
             self.name_mapping[overlaps['fields_to_merge'][schemaName][
                 'merge_with']] = merged_schema_name
@@ -113,6 +115,14 @@ class MergeEntityFromDiff:
                 self.find_references(
                     overlaps['network2']['schemas'][schemaName]['properties'][field])
 
+            if 'enum' in merged_schema['properties']['@type']:
+                type_iterator = 0
+                for schema_type in merged_schema['properties']['@type']['enum']:
+                    if schema_type == merge_with_schema_name.capitalize():
+                        del merged_schema['properties']['@type']['enum'][type_iterator]
+                        merged_schema['properties']['@type']['enum'].append(merged_type)
+                        type_iterator += 1
+
             self.output['schemas'][merged_schema_name] = merged_schema
             self.output['contexts'][merged_schema_name] = merged_context
 
@@ -132,6 +142,14 @@ class MergeEntityFromDiff:
                                                                  + "_schema.json"]
                 new_schema['description'] = new_description
                 new_schema['title'] = new_title
+
+                if 'enum' in new_schema['properties']['@type']:
+                    print()
+                    type_iterator = 0
+                    for schema_type in new_schema['properties']['@type']['enum']:
+                        if schema_type == self.main_schema_name:
+                            del new_schema['properties']['@type']['enum'][type_iterator]
+                            new_schema['properties']['@type']['enum'].append(process_schema_name(new_schema_name))
 
                 self.output['schemas'][new_schema_name] = new_schema
                 del self.output['schemas'][old_schema1_name + "_schema.json"]
