@@ -77,7 +77,8 @@ class MergeEntityFromDiff:
                 merged_schema_name = merge_with_schema_name + "_" \
                                                             + merging_schema_name \
                                                             + "_merged_schema.json"
-                merged_type = merge_with_schema_name.capitalize() + merging_schema_name.capitalize()
+                merged_type = \
+                    merge_with_schema_name.capitalize() + merging_schema_name.capitalize()
             else:
                 merged_schema_name = merge_with_schema_name + "_merged_schema.json"
                 merged_type = merge_with_schema_name.capitalize() + 'Merged'
@@ -149,7 +150,8 @@ class MergeEntityFromDiff:
                     for schema_type in new_schema['properties']['@type']['enum']:
                         if schema_type == self.main_schema_name:
                             del new_schema['properties']['@type']['enum'][type_iterator]
-                            new_schema['properties']['@type']['enum'].append(process_schema_name(new_schema_name))
+                            new_schema['properties']['@type']['enum'].\
+                                append(process_schema_name(new_schema_name))
 
                 self.output['schemas'][new_schema_name] = new_schema
                 del self.output['schemas'][old_schema1_name + "_schema.json"]
