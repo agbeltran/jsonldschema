@@ -1,7 +1,16 @@
 CEDAR utilities
 ===============
 
-The CEDAR client will provide all the links the the CEDAR API functionnalities such as get, post and updates on templates,
+
+The CEDAR utilities main function is to allow a user to transform a JSON-Schema draft 4 network into a CEDAR schema
+network.
+
+.. literalinclude:: /../examples/cedar.py
+
+---------------
+
+
+The CEDAR client will provide all the links the the CEDAR API functionality such as get, post and updates on templates,
 template elements, folders, instances ect ...
 
 
