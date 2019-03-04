@@ -238,11 +238,12 @@ def generate_context_mapping(schema_url, regex_input):
 
 def generate_labels_from_contexts(contexts, labels):
     """  Generate labels from given context using OLS
+
     :param contexts: a dictionary whose key is the schema name and whose value
     is the content of the context file to process (with or without @context)
     :type contexts: dict
     :param labels: pre-existing labels to avoid triggering twice the same query
-     (first iteration pass an empty dictionary)
+    (first iteration pass an empty dictionary)
     :type labels: dict
     :return: labels
     """
