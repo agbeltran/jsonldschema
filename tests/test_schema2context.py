@@ -502,7 +502,6 @@ class TestSchema2Context(unittest.TestCase):
             MockedRequest("planned process", 200),
             MockedRequest("Raw Image", 200),
             MockErrorRequest()
-
         ]
 
         mock_request_patcher = patch("utils.schema2context.requests.get", side_effect=side_effect)
@@ -648,12 +647,17 @@ class TestSchema2Context(unittest.TestCase):
             "obo:OBI_0000011": "planned process"
         }
 
+        side_effect = [
+            context,
+            Exception("No json could be found at given URL")
+        ]
+
         mock_generate_labels_patcher = patch("utils.schema2context.generate_labels_from_contexts",
                                              return_value=return_value)
         mock_generate_labels_patcher.start()
 
         mock_get_json_from_url_patcher = patch("utils.schema2context.get_json_from_url",
-                                               return_value=context)
+                                               side_effect=side_effect)
         mock_get_json_from_url_patcher.start()
 
         mapping = generate_context_mapping_dict(self.schema_url, self.regexes, "MIACA")
@@ -662,6 +666,11 @@ class TestSchema2Context(unittest.TestCase):
         print(json.dumps(mapping[0]))
 
         self.assertTrue(json.dumps(mapping[0]) == json.dumps(expected_output))
+
+        with self.assertRaises(Exception) as result:
+            generate_context_mapping_dict(self.schema_url, self.regexes, "MIACA")
+            self.assertTrue("No json could be found at given URL"
+                            in result.exception)
 
 
 class MockedRequest:
