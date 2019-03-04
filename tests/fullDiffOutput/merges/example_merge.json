@@ -198,7 +198,8 @@
             "@language": "en",
             "field_1": "obo:OBI_0000011",
             "field_2": "obo:OBI_0000013",
-            "I_Need_Merge": "obo:OBI_0000111"
+            "I_Need_Merge": "obo:OBI_0000111",
+            "Test1MainTest2MainMerged": "obo:MS_1000900"
         },
         "test1_second_test2_second_merged_schema.json": {
             "obo": "http://purl.obolibrary.org/obo/",
@@ -208,14 +209,16 @@
             "another_field_for_merge": "obo:OBI_0200011",
             "merge_me": "obo:OBI_0300001",
             "merge_me_too": "obo:OBI_0303401",
-            "object_merge": "obo:IAO_0001555"
+            "object_merge": "obo:IAO_0001555",
+            "Test1SecondTest2SecondMerged": "obo:OBI_0000011"
         },
         "third_merged_schema.json": {
             "obo": "http://purl.obolibrary.org/obo/",
             "Third": "obo:NCBITaxon_9606",
             "@language": "en",
             "name": "obo:IAO_0000578",
-            "field_for_merge": "obo:IAO_0000555"
+            "field_for_merge": "obo:IAO_0000555",
+            "ThirdMerged": "obo:NCBITaxon_9606"
         }
     }
 }

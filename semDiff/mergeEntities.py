@@ -3,6 +3,7 @@ import json
 import os
 from jsonschema.validators import Draft4Validator
 from semDiff.compareEntities import EntityCoverage
+from utils.schema2context import process_schema_name
 
 
 class EntityMerge:
@@ -61,6 +62,10 @@ class MergeEntityFromDiff:
 
         self.main_schema_name = overlaps['network1']['name'].lower().replace(' ', '_').capitalize()
 
+        if "fields_to_merge" not in overlaps:
+            print("Nothing to merge for current setup")
+            exit()
+
         # Process mergings
         for schemaName in overlaps['fields_to_merge']:
 
@@ -72,8 +77,11 @@ class MergeEntityFromDiff:
                 merged_schema_name = merge_with_schema_name + "_" \
                                                             + merging_schema_name \
                                                             + "_merged_schema.json"
+                merged_type = \
+                    merge_with_schema_name.capitalize() + merging_schema_name.capitalize()
             else:
                 merged_schema_name = merge_with_schema_name + "_merged_schema.json"
+                merged_type = merge_with_schema_name.capitalize() + 'Merged'
 
             self.name_mapping[overlaps['fields_to_merge'][schemaName][
                 'merge_with']] = merged_schema_name
@@ -108,6 +116,14 @@ class MergeEntityFromDiff:
                 self.find_references(
                     overlaps['network2']['schemas'][schemaName]['properties'][field])
 
+            if 'enum' in merged_schema['properties']['@type']:
+                type_iterator = 0
+                for schema_type in merged_schema['properties']['@type']['enum']:
+                    if schema_type == merge_with_schema_name.capitalize():
+                        del merged_schema['properties']['@type']['enum'][type_iterator]
+                        merged_schema['properties']['@type']['enum'].append(merged_type)
+                        type_iterator += 1
+
             self.output['schemas'][merged_schema_name] = merged_schema
             self.output['contexts'][merged_schema_name] = merged_context
 
@@ -128,11 +144,26 @@ class MergeEntityFromDiff:
                 new_schema['description'] = new_description
                 new_schema['title'] = new_title
 
+                if 'enum' in new_schema['properties']['@type']:
+                    print()
+                    type_iterator = 0
+                    for schema_type in new_schema['properties']['@type']['enum']:
+                        if schema_type == self.main_schema_name:
+                            del new_schema['properties']['@type']['enum'][type_iterator]
+                            new_schema['properties']['@type']['enum'].\
+                                append(process_schema_name(new_schema_name))
+
                 self.output['schemas'][new_schema_name] = new_schema
                 del self.output['schemas'][old_schema1_name + "_schema.json"]
+
+                # Context
                 self.output['contexts'][new_schema_name] = self.content['network1'][
-                    'contexts'][old_schema1_name]
-                del self.output['contexts'][old_schema1_name]
+                    'contexts'][old_schema1_name + '_schema.json']
+                self.output['contexts'][new_schema_name][
+                    process_schema_name(new_schema_name)] = self.output['contexts'][
+                    old_schema1_name + '_schema.json'][process_schema_name(old_schema1_name)]
+                del self.output['contexts'][new_schema_name][process_schema_name(old_schema1_name)]
+                del self.output['contexts'][old_schema1_name + '_schema.json']
 
         self.modify_references()
 
@@ -178,10 +209,7 @@ class MergeEntityFromDiff:
         :param schema_name:
         :return:
         """
-        if schema_name in self.name_mapping:
-            schema_name = self.name_mapping[schema_name]
-
-        else:
+        if schema_name not in self.name_mapping:
             if schema_name is not None and schema_name not in self.output['schemas']:
                 schema_name = schema_name.replace("#", '')
                 self.output['schemas'][schema_name] = \
@@ -251,6 +279,18 @@ class MergeEntityFromDiff:
 
         for schema in delete_schemas:
             del self.output['schemas'][schema]
+
+        change_names = {v: k for k, v in self.name_mapping.items()}
+        for context in self.output['contexts']:
+            new_field_base_name = process_schema_name(context)
+
+            if context in change_names:
+                old_schema_name = change_names[context]
+                old_field_base_name = process_schema_name(old_schema_name)
+                # set the new context field
+                self.output["contexts"][context][new_field_base_name] = \
+                    copy.copy(self.content['network2'][
+                                  "contexts"][old_schema_name][old_field_base_name])
 
     def save(self, base_url):
         """ Saves the merge to disk and replace "id" attribute with the given base url
