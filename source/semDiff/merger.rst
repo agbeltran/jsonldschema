@@ -1,5 +1,6 @@
-Merge set of schemas
-=========================
+===================================
+Code usage to merge set of schemas
+===================================
 
 How to use classes to merge set of json schemas
 

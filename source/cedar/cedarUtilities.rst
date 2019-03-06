@@ -1,5 +1,6 @@
-CEDAR utilities
-===============
+=============================================
+Code documentation for the CEDAR utilities
+=============================================
 
 
 The CEDAR client will provide all the links the the CEDAR API functionality such as get, post and updates on templates,

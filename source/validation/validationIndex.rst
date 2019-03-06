@@ -1,8 +1,9 @@
-========================================
-Validating schemas and set of schemas
-========================================
+=======================================================
+Code Usage for Validating schemas and set of schemas
+=======================================================
 .. toctree::
 
-   validationUtilities
+    validationUtilities
+    validationUsage
 
 
