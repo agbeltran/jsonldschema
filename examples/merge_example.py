@@ -1,5 +1,5 @@
-# In order to merge to set of schemas, you first need to get the output of the semantic diff comparators
-# You can then pass that result as an input to the merge class.
+# In order to merge to set of schemas, you first need to get the output of the semantic
+# diff comparators. You can then pass that result as an input to the merge class.
 
 
 def merge_sets():

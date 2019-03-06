@@ -3,8 +3,8 @@
 
 
 # First case scenario, your networks are not resolved
-# You will need to provide a dictionary of regex term/switch that will help translate the schemas IDs
-# into contexts IDs
+# You will need to provide a dictionary of regex term/switch that will help
+# translate the schemas IDs into contexts IDs
 def compare_unresolved_network():
 
     # import the corresponding class
