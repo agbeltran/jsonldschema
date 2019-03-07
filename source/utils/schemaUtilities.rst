@@ -1,5 +1,5 @@
-Utilities for preparing functions input
-=======================================
+Utilities for preparing the input for the different functions
+=============================================================
 
 .. automodule:: schema2context
     :members:

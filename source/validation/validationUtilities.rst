@@ -1,5 +1,5 @@
 ==========================================================
-Code Documentation to validate JSON-schemas and instances
+How to validate JSON-schemas and instances: code documentation
 ==========================================================
 
 .. automodule:: jsonschema_validator

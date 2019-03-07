@@ -1,5 +1,5 @@
 ========================================================
-Code Usage for using the MiFlowCyt Tool
+Using the MiFlowCyt Tool: code examples
 ========================================================
 Using the API:
 

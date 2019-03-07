@@ -1,5 +1,5 @@
 ===============================================
-Code usage to compare set of JSON-Schemas
+How to compare a set of JSON-Schemas
 ===============================================
 
 

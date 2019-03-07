@@ -1,5 +1,5 @@
 =======================================================
-Code Usage for Validating schemas and set of schemas
+Validating a single schema and a set of schemas:
 =======================================================
 .. toctree::
 

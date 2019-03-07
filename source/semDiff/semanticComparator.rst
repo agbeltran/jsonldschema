@@ -1,5 +1,5 @@
 ====================================================================
-Code documentation for comparing and merging set of JSON-LD-schemas
+How to compare and merge set of JSON-LD-schemas: code documentation
 ====================================================================
 
 .. automodule:: compareEntities
