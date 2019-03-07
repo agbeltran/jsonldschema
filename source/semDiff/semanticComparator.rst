@@ -1,5 +1,6 @@
-Utilities for semantic comparison of JSON-LD-schemas
-====================================================
+====================================================================
+How to compare and merge set of JSON-LD-schemas: code documentation
+====================================================================
 
 .. automodule:: compareEntities
     :members:

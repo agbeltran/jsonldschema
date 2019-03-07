@@ -5,16 +5,15 @@
 
 Welcome to jsonldschema's documentation!
 ========================================
-
 .. toctree::
-   :maxdepth: 2
-   :numbered:
+      :titlesonly:
+      :numbered:
 
-   semanticComparator
-   schemaUtilities
-   validationUtilities
-   cedarUtilities
-   apiClient
+      semDiff/semDiffIndex
+      cedar/cedarIndex
+      utils/utilsIndex
+      validation/validationIndex
+      API/apiIndex
 
 
 Indices and tables
