@@ -1,8 +1,10 @@
 =============================================
-Code Documentation for API CLIENT
+API client: code documentation
 =============================================
 
-The API client provides most of the library functionality through a restful service
+The JSONLDschema package offers and API client that provides most of the library functionality through a RESTFul service.
+
+Here we include the documentation of each of the Python classes and properties for the API client.
 
 
 .. automodule:: client

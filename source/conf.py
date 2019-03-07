@@ -24,8 +24,8 @@ sys.path.insert(0, os.path.abspath('./../api_client'))
 # -- Project information -----------------------------------------------------
 
 project = u'jsonldschema'
-copyright = u'2018, Dominique Batista, OERC'
-author = u'Dominique Batista'
+copyright = u'2019, Alejandra Gonzalez-Beltran & Dominique Batista'
+author = u'Alejandra Gonzalez-Beltran & Dominique Batista'
 
 # The short X.Y version
 version = u''
