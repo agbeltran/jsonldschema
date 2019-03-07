@@ -19,7 +19,7 @@ This python package can be used in combination with some visualisation tools:
    * the source code is available on GitHub: https://github.com/FAIRsharing/JSONschema-compare-and-view
    * the tool is hosted on GitHub and can be seen here: https://fairsharing.github.io/JSONschema-compare-and-view/
 
-We have used this approach in several metadata models, such as the Data Tag Suite (DATS) and a
+We have used this approach in several metadata models, such as the `Data Tag Suite (DATS) <https://github.com/datatagsuite/README>`_ model for data discovery and `multiple metadata models <https://github.com/fairsharing/mircat>`_ generated from Minimum Information Requirements.
 
 .. toctree::
       :titlesonly:
