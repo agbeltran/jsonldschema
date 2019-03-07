@@ -9,7 +9,7 @@ Code documentation
     semanticComparator
 
 
-code example
+Code example
 -------------------------------------------
 .. toctree::
     semDiffUsage
