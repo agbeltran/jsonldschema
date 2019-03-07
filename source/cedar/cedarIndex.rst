@@ -1,5 +1,5 @@
 ==============================
-CEDAR TEMPLATING TOOLS
+CEDAR Templating Tools
 ==============================
 
 

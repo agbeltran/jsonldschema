@@ -1,6 +1,6 @@
-========================================
-Utility for preparing input et contexts
-========================================
+==================================================
+Utility for preparing function inputs and contexts
+==================================================
 .. toctree::
 
    schemaUtilities
