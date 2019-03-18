@@ -3,10 +3,9 @@ import copy
 
 
 class NetworkCoverage:
-    """
-    This class compute the coverage of entities (schemas) among two networks (set of schemas) by
-    comparing the semantic
-    base type of each schema.
+    """  This class compute the coverage of entities (schemas) among two networks (set of schemas) by
+    comparing the semantic base type of each schema.
+
     :param networks_array: an array containing the two networks to compare
     """
 
@@ -20,20 +19,27 @@ class NetworkCoverage:
 
     @staticmethod
     def __process_network(network):
-        """
-        Private method that retrieve the base type of each entity in a given network for later
-        comparison
+        """ Private method that retrieve the base type of each entity in a given network
+        for later comparison
+
         :param network: a dictionary of schemas and their context (the network itself)
         :return network_output: a dictionary of schemas and their base type retrieved from the
-        context
+            context
         """
         network_output = {}
         for schema in network:
-            schema_name = schema.replace("_schema.json", "").capitalize()
+            schema_name = copy.deepcopy(schema).replace("_schema.json", "").capitalize()
+            schema_name_in_context = copy.deepcopy(schema_name)
+
+            if "_" in schema_name:
+                schema_name_in_context = schema_name_in_context.replace("_", " ")\
+                    .title().replace(" ", "")
+
             schema_type = None
             schema_context = network[schema]
-            if schema_name in schema_context.keys():
-                schema_type = schema_context[schema_name]
+
+            if schema_name_in_context in schema_context.keys():
+                schema_type = schema_context[schema_name_in_context]
 
             schema_type_base_url = urlparse(schema_type).scheme
             if schema_type is not None and schema_type_base_url not in ('http', 'https'):
@@ -46,13 +52,12 @@ class NetworkCoverage:
 
     @staticmethod
     def __compute_coverage(network_a, network_b):
-        """
-        Private method that compute the coverage between two networks
+        """ Private method that compute the coverage between two networks
+
         :param network_a: the output of __process_network for the first network
         :param network_b: the output of __process_network for the second network
         :return output: an array containing the twined entities, the number of processed entities
-        and the number of
-        twins between both networks
+            and the number of twins between both networks
         """
         coverage = {}
         total_items = 0
@@ -65,12 +70,18 @@ class NetworkCoverage:
             context_type = network_a[schema]
             matched = False
 
+            subtype = "true"
+            if context_type is not None \
+                    and ":" in context_type \
+                    and urlparse(context_type).scheme not in ["http", "https"]:
+                subtype = context_type.split(":")[1]
+
             if context_type is not None:
 
                 for schema2 in list(network__b.keys()):
                     context_type2 = network_b[schema2]
 
-                    if context_type == context_type2:
+                    if context_type == context_type2 and subtype != "":
                         matched = True
                         del network__b[schema2]
                         if schema in coverage.keys():

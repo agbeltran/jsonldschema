@@ -90,9 +90,15 @@ class SemDiffTestCase(unittest.TestCase):
         self.assertTrue(coverage[0].absolute_coverage[1] == "4")
         self.assertTrue(len(coverage[1]) == 2)
 
-        """
-        self.assertTrue(coverage[1][0].first_field == 'identifier')
-        self.assertTrue(coverage[1][0].second_field == 'identifier')
-        self.assertTrue(coverage[1][1].first_field == 'lastName')
-        self.assertTrue(coverage[1][1].second_field == 'familyName')
-        """
+        schema_input_3 = {
+            "schema": self.schema_1,
+            "context": {
+                "@context": {}
+            }
+        }
+        comparator3 = self.semantic_comparator. \
+            _EntityCoverage__build_context_dict(schema_input_3)
+        coverage3 = self.semantic_comparator. \
+            _EntityCoverage__compute_context_coverage(comparator3[0], comparator1[0])
+        self.assertTrue(coverage3[0][0] == 0)
+        self.assertTrue(coverage3[0][1] == 0)

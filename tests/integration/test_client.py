@@ -9,9 +9,9 @@ class CEDARClientTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(CEDARClientTestCase, self).__init__(*args, **kwargs)
 
-        configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json")
+        configfile_path = os.path.join(os.path.dirname(__file__), "../test_config.json")
         if not (os.path.exists(configfile_path)):
-            configfile_path = os.path.join(os.path.dirname(__file__), "test_config.json.sample")
+            configfile_path = os.path.join(os.path.dirname(__file__), "../test_config.json.sample")
         with open(configfile_path) as config_data_file:
             config_json = json.load(config_data_file)
             self.validate_config(config_json)
@@ -118,9 +118,13 @@ class CEDARClientTestCase(unittest.TestCase):
         self.assertTrue(response.status_code == 201)
         self.assertTrue(response.text is not None)
 
-    """
-    Common method for the tests validating the elements
-    """
+    def test_delete_elements(self):
+        responses = self.client.delete_elements("production",
+                                                self.production_api_key,
+                                                self.folder_id)
+        for response in responses:
+            self.assertTrue(response.status_code == 204)
+
     def validate_element(self, cedar_schema_json_filename, endpoint, api_key):
         cedar_schema_path = os.path.join(self._data_dir, cedar_schema_json_filename)
         with open(cedar_schema_path, 'r') as template:
@@ -147,16 +151,3 @@ class CEDARClientTestCase(unittest.TestCase):
 
     def test_validate_element_vendor(self):
         self.validate_element("vendor_cedar_schema.json", "production", self.production_api_key)
-
-    """
-    def test_validate_element_sample_staging(self):
-        self.validate_element("sample_cedar_schema.json", "staging", self.staging_api_key)
-
-    def test_validate_element_vendor_staging(self):
-        self.validate_element("vendor_cedar_schema.json", "staging", self.staging_api_key)
-
-    def test_get_users_staging(self):
-           response = self.client.get_users("staging", self.staging_api_key)
-           self.assertTrue(response.status_code == 200)
-           self.assertTrue(response.text != None)
-    """

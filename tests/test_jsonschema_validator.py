@@ -47,4 +47,5 @@ class TestJSONschemaValidator(unittest.TestCase):
                                                                  "sample_data.json",
                                                                  1,
                                                                  {})
-        self.assertTrue(errors.__len__() == 0)
+        print(errors)
+        self.assertTrue(errors is None)
